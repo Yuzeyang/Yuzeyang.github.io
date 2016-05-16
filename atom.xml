@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-05-16T04:57:46.000Z</updated>
+  <updated>2016-05-12T08:45:07.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -14,49 +14,6 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>TextField字数限制处理</title>
-    <link href="http://yuzeyang.github.io/2016/05/07/TextField_count_limit_handle/"/>
-    <id>http://yuzeyang.github.io/2016/05/07/TextField_count_limit_handle/</id>
-    <published>2016-05-07T14:40:44.000Z</published>
-    <updated>2016-05-16T04:57:46.000Z</updated>
-    
-    <content type="html">&lt;p&gt;在第三方键盘加入之后，对于字数限制的处理不再像之前那么简单了&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;p&gt;纯数字、字符输入（不包括粘贴）这样的字数限制还是相对比较简单的，你可以用两种方法进行处理&lt;/p&gt;
-&lt;p&gt;第一种是&lt;strong&gt;textfield的delegate&lt;/strong&gt;实现：&lt;/p&gt;
-&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string &amp;#123;&amp;#10;    if (range.length + range.location &amp;#62; textField.text.length) &amp;#123;&amp;#10;        return NO;&amp;#10;    &amp;#125;&amp;#10;    NSUInteger newLength = textField.text.length + string.length - range.length;&amp;#10;    return newLength&amp;#60;=kMaxCharacterCount;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;第二种&lt;strong&gt;是注册一个通知&lt;/strong&gt;，在textfield编辑时做处理：&lt;/p&gt;
-&lt;p&gt;首先你在viewDidLoad中注册通知&lt;/p&gt;
-&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textFiledEditChanged:) name:UITextFieldTextDidChangeNotification object:self.shopName];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;再实现通知里面的方法，在超过最大值时，取最大的字数&lt;/p&gt;
-&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;if (self.shopName.text.length &amp;#62; kMaxCharacterCount) &amp;#123;&amp;#10;        self.shopName.text = [self.shopName.text substringToIndex:kMaxCharacterCount];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;但是，在中文的限制上面情况就复杂了，当时在调试的时候，因为使用的是第三方键盘，所以当时没有发现问题，但是在使用系统键盘的时候，一下子就蛋疼了….&lt;/p&gt;
-&lt;p&gt;下面我开始分析一下，两者的区别：&lt;/p&gt;
-&lt;p&gt;1、第三方键盘在输入字符时，一般是不会将字符直接输入到textfield中，而是将字符显示在它自己的view上方，但是系统键盘会直接输入到textfield中，而且它会占2个字符长度，比如你输入”abcd”，在textfield中显示的是”a b c d”，并且”a b c d”是处在高亮中的，并不算是真正输入到textfield中，所以我们不应把高亮的字符计算在内，我们应该计算真正输入的字符&lt;/p&gt;
-&lt;p&gt;2、如果我们使用的是delegate做处理的时候，系统中文输入的时候会有联想，但是联想的那个字并不会调用delegate，比如你输入一个”你”，在系统的联想里面可能会出现”的”,”们”这样的联想，但是你选择”的”的时候，delegate并不会调用，（尼玛….），我猜想联想输入应该不算做keyboard所触发的事件，所以他并不会触发delegate，但是如果你注册的是通知，他倒是会调用，（还好有救）&lt;/p&gt;
-&lt;p&gt;另外提醒一下，有时候在自测输入的时候，要考虑全面，比如粘贴这也是一种输入，当时没考虑，我也是跪了&lt;/p&gt;
-&lt;p&gt;好了，分析了主要的区别下面我们就来看看具体怎么实现吧~&lt;/p&gt;
-&lt;p&gt;在实现注册通知方法里面：&lt;/p&gt;
-&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;#pragma mark - UITextViewDelegate&amp;#10;- (void)textViewDidChange:(UITextView *)textView &amp;#123;&amp;#10;    if (textView.text.length == 0) &amp;#123;&amp;#10;        self.recommendTips.hidden = NO;&amp;#10;    &amp;#125;else&amp;#123;&amp;#10;        self.recommendTips.hidden = YES;&amp;#10;    &amp;#125;&amp;#10;    &amp;#10;    NSString *toBeString = textView.text;&amp;#10;    NSString *lang = self.textInputMode.primaryLanguage; // &amp;#38190;&amp;#30424;&amp;#36755;&amp;#20837;&amp;#27169;&amp;#24335;&amp;#10;    if ([lang isEqualToString:@&amp;#34;zh-Hans&amp;#34;]) &amp;#123; // &amp;#31616;&amp;#20307;&amp;#20013;&amp;#25991;&amp;#36755;&amp;#20837;&amp;#65292;&amp;#21253;&amp;#25324;&amp;#31616;&amp;#20307;&amp;#25340;&amp;#38899;&amp;#65292;&amp;#20581;&amp;#20307;&amp;#20116;&amp;#31508;&amp;#65292;&amp;#31616;&amp;#20307;&amp;#25163;&amp;#20889;&amp;#10;        UITextRange *selectedRange = [textView markedTextRange];&amp;#10;        //&amp;#33719;&amp;#21462;&amp;#39640;&amp;#20142;&amp;#37096;&amp;#20998;&amp;#10;        UITextPosition *position = [textView positionFromPosition:selectedRange.start offset:0];&amp;#10;        // &amp;#27809;&amp;#26377;&amp;#39640;&amp;#20142;&amp;#36873;&amp;#25321;&amp;#30340;&amp;#23383;&amp;#65292;&amp;#21017;&amp;#23545;&amp;#24050;&amp;#36755;&amp;#20837;&amp;#30340;&amp;#25991;&amp;#23383;&amp;#36827;&amp;#34892;&amp;#23383;&amp;#25968;&amp;#32479;&amp;#35745;&amp;#21644;&amp;#38480;&amp;#21046;&amp;#10;        if (!position || !selectedRange) &amp;#123;&amp;#10;            if (toBeString.length &amp;#62; 200) &amp;#123;&amp;#10;                textView.text = [toBeString substringToIndex:200];&amp;#10;            &amp;#125;&amp;#10;        &amp;#125;&amp;#10;        // &amp;#26377;&amp;#39640;&amp;#20142;&amp;#36873;&amp;#25321;&amp;#30340;&amp;#23383;&amp;#31526;&amp;#20018;&amp;#65292;&amp;#21017;&amp;#26242;&amp;#19981;&amp;#23545;&amp;#25991;&amp;#23383;&amp;#36827;&amp;#34892;&amp;#32479;&amp;#35745;&amp;#21644;&amp;#38480;&amp;#21046;&amp;#10;        else&amp;#123;&amp;#10;            &amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;    // &amp;#20013;&amp;#25991;&amp;#36755;&amp;#20837;&amp;#27861;&amp;#20197;&amp;#22806;&amp;#30340;&amp;#30452;&amp;#25509;&amp;#23545;&amp;#20854;&amp;#32479;&amp;#35745;&amp;#38480;&amp;#21046;&amp;#21363;&amp;#21487;&amp;#65292;&amp;#19981;&amp;#32771;&amp;#34385;&amp;#20854;&amp;#20182;&amp;#35821;&amp;#31181;&amp;#24773;&amp;#20917;&amp;#10;    else&amp;#123;&amp;#10;        if (toBeString.length &amp;#62; 200) &amp;#123;&amp;#10;            textView.text = [toBeString substringToIndex:200];&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;首先，我们根据键盘的输入模式进行区分，英文的比较简单就和上面一样，直接取最大的字符数就好了，在中文输入的时候，我们用markedTextRange方法获取到当前的光标位置，再用textField positionFromPosition:selectedRange.start offset:0获取到高亮部分，然后判断是否有高亮，这个时候系统会调用两次通知方法，第一次是将高亮的字符输入，第二次是将高亮的字符转换成中文输入（这个时候就没有高亮了，然后再取最大的字符数），但是在iOS7的设备上测试时发现，position都不会为nil，在iOS8以上都正常，但是获取到光标的range，却是正常的&lt;/p&gt;
-&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;NS_CLASS_AVAILABLE_IOS(3_2) @interface UITextRange : NSObject&amp;#10;&amp;#10;@property (nonatomic, readonly, getter=isEmpty) BOOL empty;     //  Whether the range is zero-length.&amp;#10;@property (nonatomic, readonly) UITextPosition *start;&amp;#10;@property (nonatomic, readonly) UITextPosition *end;&amp;#10;&amp;#10;@end&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;我们可以看到系统的UITextRange，有两个变量，一个是start，一个是end，这正是对于的高亮区域！&lt;/p&gt;
-&lt;p&gt;所以既然position不能使用，那我们干脆就使用range，通过判断range的存在，来对文字进行限制处理。（粘贴也适用）&lt;/p&gt;
-&lt;p&gt;结果也是棒棒的！&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;在第三方键盘加入之后，对于字数限制的处理不再像之前那么简单了&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="TextField" scheme="http://yuzeyang.github.io/tags/TextField/"/>
-    
-  </entry>
   
   <entry>
     <title>Hexo搭建GitHub blog</title>
@@ -130,6 +87,49 @@
     
     
       <category term="Hexo" scheme="http://yuzeyang.github.io/tags/Hexo/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>TextField字数限制处理</title>
+    <link href="http://yuzeyang.github.io/2015/09/17/TextField_count_limit_handle/"/>
+    <id>http://yuzeyang.github.io/2015/09/17/TextField_count_limit_handle/</id>
+    <published>2015-09-17T14:40:44.000Z</published>
+    <updated>2016-05-16T07:05:41.000Z</updated>
+    
+    <content type="html">&lt;p&gt;在第三方键盘加入之后，对于字数限制的处理不再像之前那么简单了&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;纯数字、字符输入（不包括粘贴）这样的字数限制还是相对比较简单的，你可以用两种方法进行处理&lt;/p&gt;
+&lt;p&gt;第一种是&lt;strong&gt;textfield的delegate&lt;/strong&gt;实现：&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string &amp;#123;&amp;#10;    if (range.length + range.location &amp;#62; textField.text.length) &amp;#123;&amp;#10;        return NO;&amp;#10;    &amp;#125;&amp;#10;    NSUInteger newLength = textField.text.length + string.length - range.length;&amp;#10;    return newLength&amp;#60;=kMaxCharacterCount;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;第二种&lt;strong&gt;是注册一个通知&lt;/strong&gt;，在textfield编辑时做处理：&lt;/p&gt;
+&lt;p&gt;首先你在viewDidLoad中注册通知&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(textFiledEditChanged:) name:UITextFieldTextDidChangeNotification object:self.shopName];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;再实现通知里面的方法，在超过最大值时，取最大的字数&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;if (self.shopName.text.length &amp;#62; kMaxCharacterCount) &amp;#123;&amp;#10;        self.shopName.text = [self.shopName.text substringToIndex:kMaxCharacterCount];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;但是，在中文的限制上面情况就复杂了，当时在调试的时候，因为使用的是第三方键盘，所以当时没有发现问题，但是在使用系统键盘的时候，一下子就蛋疼了….&lt;/p&gt;
+&lt;p&gt;下面我开始分析一下，两者的区别：&lt;/p&gt;
+&lt;p&gt;1、第三方键盘在输入字符时，一般是不会将字符直接输入到textfield中，而是将字符显示在它自己的view上方，但是系统键盘会直接输入到textfield中，而且它会占2个字符长度，比如你输入”abcd”，在textfield中显示的是”a b c d”，并且”a b c d”是处在高亮中的，并不算是真正输入到textfield中，所以我们不应把高亮的字符计算在内，我们应该计算真正输入的字符&lt;/p&gt;
+&lt;p&gt;2、如果我们使用的是delegate做处理的时候，系统中文输入的时候会有联想，但是联想的那个字并不会调用delegate，比如你输入一个”你”，在系统的联想里面可能会出现”的”,”们”这样的联想，但是你选择”的”的时候，delegate并不会调用，（尼玛….），我猜想联想输入应该不算做keyboard所触发的事件，所以他并不会触发delegate，但是如果你注册的是通知，他倒是会调用，（还好有救）&lt;/p&gt;
+&lt;p&gt;另外提醒一下，有时候在自测输入的时候，要考虑全面，比如粘贴这也是一种输入，当时没考虑，我也是跪了&lt;/p&gt;
+&lt;p&gt;好了，分析了主要的区别下面我们就来看看具体怎么实现吧~&lt;/p&gt;
+&lt;p&gt;在实现注册通知方法里面：&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;#pragma mark - UITextViewDelegate&amp;#10;- (void)textViewDidChange:(UITextView *)textView &amp;#123;&amp;#10;    if (textView.text.length == 0) &amp;#123;&amp;#10;        self.recommendTips.hidden = NO;&amp;#10;    &amp;#125;else&amp;#123;&amp;#10;        self.recommendTips.hidden = YES;&amp;#10;    &amp;#125;&amp;#10;    &amp;#10;    NSString *toBeString = textView.text;&amp;#10;    NSString *lang = self.textInputMode.primaryLanguage; // &amp;#38190;&amp;#30424;&amp;#36755;&amp;#20837;&amp;#27169;&amp;#24335;&amp;#10;    if ([lang isEqualToString:@&amp;#34;zh-Hans&amp;#34;]) &amp;#123; // &amp;#31616;&amp;#20307;&amp;#20013;&amp;#25991;&amp;#36755;&amp;#20837;&amp;#65292;&amp;#21253;&amp;#25324;&amp;#31616;&amp;#20307;&amp;#25340;&amp;#38899;&amp;#65292;&amp;#20581;&amp;#20307;&amp;#20116;&amp;#31508;&amp;#65292;&amp;#31616;&amp;#20307;&amp;#25163;&amp;#20889;&amp;#10;        UITextRange *selectedRange = [textView markedTextRange];&amp;#10;        //&amp;#33719;&amp;#21462;&amp;#39640;&amp;#20142;&amp;#37096;&amp;#20998;&amp;#10;        UITextPosition *position = [textView positionFromPosition:selectedRange.start offset:0];&amp;#10;        // &amp;#27809;&amp;#26377;&amp;#39640;&amp;#20142;&amp;#36873;&amp;#25321;&amp;#30340;&amp;#23383;&amp;#65292;&amp;#21017;&amp;#23545;&amp;#24050;&amp;#36755;&amp;#20837;&amp;#30340;&amp;#25991;&amp;#23383;&amp;#36827;&amp;#34892;&amp;#23383;&amp;#25968;&amp;#32479;&amp;#35745;&amp;#21644;&amp;#38480;&amp;#21046;&amp;#10;        if (!position || !selectedRange) &amp;#123;&amp;#10;            if (toBeString.length &amp;#62; 200) &amp;#123;&amp;#10;                textView.text = [toBeString substringToIndex:200];&amp;#10;            &amp;#125;&amp;#10;        &amp;#125;&amp;#10;        // &amp;#26377;&amp;#39640;&amp;#20142;&amp;#36873;&amp;#25321;&amp;#30340;&amp;#23383;&amp;#31526;&amp;#20018;&amp;#65292;&amp;#21017;&amp;#26242;&amp;#19981;&amp;#23545;&amp;#25991;&amp;#23383;&amp;#36827;&amp;#34892;&amp;#32479;&amp;#35745;&amp;#21644;&amp;#38480;&amp;#21046;&amp;#10;        else&amp;#123;&amp;#10;            &amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;    // &amp;#20013;&amp;#25991;&amp;#36755;&amp;#20837;&amp;#27861;&amp;#20197;&amp;#22806;&amp;#30340;&amp;#30452;&amp;#25509;&amp;#23545;&amp;#20854;&amp;#32479;&amp;#35745;&amp;#38480;&amp;#21046;&amp;#21363;&amp;#21487;&amp;#65292;&amp;#19981;&amp;#32771;&amp;#34385;&amp;#20854;&amp;#20182;&amp;#35821;&amp;#31181;&amp;#24773;&amp;#20917;&amp;#10;    else&amp;#123;&amp;#10;        if (toBeString.length &amp;#62; 200) &amp;#123;&amp;#10;            textView.text = [toBeString substringToIndex:200];&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;首先，我们根据键盘的输入模式进行区分，英文的比较简单就和上面一样，直接取最大的字符数就好了，在中文输入的时候，我们用markedTextRange方法获取到当前的光标位置，再用textField positionFromPosition:selectedRange.start offset:0获取到高亮部分，然后判断是否有高亮，这个时候系统会调用两次通知方法，第一次是将高亮的字符输入，第二次是将高亮的字符转换成中文输入（这个时候就没有高亮了，然后再取最大的字符数），但是在iOS7的设备上测试时发现，position都不会为nil，在iOS8以上都正常，但是获取到光标的range，却是正常的&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;NS_CLASS_AVAILABLE_IOS(3_2) @interface UITextRange : NSObject&amp;#10;&amp;#10;@property (nonatomic, readonly, getter=isEmpty) BOOL empty;     //  Whether the range is zero-length.&amp;#10;@property (nonatomic, readonly) UITextPosition *start;&amp;#10;@property (nonatomic, readonly) UITextPosition *end;&amp;#10;&amp;#10;@end&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;我们可以看到系统的UITextRange，有两个变量，一个是start，一个是end，这正是对于的高亮区域！&lt;/p&gt;
+&lt;p&gt;所以既然position不能使用，那我们干脆就使用range，通过判断range的存在，来对文字进行限制处理。（粘贴也适用）&lt;/p&gt;
+&lt;p&gt;结果也是棒棒的！&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;在第三方键盘加入之后，对于字数限制的处理不再像之前那么简单了&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="TextField" scheme="http://yuzeyang.github.io/tags/TextField/"/>
     
   </entry>
   
