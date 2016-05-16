@@ -4,75 +4,49 @@
 <h4 id="1-_u5728github_u4E0A_u9762_u65B0_u5EFA_u4E00_u4E2A_u4ED3_u5E93"><a href="#1-_u5728github_u4E0A_u9762_u65B0_u5EFA_u4E00_u4E2A_u4ED3_u5E93" class="headerlink" title="1.在github上面新建一个仓库"></a>1.在github上面新建一个仓库</h4><p>首先我们需要在自己的github上新建一个仓库，将仓库的命名为xxx.github.io，一定要按该格式命名，否则不能搭建成功</p>
 <a id="more"></a>
 <h4 id="2-_u914D_u7F6E_u73AF_u5883"><a href="#2-_u914D_u7F6E_u73AF_u5883" class="headerlink" title="2.配置环境"></a>2.配置环境</h4><p>在使用搭建之前，我们需要配置好下面环境</p>
-<h4 id="u5B89_u88C5Homebrew"><a href="#u5B89_u88C5Homebrew" class="headerlink" title="安装Homebrew"></a>安装Homebrew</h4><pre><code class="shell">$ ruby -e &quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&quot;
-</code></pre>
+<h4 id="u5B89_u88C5Homebrew"><a href="#u5B89_u88C5Homebrew" class="headerlink" title="安装Homebrew"></a>安装Homebrew</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ ruby -e &#34;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&#34;</span><br></pre></td></tr></table></figure>
 <h4 id="u5B89_u88C5node-js"><a href="#u5B89_u88C5node-js" class="headerlink" title="安装node.js"></a>安装node.js</h4><p>node.js集成带有了npm</p>
-<pre><code class="shell">$ brew install node
-</code></pre>
-<h4 id="u5B89_u88C5hexo-cli"><a href="#u5B89_u88C5hexo-cli" class="headerlink" title="安装hexo-cli"></a>安装hexo-cli</h4><pre><code class="shell">$ sudo npm install -g hexo-cli
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ brew install node</span><br></pre></td></tr></table></figure>
+<h4 id="u5B89_u88C5hexo-cli"><a href="#u5B89_u88C5hexo-cli" class="headerlink" title="安装hexo-cli"></a>安装hexo-cli</h4><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ sudo npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
 <h4 id="3-_u5728blog_u76EE_u5F55_u4E0B_uFF0C_u521D_u59CB_u5316hexo"><a href="#3-_u5728blog_u76EE_u5F55_u4E0B_uFF0C_u521D_u59CB_u5316hexo" class="headerlink" title="3.在blog目录下，初始化hexo"></a>3.在blog目录下，初始化hexo</h4><p>接下来我们需要新建一个文件夹来存放blog内容，假设我新建了一个blog文件夹，然后我cd到该路径下面，然后我们需要对该目录进行初始化，运行</p>
-<pre><code class="shell">$ hexo init ${blog路径}
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo init $&#123;blog&#36335;&#24452;&#125;</span><br></pre></td></tr></table></figure>
 <p><img src="http://7xtit4.com2.z0.glb.clouddn.com/hexoinit.png" alt=""></p>
 <p>（图中中间出现的报错不要在意，因为我使用了插件，提示未找到该插件）</p>
 <h4 id="4-_u751F_u6210_u9759_u6001_u9875_u9762"><a href="#4-_u751F_u6210_u9759_u6001_u9875_u9762" class="headerlink" title="4.生成静态页面"></a>4.生成静态页面</h4><p>初始化好之后，我们先来看看页面是不是能正常显示打开了，运行</p>
-<pre><code class="shell">$ hexo g
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo g</span><br></pre></td></tr></table></figure>
 <p>等同于</p>
-<pre><code class="shell">$ hexo generate
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
 <h4 id="u6CE8_u610F_uFF1A"><a href="#u6CE8_u610F_uFF1A" class="headerlink" title="注意："></a>注意：</h4><p>第一次部署的时候会因为找不到git而报错，需要安装下，再提交一次</p>
-<pre><code class="shell">$ npm install hexo-deployer-git --save
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
 <p><img src="http://7xtit4.com2.z0.glb.clouddn.com/hexog.png" alt=""></p>
 <h4 id="5-_u521D_u59CB_u5316_u4F9D_u8D56"><a href="#5-_u521D_u59CB_u5316_u4F9D_u8D56" class="headerlink" title="5.初始化依赖"></a>5.初始化依赖</h4><p>在第一次安装运行时，我们需要初始化依赖，否则后面启动服务或者生成静态界面会出错…</p>
-<pre><code class="shell">$ npm install
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ npm install</span><br></pre></td></tr></table></figure>
 <h4 id="6-_u542F_u52A8_u670D_u52A1"><a href="#6-_u542F_u52A8_u670D_u52A1" class="headerlink" title="6.启动服务"></a>6.启动服务</h4><p>然后我们启动一下服务看看，我们的博客是不是能打开了</p>
-<pre><code class="shell">$ hexo server
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
 <p><img src="http://7xtit4.com2.z0.glb.clouddn.com/hexoserver.png" alt=""></p>
 <p>我们打开<a href="http://0.0.0.0:4000/" target="_blank" rel="external">http://0.0.0.0:4000/</a>看看，如果前面一切顺利的话，你就能看到你搭建成功的博客了~（注意此时打开的还不是自己的github博客地址哦，只是hexo默认配置的地址）</p>
 <h4 id="7-_u4FEE_u6539blog_u76EE_u5F55_u4E0B_u7684_config-yml_u914D_u7F6E_u6587_u4EF6"><a href="#7-_u4FEE_u6539blog_u76EE_u5F55_u4E0B_u7684_config-yml_u914D_u7F6E_u6587_u4EF6" class="headerlink" title="7.修改blog目录下的_config.yml配置文件"></a>7.修改blog目录下的_config.yml配置文件</h4><p>接下来我们需要将hexo打开的博客地址改成自己的地址，打开blog目录下面的_config.yml文件，找到deploy，将部署类型改成git或者GItHub，仓库改成自己的github blog地址格式，分支改成master，例如：</p>
-<pre><code class="yaml">deploy:
-  type: git    #部署类型
-  repository: https://github.com/Yuzeyang/yuzeyang.github.io.git   #部署的仓库的SSH
-  branch: master   #部署分支,一般使用master主分支
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">deploy:&#10;  type: git    #&#37096;&#32626;&#31867;&#22411;&#10;  repository: https://github.com/Yuzeyang/yuzeyang.github.io.git   #&#37096;&#32626;&#30340;&#20179;&#24211;&#30340;SSH&#10;  branch: master   #&#37096;&#32626;&#20998;&#25903;,&#19968;&#33324;&#20351;&#29992;master&#20027;&#20998;&#25903;</span><br></pre></td></tr></table></figure>
 <p>注意：type/repository/branch:和内容之间是有空格的，而且是一定要有的，否则在重新生成静态页面的时候，会找不到仓库路径</p>
 <h4 id="8-_u9009_u53D6_u559C_u6B22_u7684_u4E3B_u9898"><a href="#8-_u9009_u53D6_u559C_u6B22_u7684_u4E3B_u9898" class="headerlink" title="8.选取喜欢的主题"></a>8.选取喜欢的主题</h4><p>作为爱装逼的程序员怎么能用默认的主题呢，我们可以先在hexo主题网赚挑选一个自己喜欢的主题：<a href="https://hexo.io/themes/" target="_blank" rel="external">hexo主题</a>，当然你有一定的前端基础可以自己写一套主题玩玩，分享给大家</p>
 <h4 id="9-_u91CD_u65B0_u90E8_u7F72_u4F60_u7684_u9759_u6001_u7F51_u9875"><a href="#9-_u91CD_u65B0_u90E8_u7F72_u4F60_u7684_u9759_u6001_u7F51_u9875" class="headerlink" title="9.重新部署你的静态网页"></a>9.重新部署你的静态网页</h4><p>修改完配置之后，我们重新部署一下，看看效果</p>
-<pre><code class="shell">$ hexo d -g
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo d -g</span><br></pre></td></tr></table></figure>
 <p>等同于</p>
-<pre><code class="shell">$ hexo deploy -generate
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy -generate</span><br></pre></td></tr></table></figure>
 <h4 id="10-_u518D_u5237_u65B0_u4E00_u4E0B_u4F60_u7684_u7F51_u9875_uFF0CDuang_7E"><a href="#10-_u518D_u5237_u65B0_u4E00_u4E0B_u4F60_u7684_u7F51_u9875_uFF0CDuang_7E" class="headerlink" title="10.再刷新一下你的网页，Duang~"></a>10.再刷新一下你的网页，Duang~</h4><p>因为首页图片加载太慢了…我换了个主题…</p>
 <p><img src="http://7xtit4.com2.z0.glb.clouddn.com/blog.jpg" alt=""></p>
 <h4 id="11-_u4E0A_u4F20_u6587_u7AE0"><a href="#11-_u4E0A_u4F20_u6587_u7AE0" class="headerlink" title="11.上传文章"></a>11.上传文章</h4><p>你可以运行</p>
-<pre><code class="shel">$ hexo new &quot;新的文章标题&quot;
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new &#34;&#26032;&#30340;&#25991;&#31456;&#26631;&#39064;&#34;</span><br></pre></td></tr></table></figure>
 <p>这样会自动生成好</p>
-<pre><code class="tex">title: Hexo搭建GitHub blog
-date: 2016-4-29 17:00:00
-tags: Hexo
----
-</code></pre>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">title: Hexo搭建GitHub blog</span><br><span class="line">date: 2016-4-29 17:00:00</span><br><span class="line">tags: Hexo</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
 <p>或者， 把文章放到blog/source/._posts目录下面</p>
 <p><img src="http://7xtit4.com2.z0.glb.clouddn.com/upload.jpg" alt=""></p>
 <p>在文章的内容前面需要加上标题、时间和标签，这样才能在首页显示出你的标题，你也可以添加文章的时间和文章的tag，例如：</p>
-<pre><code class="tex">title: Hexo搭建GitHub blog
-date: 2016-4-29
-tags: Hexo
----
-</code></pre>
+<figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">title: Hexo搭建GitHub blog</span><br><span class="line">date: 2016-4-29</span><br><span class="line">tags: Hexo</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
 <p>再起一下服务，看看有没有修改成功</p>
-<pre><code class="shell">$ hexo server
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
 <p>修改成功后，再重新部署一下</p>
-<pre><code class="shell">$ hexo d -g
-</code></pre>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo d -g</span><br></pre></td></tr></table></figure>
 <p>最后再确认一下</p>
 <p><img src="http://7xtit4.com2.z0.glb.clouddn.com/update.jpg" alt=""></p>
 <p>上传成功~！</p>
