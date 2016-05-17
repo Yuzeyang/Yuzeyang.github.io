@@ -1,0 +1,44 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> iOS TableView上拉下拉刷新控件（一） · 宫城</title><meta name="description" content="iOS TableView上拉下拉刷新控件（一） - 宫城"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/CaptainAmerica.jpg"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/CaptainAmerica.jpg"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="https://github.com/yuzeyang" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">iOS TableView上拉下拉刷新控件（一）</h1><div class="post-info">2016年1月5日</div><div class="post-content"><p>注：此刷新控件的效果是来自KittenYang的一个GIF图，他有很多动画分析和写得都不错，大家可以关注一下~</p>
+<p>推荐一个非常好的动画效果网站：<a href="http://uimovement.com/" target="_blank" rel="external">UI Movement</a>，里面很多设计出的动画效果都非常好，都可以一一实现看看哦</p>
+<hr>
+<p>话不多说，先看下我要讲的刷新控件效果：</p>
+<p>1.无导航栏的刷新控件效果图：</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/TableRefreshAnimation1.gif" alt=""></p>
+<p>2.有导航栏的刷新控件效果图：</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/TableRefreshAnimation2.gif" alt="">            </p>
+<hr>
+<p>好了，进入正题。</p>
+<p>首先看到这个控件的时候，我们要去分析，这个控件是由哪几部分组成的，可以看到这个控件是只是由一个loading圆圈和label提示文字组成的，而label比较简单，在这里我就不具体说怎么实现了，大家可以直接看源码，这篇文章，我主要讲怎么实现这个loading圆圈的转圈效果。</p>
+<p>首先这个转圈分成两部分，我们将它分成0.0-0.5和0.5-1.0这两个阶段。</p>
+<p>在0.0-0.5这个过程的动画是这样的：</p>
+<p>​    <img src="http://7xtit4.com1.z0.glb.clouddn.com/refresh0-0.5.gif" alt=""></p>
+<p>以左边的线为例，上顶点为B点，下顶点为A点，实际上这个过程只是，A，B两点的y值在随着progress的变化而变化，x是不变的，所以我们可以得到A，B两点的坐标</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CGPoint leftA = CGPointMake(kCenterX - kLineLength, kCenterY + 2*kLineLength - self.progress/0.5*kLineLength);&#10;CGPoint leftB = CGPointMake(leftA.x, leftA.y - kLineLength);</span><br></pre></td></tr></table></figure>
+<p>然后我们用贝塞尔曲线，将两点连起来，从A点到B点</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[leftPath moveToPoint:leftA];&#10;[leftPath addLineToPoint:leftB];</span><br></pre></td></tr></table></figure>
+<p>那这个尖角怎么办呢？我们利用以前学过的数学知识，假设尖角的角度是30°，那x值就是leftB.x-kArrowLength<em>sin(kArrowAngle)，y值就是leftB.y+kArrowLength</em>cos(kArrowAngle)，假设这个点是C点，最后就是将C点和B点相连</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[arrowPath moveToPoint:leftB];&#10;[arrowPath addLineToPoint:CGPointMake(leftB.x - kArrowLength*sin(kArrowAngle), leftB.y + kArrowLength*cos(kArrowAngle))];&#10;[leftPath appendPath:arrowPath];</span><br></pre></td></tr></table></figure>
+<p>这样我们就完成了0.0-0.5的动画，这个一部分还是比较简单的。</p>
+<p>下面是0.5-1.0的动画过程：</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/refresh0.5-1.gif" alt=""></p>
+<p>当到达0.5的时候，原先的B点开始保持不动，它的位置始终是CGPointMake(kCenterX-kLineLength,kCenterY)，而A点也渐渐向B点靠近，CGPointMake(kCenterX-kLineLength,kCenterY+kLineLength- (self.progress-0.5)/0.5*kLineLength)，那这个圆弧是怎么出来的？</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)addArcWithCenter:(CGPoint)center radius:(CGFloat)radius startAngle:(CGFloat)startAngle endAngle:(CGFloat)endAngle clockwise:(BOOL)clockwise NS_AVAILABLE_IOS(4_0);</span><br></pre></td></tr></table></figure>
+<p>在绘制贝塞尔曲线里面，有一个绘制圆弧的方法，center是以某一个点为圆心绘制圆弧，</p>
+<p>radius是半径，startAngle是开始角度，endAngle是结束角度，clockwise是是否以顺时针绘制，ok，我们就用这个来绘制我们的圆弧</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[leftPath moveToPoint:leftA];&#10;[leftPath addLineToPoint:leftB];&#10;[leftPath addArcWithCenter:CGPointMake(kCenterX, kCenterY) radius:kLineLength startAngle:M_PI endAngle:M_PI+M_PI*(self.progress - 0.5)/0.5*9/10 clockwise:YES];</span><br></pre></td></tr></table></figure>
+<p>恩，圆弧也画好了，那我们的尖角是不是也按照刚才的那样写就可以了？恩，差不多哦，只是我们在原有尖角30°的基础上，需要加上我们圆弧旋转的角度，才是真正尖角与圆弧顶点的切线角度</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CGPointMake(leftPath.currentPoint.x - kArrowLength*sin(kArrowAngle+M_PI*(self.progress - 0.5)/0.5*9/10),leftPath.currentPoint.y + kArrowLength*cos(kArrowAngle+M_PI*(self.progress - 0.5)/0.5*9/10))</span><br></pre></td></tr></table></figure>
+<p>好了，尖角顶点也知道了，那连接只要和原来一样就可以了</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[arrowPath moveToPoint:leftPath.currentPoint];&#10;[arrowPath addLineToPoint:CGPointMake(leftPath.currentPoint.x - kArrowLength*sin(kArrowAngle+M_PI*(self.progress - 0.5)/0.5*9/10),&#10;                                              leftPath.currentPoint.y + kArrowLength*cos(kArrowAngle+M_PI*(self.progress - 0.5)/0.5*9/10))];&#10;[leftPath appendPath:arrowPath];</span><br></pre></td></tr></table></figure>
+<p>好了，左边的动画是这样，右边的只要对称即可~</p>
+<p>是不是看上去比较复杂的动画，将它分解开来，就变得简单了呢？</p>
+<p>下一篇，我会讲怎么将这个动画和tableview结合起来使用~</p>
+</div></article></div></section><footer><div class="paginator"><a href="/2016/04/29/hexo_build_github_blog/" class="prev">PREV</a><a href="/2015/09/17/TextField_count_limit_handle/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+var disqus_identifier = '2016/01/05/iOS_TableView_refresh_controller_one/';
+var disqus_title = 'iOS TableView上拉下拉刷新控件（一）';
+var disqus_url = 'http://yuzeyang.github.io/2016/01/05/iOS_TableView_refresh_controller_one/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2016 <a href="http://yuzeyang.github.io">宫城</a>, unless otherwise noted.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>var _hmt = _hmt || [];(function() {var hm = document.createElement("script");hm.src = "//hm.baidu.com/hm.js?a36e15d9e2adec9a21fcdd9f686b1ed2";var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s);})();</script></body></html>
