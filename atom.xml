@@ -91,6 +91,51 @@
   </entry>
   
   <entry>
+    <title>iOS TableView上拉下拉刷新控件（二）</title>
+    <link href="http://yuzeyang.github.io/2016/01/06/iOS_TableView_refresh_controller-two/"/>
+    <id>http://yuzeyang.github.io/2016/01/06/iOS_TableView_refresh_controller-two/</id>
+    <published>2016-01-06T14:59:44.000Z</published>
+    <updated>2016-05-17T15:20:19.000Z</updated>
+    
+    <content type="html">&lt;p&gt;这篇我们来讲如何将loading圆圈动画和TableView结合起来一起使用。&lt;/p&gt;
+&lt;p&gt;首先，我们需要将loading圆圈和提示label加到一个view上去显示，实现的主要点有两点：第一，在上拉或者下拉的过程中，我们通过progress值去控制loading圆圈的动画和label的alpha值，第二，通过设置拉动的方向来设置label提示的内容&lt;/p&gt;
+&lt;p&gt;然后，我们该怎么去获得这个progress值呢？&lt;/p&gt;
+&lt;p&gt;首先，我们在初始化的时候需要监听所关联的scrollView的contentOffset值，&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[self.scrollView addObserver:self forKeyPath:@&amp;#34;contentOffset&amp;#34; options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后在observeValueForKeyPath里面，我们获取contentOffset的最新值，&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;CGPoint contentOffset = [[change valueForKey:NSKeyValueChangeNewKey] CGPointValue];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后再通过计算来改变progress值，&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;self.progress = MAX(0.0, MIN(fabs((self.originOffset + contentOffset.y)/kMaxPullDownDistance), 1.0));&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;（注：在这里有个originOffset值，这个是我用来处理是否有导航栏的情况，有则该值为64.0，没有则为0.0）&lt;/p&gt;
+&lt;p&gt;计算的思路是我们通过所关联的scrollView的contentOffset与我们所设置的最大的拉动距离值相除作比较，得到的就是拉动的一个范围比例，因为contentOffset会超出我们设置的最大拉动距离，所以我们需要再取最小最大值，来获取到最后的progress值。&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;在这里插一个小的知识点，因为这个是在写上拉时，所必须知道的一个点，contentOffset是怎么算的？&lt;/p&gt;
+&lt;p&gt;contentOffset是scrollview当前显示区域顶点相对于frame顶点的偏移量&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/contentOffset.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;但当上拉刷新之后，此时scrollview的contentSize变化了，（contentSize指的是可显示区域），在计算contentOffset时，需要将contentSize减去scrollView的高度，来和contentOffset作比较。&lt;/p&gt;
+&lt;p&gt;拿到progress之后，此时我们离完成这个控件的任务就差不多了。&lt;/p&gt;
+&lt;p&gt;首先，我们需要将progress赋值给loading圆圈和提示label，&lt;/p&gt;
+&lt;p&gt;然后如果我们拉动的距离超过了设置最大值的时候，我们做loading，并且通过block让外部做一些网络请求或者其他的操作&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[self startLoading:self.refreshView];&amp;#10;                &amp;#10;// 0.3s animation time is the best experience&amp;#10;[UIView animateWithDuration:0.3 animations:^&amp;#123;&amp;#10;    self.scrollView.contentInset = UIEdgeInsetsMake(kMaxPullDownDistance + self.originOffset, 0, 0, 0);&amp;#10;&amp;#125; completion:^(BOOL finished) &amp;#123;&amp;#10;    if (self.refreshingBlock) &amp;#123;&amp;#10;        self.refreshingBlock();&amp;#10;    &amp;#125;&amp;#10;&amp;#125;];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;在上拉时，有一点不同，scrollView的contentSize可能是会变化的，而我们的控件是要始终显示在它的最下方的，所以我们在上拉时，需要对contentSize也加监听&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[self.scrollView addObserver:self forKeyPath:@&amp;#34;contentSize&amp;#34; options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;并且在observeValueForKeyPath里面，需要设置控件的center来改变我们的显示位置，以及progress值，其他操作都和下拉刷新一样。&lt;/p&gt;
+&lt;p&gt;ok，我们的上拉下拉刷新控件完成喽~&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这篇我们来讲如何将loading圆圈动画和TableView结合起来一起使用。&lt;/p&gt;
+&lt;p&gt;首先，我们需要将loading圆圈和提示label加到一个view上去显示，实现的主要点有两点：第一，在上拉或者下拉的过程中，我们通过progress值去控制loading圆圈的动
+    
+    </summary>
+    
+    
+      <category term="TableView" scheme="http://yuzeyang.github.io/tags/TableView/"/>
+    
+  </entry>
+  
+  <entry>
     <title>iOS TableView上拉下拉刷新控件（一）</title>
     <link href="http://yuzeyang.github.io/2016/01/05/iOS_TableView_refresh_controller_one/"/>
     <id>http://yuzeyang.github.io/2016/01/05/iOS_TableView_refresh_controller_one/</id>

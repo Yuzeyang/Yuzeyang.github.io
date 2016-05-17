@@ -1,0 +1,33 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> iOS TableView上拉下拉刷新控件（二） · 宫城</title><meta name="description" content="iOS TableView上拉下拉刷新控件（二） - 宫城"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/CaptainAmerica.jpg"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/CaptainAmerica.jpg"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="https://github.com/yuzeyang" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">iOS TableView上拉下拉刷新控件（二）</h1><div class="post-info">2016年1月6日</div><div class="post-content"><p>这篇我们来讲如何将loading圆圈动画和TableView结合起来一起使用。</p>
+<p>首先，我们需要将loading圆圈和提示label加到一个view上去显示，实现的主要点有两点：第一，在上拉或者下拉的过程中，我们通过progress值去控制loading圆圈的动画和label的alpha值，第二，通过设置拉动的方向来设置label提示的内容</p>
+<p>然后，我们该怎么去获得这个progress值呢？</p>
+<p>首先，我们在初始化的时候需要监听所关联的scrollView的contentOffset值，</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[self.scrollView addObserver:self forKeyPath:@&#34;contentOffset&#34; options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];</span><br></pre></td></tr></table></figure>
+<p>然后在observeValueForKeyPath里面，我们获取contentOffset的最新值，</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CGPoint contentOffset = [[change valueForKey:NSKeyValueChangeNewKey] CGPointValue];</span><br></pre></td></tr></table></figure>
+<p>然后再通过计算来改变progress值，</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.progress = MAX(0.0, MIN(fabs((self.originOffset + contentOffset.y)/kMaxPullDownDistance), 1.0));</span><br></pre></td></tr></table></figure>
+<p>（注：在这里有个originOffset值，这个是我用来处理是否有导航栏的情况，有则该值为64.0，没有则为0.0）</p>
+<p>计算的思路是我们通过所关联的scrollView的contentOffset与我们所设置的最大的拉动距离值相除作比较，得到的就是拉动的一个范围比例，因为contentOffset会超出我们设置的最大拉动距离，所以我们需要再取最小最大值，来获取到最后的progress值。</p>
+<hr>
+<p>在这里插一个小的知识点，因为这个是在写上拉时，所必须知道的一个点，contentOffset是怎么算的？</p>
+<p>contentOffset是scrollview当前显示区域顶点相对于frame顶点的偏移量</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/contentOffset.png" alt=""></p>
+<p>但当上拉刷新之后，此时scrollview的contentSize变化了，（contentSize指的是可显示区域），在计算contentOffset时，需要将contentSize减去scrollView的高度，来和contentOffset作比较。</p>
+<p>拿到progress之后，此时我们离完成这个控件的任务就差不多了。</p>
+<p>首先，我们需要将progress赋值给loading圆圈和提示label，</p>
+<p>然后如果我们拉动的距离超过了设置最大值的时候，我们做loading，并且通过block让外部做一些网络请求或者其他的操作</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[self startLoading:self.refreshView];&#10;                &#10;// 0.3s animation time is the best experience&#10;[UIView animateWithDuration:0.3 animations:^&#123;&#10;    self.scrollView.contentInset = UIEdgeInsetsMake(kMaxPullDownDistance + self.originOffset, 0, 0, 0);&#10;&#125; completion:^(BOOL finished) &#123;&#10;    if (self.refreshingBlock) &#123;&#10;        self.refreshingBlock();&#10;    &#125;&#10;&#125;];</span><br></pre></td></tr></table></figure>
+<p>在上拉时，有一点不同，scrollView的contentSize可能是会变化的，而我们的控件是要始终显示在它的最下方的，所以我们在上拉时，需要对contentSize也加监听</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[self.scrollView addObserver:self forKeyPath:@&#34;contentSize&#34; options:NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld context:nil];</span><br></pre></td></tr></table></figure>
+<p>并且在observeValueForKeyPath里面，需要设置控件的center来改变我们的显示位置，以及progress值，其他操作都和下拉刷新一样。</p>
+<p>ok，我们的上拉下拉刷新控件完成喽~</p>
+</div></article></div></section><footer><div class="paginator"><a href="/2016/04/29/hexo_build_github_blog/" class="prev">PREV</a><a href="/2016/01/05/iOS_TableView_refresh_controller_one/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+var disqus_identifier = '2016/01/06/iOS_TableView_refresh_controller-two/';
+var disqus_title = 'iOS TableView上拉下拉刷新控件（二）';
+var disqus_url = 'http://yuzeyang.github.io/2016/01/06/iOS_TableView_refresh_controller-two/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2016 <a href="http://yuzeyang.github.io">宫城</a>, unless otherwise noted.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>var _hmt = _hmt || [];(function() {var hm = document.createElement("script");hm.src = "//hm.baidu.com/hm.js?a36e15d9e2adec9a21fcdd9f686b1ed2";var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s);})();</script></body></html>
