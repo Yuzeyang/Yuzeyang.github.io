@@ -95,9 +95,10 @@
     <link href="http://yuzeyang.github.io/2016/01/06/iOS_TableView_refresh_controller-two/"/>
     <id>http://yuzeyang.github.io/2016/01/06/iOS_TableView_refresh_controller-two/</id>
     <published>2016-01-06T14:59:44.000Z</published>
-    <updated>2016-05-17T15:20:19.000Z</updated>
+    <updated>2016-05-17T15:22:07.000Z</updated>
     
     <content type="html">&lt;p&gt;这篇我们来讲如何将loading圆圈动画和TableView结合起来一起使用。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;p&gt;首先，我们需要将loading圆圈和提示label加到一个view上去显示，实现的主要点有两点：第一，在上拉或者下拉的过程中，我们通过progress值去控制loading圆圈的动画和label的alpha值，第二，通过设置拉动的方向来设置label提示的内容&lt;/p&gt;
 &lt;p&gt;然后，我们该怎么去获得这个progress值呢？&lt;/p&gt;
 &lt;p&gt;首先，我们在初始化的时候需要监听所关联的scrollView的contentOffset值，&lt;/p&gt;
@@ -126,7 +127,6 @@
     <summary type="html">
     
       &lt;p&gt;这篇我们来讲如何将loading圆圈动画和TableView结合起来一起使用。&lt;/p&gt;
-&lt;p&gt;首先，我们需要将loading圆圈和提示label加到一个view上去显示，实现的主要点有两点：第一，在上拉或者下拉的过程中，我们通过progress值去控制loading圆圈的动
     
     </summary>
     
@@ -140,10 +140,11 @@
     <link href="http://yuzeyang.github.io/2016/01/05/iOS_TableView_refresh_controller_one/"/>
     <id>http://yuzeyang.github.io/2016/01/05/iOS_TableView_refresh_controller_one/</id>
     <published>2016-01-05T14:29:07.000Z</published>
-    <updated>2016-05-17T15:19:52.000Z</updated>
+    <updated>2016-05-17T15:21:52.000Z</updated>
     
     <content type="html">&lt;p&gt;注：此刷新控件的效果是来自KittenYang的一个GIF图，他有很多动画分析和写得都不错，大家可以关注一下~&lt;/p&gt;
 &lt;p&gt;推荐一个非常好的动画效果网站：&lt;a href=&quot;http://uimovement.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;UI Movement&lt;/a&gt;，里面很多设计出的动画效果都非常好，都可以一一实现看看哦&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;hr&gt;
 &lt;p&gt;话不多说，先看下我要讲的刷新控件效果：&lt;/p&gt;
 &lt;p&gt;1.无导航栏的刷新控件效果图：&lt;/p&gt;
@@ -182,7 +183,7 @@
     <summary type="html">
     
       &lt;p&gt;注：此刷新控件的效果是来自KittenYang的一个GIF图，他有很多动画分析和写得都不错，大家可以关注一下~&lt;/p&gt;
-&lt;p&gt;推荐一个非常好的动画效果网站：&lt;a href=&quot;http://uimovement.com/&quot; target=&quot;_blank&quot; rel=&quot;exter
+&lt;p&gt;推荐一个非常好的动画效果网站：&lt;a href=&quot;http://uimovement.com/&quot;&gt;UI Movement&lt;/a&gt;，里面很多设计出的动画效果都非常好，都可以一一实现看看哦&lt;/p&gt;
     
     </summary>
     
