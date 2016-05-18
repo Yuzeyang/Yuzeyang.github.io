@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-05-12T08:45:07.000Z</updated>
+  <updated>2016-05-18T15:00:05.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -14,6 +14,48 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>iOS 给App添加TouchID验证</title>
+    <link href="http://yuzeyang.github.io/2016/05/18/TouchID/"/>
+    <id>http://yuzeyang.github.io/2016/05/18/TouchID/</id>
+    <published>2016-05-18T14:47:27.000Z</published>
+    <updated>2016-05-18T15:00:05.000Z</updated>
+    
+    <content type="html">&lt;p&gt;TouchID验证这个在iOS8中已经对开发者开放使用了，而且需在5s以上真机才能使用，这个出来已经比较早了，相信很多人都应该已经知道怎么使用TouchID了，但是就目前我使用的App来说，看到使用TouchID验证的占得数量并不多，对于一些涉及到安全性的App来说，很有可能你的解锁验证、App登录以及支付验证都是用的TouchID使用TouchID验证还是有风险的，但是有些App增加使用TouchID作为一种验证还是不错的选择，既快捷又方便，对于开发者来说增加的成本也很低&lt;/p&gt;
+&lt;p&gt;这个是我所讲的demo的源码&lt;a href=&quot;https://github.com/Yuzeyang/TouchIDDemo&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;TouchID demo&lt;/a&gt;，代码量非常少&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;下面我就来介绍下怎么给App增加TouchID验证吧&lt;/p&gt;
+&lt;p&gt;首先，要使用TouchID，得先引入LocalAuthentication.framework这个库，这里面只有四个头文件，但实际使用到的只有LAContext.h和LAError.h这两个头文件&lt;/p&gt;
+&lt;p&gt;在做验证时，我们只需要使用到LAContext中的两个方法&lt;/p&gt;
+&lt;p&gt;我们先初始化一个LAContext对象&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;LAContext *ctx = [[LAContext alloc] init];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后调用&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (BOOL)canEvaluatePolicy:(LAPolicy)policy error:(NSError*__autoreleasing*)error;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;方法来确定当前指定的验证方法能否使用，LAPolicy是个枚举，里面只有两个值，一个是LAPolicyDeviceOwnerAuthenticationWithBiometrics（使用该设备的TouchID验证），LAPolicyDeviceOwnerAuthentication（使用该设备的TouchID和设备密码验证）&lt;/p&gt;
+&lt;p&gt;这里返回的是一个布尔值，错误处理我等下一起说明，当返回可以使用当前指定的验证法方法时，我们调用&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)evaluatePolicy:(LAPolicy)policy localizedReason:(NSString*)localizedReason reply:(void(^)(BOOLsuccess,NSError*__nullableerror))reply;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;方法开始使用TouchID验证，localizedReason指的是在弹出TouchID验证框时提示的文字，reply指的是在做指纹验证或者密码验证后的结果返回，我将localizedReason用@”通过Home键验证已有手机指纹”作为提示，下图比较直观&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/TouchID1.png!600x600&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;刚才布尔值的错误对应的是哪些呢？&lt;/p&gt;
+&lt;p&gt;这就用到了LAError.h这个类，这个类定义了目前所有的验证失败的错误code，我直接将它copy过来了&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;typedefNS_ENUM(NSInteger, LAError)&amp;#10;&amp;#123;&amp;#10;&amp;#9;/// &amp;#26657;&amp;#39564;&amp;#22833;&amp;#36133;&amp;#10;&amp;#9;LAErrorAuthenticationFailed =kLAErrorAuthenticationFailed,&amp;#10;&amp;#10;    /// &amp;#29992;&amp;#25143;&amp;#21462;&amp;#28040;&amp;#39564;&amp;#35777;&amp;#10;&amp;#9;LAErrorUserCancel=kLAErrorUserCancel,&amp;#10;&amp;#10;&amp;#9;/// &amp;#29992;&amp;#25143;&amp;#22238;&amp;#36864;&amp;#65288;&amp;#36820;&amp;#22238;&amp;#23494;&amp;#30721;&amp;#26657;&amp;#39564;&amp;#65289;&amp;#10;&amp;#9;LAErrorUserFallback=kLAErrorUserFallback,&amp;#10;&amp;#10;&amp;#9;/// &amp;#31995;&amp;#32479;&amp;#21462;&amp;#28040;&amp;#26657;&amp;#39564;&amp;#10;&amp;#9;LAErrorSystemCancel=kLAErrorSystemCancel,&amp;#10;&amp;#10;&amp;#9;/// &amp;#23494;&amp;#30721;&amp;#26410;&amp;#35774;&amp;#32622;&amp;#10;&amp;#9;LAErrorPasscodeNotSet=kLAErrorPasscodeNotSet,&amp;#10;&amp;#10;&amp;#9;/// &amp;#25351;&amp;#32441;&amp;#19981;&amp;#27491;&amp;#30830;&amp;#10;&amp;#9;LAErrorTouchIDNotAvailable=kLAErrorTouchIDNotAvailable,&amp;#10;&amp;#10;&amp;#9;/// &amp;#27809;&amp;#26377;&amp;#24405;&amp;#20837;&amp;#25351;&amp;#32441;&amp;#10;&amp;#9;LAErrorTouchIDNotEnrolled=kLAErrorTouchIDNotEnrolled,&amp;#10;&amp;#10;&amp;#9;/// TouchID&amp;#34987;&amp;#38145;&amp;#23450;&amp;#10;&amp;#9;LAErrorTouchIDLockoutNS_ENUM_AVAILABLE(10_11,9_0) =kLAErrorTouchIDLockout,&amp;#10;&amp;#10;&amp;#9;/// App&amp;#21462;&amp;#28040;&amp;#39564;&amp;#35777;&amp;#10;&amp;#9;LAErrorAppCancelNS_ENUM_AVAILABLE(10_11,9_0) =kLAErrorAppCancel,&amp;#10;&amp;#10;&amp;#9;/// &amp;#26080;&amp;#25928;&amp;#30340;&amp;#19978;&amp;#19979;&amp;#25991;&amp;#29615;&amp;#22659;&amp;#10;&amp;#9;LAErrorInvalidContextNS_ENUM_AVAILABLE(10_11,9_0) =kLAErrorInvalidContext&amp;#10;&amp;#125;NS_ENUM_AVAILABLE(10_10,8_0);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;而前四种error是针对于能确定使用验证后，在验证后返回的错误&lt;/p&gt;
+&lt;p&gt;后六种error是针对于不能使用验证的原因&lt;/p&gt;
+&lt;p&gt;你可以针对这些原因做一些相应的操作，比如弹窗等等&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;TouchID验证这个在iOS8中已经对开发者开放使用了，而且需在5s以上真机才能使用，这个出来已经比较早了，相信很多人都应该已经知道怎么使用TouchID了，但是就目前我使用的App来说，看到使用TouchID验证的占得数量并不多，对于一些涉及到安全性的App来说，很有可能你的解锁验证、App登录以及支付验证都是用的TouchID使用TouchID验证还是有风险的，但是有些App增加使用TouchID作为一种验证还是不错的选择，既快捷又方便，对于开发者来说增加的成本也很低&lt;/p&gt;
+&lt;p&gt;这个是我所讲的demo的源码&lt;a href=&quot;https://github.com/Yuzeyang/TouchIDDemo&quot;&gt;TouchID demo&lt;/a&gt;，代码量非常少&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="TouchID" scheme="http://yuzeyang.github.io/tags/TouchID/"/>
+    
+  </entry>
   
   <entry>
     <title>Hexo搭建GitHub blog</title>
@@ -95,7 +137,7 @@
     <link href="http://yuzeyang.github.io/2016/01/17/GCDAsyncSocket-socket/"/>
     <id>http://yuzeyang.github.io/2016/01/17/GCDAsyncSocket-socket/</id>
     <published>2016-01-17T14:10:53.000Z</published>
-    <updated>2016-05-18T14:45:10.000Z</updated>
+    <updated>2016-05-18T14:45:49.000Z</updated>
     
     <content type="html">&lt;p&gt;GCDAsyncSocket是CocoaAsyncSocket第三方库中的其中一个类，本文介绍的就是基于这一个类来做快速的socket通信开发，而且该库已经支持IPv4和IPv6&lt;/p&gt;
 &lt;p&gt;我们对GCDAsyncSocket做了一层封装调用，它包含了建连、断开、重连、心跳、自定义请求&lt;/p&gt;
@@ -179,7 +221,7 @@
     <link href="http://yuzeyang.github.io/2016/01/12/Harbin-travel/"/>
     <id>http://yuzeyang.github.io/2016/01/12/Harbin-travel/</id>
     <published>2016-01-12T11:37:10.000Z</published>
-    <updated>2016-05-18T13:59:44.000Z</updated>
+    <updated>2016-05-18T15:01:53.000Z</updated>
     
     <content type="html">&lt;p&gt;在年假过期之前，我和同事们想着用这个年假去哪儿浪，后来商量之后，决定去一趟哈尔滨看看，当然对于一直从未感受过零下十度以下的南方汉子们，特别是IT宅男们来说，那里的冷是根本想象不到的。（多图预警！！！）&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
@@ -201,41 +243,41 @@
 &lt;p&gt;千等万等，终于等到出发的日子了，我们一行人也是高高兴兴的粗发啦，坐的是四川航空，空姐和空少都有点胖胖的…好桑心…&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/INeedAV.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;从杭州到哈尔滨的飞机需要三个小时左右的行程，快到哈尔滨的时候，从飞机上往下看，地都是雪白雪白的，这叫尔等南方来的汉子们很是激动啊，白茫茫的一片~&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/snow.jpeg&quot; alt=&quot;飞机上俯瞰的雪景&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/snow.jpeg!600x600&quot; alt=&quot;飞机上俯瞰的雪景&quot;&gt;&lt;/p&gt;
 &lt;p&gt;飞机降落之后，我们打车到中央大街，在打车的时候要注意一点，有些司机会向你收取&lt;strong&gt;高速路的过路费&lt;/strong&gt;，并且让你取消订单，用现金支付。现金支付是可以的，因为听说最近某滴已经开始向司机收取好像20%的服务费了，但&lt;strong&gt;你千万不要给司机高速路的过路费&lt;/strong&gt;，因为高速路的过路费，在从哈尔滨到机场的路上，有其他乘客已经帮你付了，这个是没有办法的，但是返程从机场到哈尔滨是不用付的，这个是司机想多赚你的钱！&lt;/p&gt;
 &lt;p&gt;在进过的路上，我也不知道什么路…有用冰砖搭的一座城，很是漂亮，从没有近距离的看过…&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/snow2.jpeg&quot; alt=&quot;冰城&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/snow2.jpeg!600x600&quot; alt=&quot;冰城&quot;&gt;&lt;/p&gt;
 &lt;p&gt;经过快一个小时的车程（还是有点堵的），到了中央大街，据说这个一条非常热闹而且有名的街（因为之前吃住全是另外一个同事订好的..所以我都没有提前去了解..），下了飞机之后感觉瞬间变冷，得赶紧去旅馆加上衣服，基本按照上面必备的那么穿就不冷了，哈尔滨的天气衣服穿够了，身上不冷，但是风打在脸上还是很冷的，时间一长，鼻子就受不了了。&lt;/p&gt;
 &lt;p&gt;逛中央大街的时候，门口就有个烤肠，非常好吃！但是不要买多…吃了一两根之后我感觉就有点吃不下了…&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/xiangchang.jpeg&quot; alt=&quot;烤肠&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/xiangchang.jpeg!600x600&quot; alt=&quot;烤肠&quot;&gt;&lt;/p&gt;
 &lt;p&gt;在旅馆门口还有一个用冰砖搭起来的滑梯，要收费，10元滑一次，因为想到晚上要去冰雪大世界了，也就没上去玩了&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/binghuati.jpeg&quot; alt=&quot;冰滑梯&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/binghuati.jpeg!600x600&quot; alt=&quot;冰滑梯&quot;&gt;&lt;/p&gt;
 &lt;p&gt;中央大街上面有很多非常有特色店：马迭尔冰棍（这个冰棍买的人特别多），华梅西餐厅（据说连哈尔滨人也都排队还吃不上，最后一天我们想去吃，但是排队的人实在太多了，就没吃了，好可惜），老厨家（这个很有历史也很好吃）等等，那里的店大多都很有特色&lt;/p&gt;
 &lt;p&gt;沿着中央大街走就可以走到防洪纪念塔，在纪念塔后面就是松花江，江面全部都结冰了，看得我都傻了..上面都是游人在滑冰，玩耍，冰面还是比较滑的，要小心，里面的娱乐项目看情况选择玩吧，出来玩，开心还是最重要的（我一般都是这么想的，飞机票、吃住都花了这么多了，不差这点娱乐的钱了…）&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/songhuajiang.jpeg&quot; alt=&quot;松花江&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/songhuajiang.jpeg!600x600&quot; alt=&quot;松花江&quot;&gt;&lt;/p&gt;
 &lt;p&gt;晚上就出发去了冰雪大世界玩，在那里鞋一定要穿暖，因为有些项目是需要排队的，站那脚特别冷..而且可以考虑先去排队玩大滑梯，据说很刺激，但是因为排队的人太多了，我们就很遗憾的没有去玩了，里面玩的都是滑梯，看冰雕，感受下冰的魅力，对于南方来的我们玩的还是非常开心的~但是很遗憾我没有找到冰雪大世界的照片，不过同事那里有，之后我会更新上来&lt;/p&gt;
 &lt;p&gt;在冰雪大世界这么疯狂的消耗体力之后，肯定会饿了，我们用美团搜到了一家非常好吃的烧烤店叫1981烧烤（好像是这个名字），价格也不贵，烤的非常好吃，以致于有个同事一连三天拉着我吃烧烤，别说，北方的烧烤还真的比南方要好吃一点，哈哈&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/1981shaokao.jpeg&quot; alt=&quot;1981烧烤&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/1981shaokao.jpeg!600x600&quot; alt=&quot;1981烧烤&quot;&gt;&lt;/p&gt;
 &lt;p&gt;第二天，我们选择去了雪乡，听说那里是因为拍了爸爸去哪了之后，才火起来的，但是因为客服的原因，把我们的名单弄错了，导致没坐上大巴车，结果搞了辆小面包，后面的事情就更凄惨了…雪乡的路上有个坡，路面滑，怎么都上不去，装防滑条，断了，装防滑链，装不上…啊…真的是日了够了，搞了一两个小时，本来出发时间就耽搁了，这么一搞就更晚了，结果一辆路过的大巴车救了我们，达到雪乡花了我们12个小时…醉了&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/zhuangfanghualian.jpeg&quot; alt=&quot;装防滑链&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/zhuangfanghualian.jpeg!600x600&quot; alt=&quot;装防滑链&quot;&gt;&lt;/p&gt;
 &lt;p&gt;但是雪乡沿途的风景还是很漂亮的，厚厚的雪，还有雾凇&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/xuejing.jpeg&quot; alt=&quot;雪景&quot;&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/wusong.jpeg&quot; alt=&quot;雾凇&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/xuejing.jpeg!600x600&quot; alt=&quot;雪景&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/wusong.jpeg!600x600&quot; alt=&quot;雾凇&quot;&gt;&lt;/p&gt;
 &lt;p&gt;到雪乡之后，就是夜晚了，虽然还是5点多钟，但天黑的特别早，雪乡一进来就给人的感觉是商业化比较严重，已经很难看出原来的风土人情了。雪乡里面能看到雪橇犬，还是马拉车，车还是有牌照的…&lt;/p&gt;
 &lt;p&gt;我们因为路途的劳累也没出去逛，雪乡之行还是意外的可惜，草草的就结束了&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/xuexiangyejing.jpeg&quot; alt=&quot;雪乡夜景&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/xuexiangyejing.jpeg!600x600&quot; alt=&quot;雪乡夜景&quot;&gt;&lt;/p&gt;
 &lt;p&gt;我们一行人睡的是五人炕，但是后来听北方的同事说，那个好像是电子炕，不是火烧那种了&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/wurenkang.jpeg&quot; alt=&quot;五人炕&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/wurenkang.jpeg!600x600&quot; alt=&quot;五人炕&quot;&gt;&lt;/p&gt;
 &lt;p&gt;在那里我们买了冰柿子，冰草莓，冰梨，发现太硬了太冷了…后来放那软了就扔了…后来听说那个是要放冷水里化开了再吃的…吃的..的，我们就忧伤了…&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/bingcaomei.jpeg&quot; alt=&quot;冰草莓&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/bingcaomei.jpeg!600x600&quot; alt=&quot;冰草莓&quot;&gt;&lt;/p&gt;
 &lt;p&gt;第三天我们就从雪乡出发，去往亚布力滑雪，第一次滑雪的我来说可兴奋了ヾ(o◕∀◕)ﾉヾ，同事说去30°坡的滑雪场，我说太平了是不是不好玩，我说要45°的，后来少数服从多数，我们还是去了30°的滑雪场，到那里存好东西之后，有条件的可以请个教练带一带你，没有的，可以让会的同事带你，不然就像我一样，从坡上面一直摔到了坡下面….因为不懂怎么刹车…就一直摔…好疼…而且穿着滑雪鞋，容易崴脚，最后我去了儿童区，还是摔/(ㄒoㄒ)/~~&lt;/p&gt;
 &lt;p&gt;回来的晚上我们好好的逛了下中央大街，在老厨家吃了顿放，和北方的同事聚了一下，总结了一下北方的菜有点咸，但是量特足，5个人基本点3个菜就差不多了&lt;/p&gt;
 &lt;p&gt;中央大街的夜景也非常漂亮，街道两旁都有大型的冰雕，品牌赞助…&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/shengdanshu.jpeg&quot; alt=&quot;圣诞树&quot;&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/beijixiong.jpeg&quot; alt=&quot;北极熊小屋&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/shengdanshu.jpeg!600x600&quot; alt=&quot;圣诞树&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/beijixiong.jpeg!600x600&quot; alt=&quot;北极熊小屋&quot;&gt;&lt;/p&gt;
 &lt;p&gt;最后一天我们就去了圣索菲亚大教堂，据说教堂里面是没有什么好看的，都是买纪念品，只要外面参观下就可以了，而且有鸽子的区域没有我想象中的那么大，就那一小块地方…&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/jiaotang.jpeg&quot; alt=&quot;教堂正面&quot;&gt;&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/gezi.jpeg&quot; alt=&quot;教堂旁的鸽子&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/jiaotang.jpeg!600x600&quot; alt=&quot;教堂正面&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/gezi.jpeg!600x600&quot; alt=&quot;教堂旁的鸽子&quot;&gt;&lt;/p&gt;
 &lt;p&gt;匆匆的哈尔滨之行就愉快的结束了，好期待下一次的旅行~&lt;/p&gt;
 </content>
     
