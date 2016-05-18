@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-05-18T15:00:05.000Z</updated>
+  <updated>2016-05-12T08:45:07.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -14,48 +14,6 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
-  
-  <entry>
-    <title>iOS 给App添加TouchID验证</title>
-    <link href="http://yuzeyang.github.io/2016/05/18/TouchID/"/>
-    <id>http://yuzeyang.github.io/2016/05/18/TouchID/</id>
-    <published>2016-05-18T14:47:27.000Z</published>
-    <updated>2016-05-18T15:00:05.000Z</updated>
-    
-    <content type="html">&lt;p&gt;TouchID验证这个在iOS8中已经对开发者开放使用了，而且需在5s以上真机才能使用，这个出来已经比较早了，相信很多人都应该已经知道怎么使用TouchID了，但是就目前我使用的App来说，看到使用TouchID验证的占得数量并不多，对于一些涉及到安全性的App来说，很有可能你的解锁验证、App登录以及支付验证都是用的TouchID使用TouchID验证还是有风险的，但是有些App增加使用TouchID作为一种验证还是不错的选择，既快捷又方便，对于开发者来说增加的成本也很低&lt;/p&gt;
-&lt;p&gt;这个是我所讲的demo的源码&lt;a href=&quot;https://github.com/Yuzeyang/TouchIDDemo&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;TouchID demo&lt;/a&gt;，代码量非常少&lt;/p&gt;
-&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
-&lt;p&gt;下面我就来介绍下怎么给App增加TouchID验证吧&lt;/p&gt;
-&lt;p&gt;首先，要使用TouchID，得先引入LocalAuthentication.framework这个库，这里面只有四个头文件，但实际使用到的只有LAContext.h和LAError.h这两个头文件&lt;/p&gt;
-&lt;p&gt;在做验证时，我们只需要使用到LAContext中的两个方法&lt;/p&gt;
-&lt;p&gt;我们先初始化一个LAContext对象&lt;/p&gt;
-&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;LAContext *ctx = [[LAContext alloc] init];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;然后调用&lt;/p&gt;
-&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (BOOL)canEvaluatePolicy:(LAPolicy)policy error:(NSError*__autoreleasing*)error;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;方法来确定当前指定的验证方法能否使用，LAPolicy是个枚举，里面只有两个值，一个是LAPolicyDeviceOwnerAuthenticationWithBiometrics（使用该设备的TouchID验证），LAPolicyDeviceOwnerAuthentication（使用该设备的TouchID和设备密码验证）&lt;/p&gt;
-&lt;p&gt;这里返回的是一个布尔值，错误处理我等下一起说明，当返回可以使用当前指定的验证法方法时，我们调用&lt;/p&gt;
-&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)evaluatePolicy:(LAPolicy)policy localizedReason:(NSString*)localizedReason reply:(void(^)(BOOLsuccess,NSError*__nullableerror))reply;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;方法开始使用TouchID验证，localizedReason指的是在弹出TouchID验证框时提示的文字，reply指的是在做指纹验证或者密码验证后的结果返回，我将localizedReason用@”通过Home键验证已有手机指纹”作为提示，下图比较直观&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/TouchID1.png!600x600&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
-&lt;p&gt;刚才布尔值的错误对应的是哪些呢？&lt;/p&gt;
-&lt;p&gt;这就用到了LAError.h这个类，这个类定义了目前所有的验证失败的错误code，我直接将它copy过来了&lt;/p&gt;
-&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;typedefNS_ENUM(NSInteger, LAError)&amp;#10;&amp;#123;&amp;#10;&amp;#9;/// &amp;#26657;&amp;#39564;&amp;#22833;&amp;#36133;&amp;#10;&amp;#9;LAErrorAuthenticationFailed =kLAErrorAuthenticationFailed,&amp;#10;&amp;#10;    /// &amp;#29992;&amp;#25143;&amp;#21462;&amp;#28040;&amp;#39564;&amp;#35777;&amp;#10;&amp;#9;LAErrorUserCancel=kLAErrorUserCancel,&amp;#10;&amp;#10;&amp;#9;/// &amp;#29992;&amp;#25143;&amp;#22238;&amp;#36864;&amp;#65288;&amp;#36820;&amp;#22238;&amp;#23494;&amp;#30721;&amp;#26657;&amp;#39564;&amp;#65289;&amp;#10;&amp;#9;LAErrorUserFallback=kLAErrorUserFallback,&amp;#10;&amp;#10;&amp;#9;/// &amp;#31995;&amp;#32479;&amp;#21462;&amp;#28040;&amp;#26657;&amp;#39564;&amp;#10;&amp;#9;LAErrorSystemCancel=kLAErrorSystemCancel,&amp;#10;&amp;#10;&amp;#9;/// &amp;#23494;&amp;#30721;&amp;#26410;&amp;#35774;&amp;#32622;&amp;#10;&amp;#9;LAErrorPasscodeNotSet=kLAErrorPasscodeNotSet,&amp;#10;&amp;#10;&amp;#9;/// &amp;#25351;&amp;#32441;&amp;#19981;&amp;#27491;&amp;#30830;&amp;#10;&amp;#9;LAErrorTouchIDNotAvailable=kLAErrorTouchIDNotAvailable,&amp;#10;&amp;#10;&amp;#9;/// &amp;#27809;&amp;#26377;&amp;#24405;&amp;#20837;&amp;#25351;&amp;#32441;&amp;#10;&amp;#9;LAErrorTouchIDNotEnrolled=kLAErrorTouchIDNotEnrolled,&amp;#10;&amp;#10;&amp;#9;/// TouchID&amp;#34987;&amp;#38145;&amp;#23450;&amp;#10;&amp;#9;LAErrorTouchIDLockoutNS_ENUM_AVAILABLE(10_11,9_0) =kLAErrorTouchIDLockout,&amp;#10;&amp;#10;&amp;#9;/// App&amp;#21462;&amp;#28040;&amp;#39564;&amp;#35777;&amp;#10;&amp;#9;LAErrorAppCancelNS_ENUM_AVAILABLE(10_11,9_0) =kLAErrorAppCancel,&amp;#10;&amp;#10;&amp;#9;/// &amp;#26080;&amp;#25928;&amp;#30340;&amp;#19978;&amp;#19979;&amp;#25991;&amp;#29615;&amp;#22659;&amp;#10;&amp;#9;LAErrorInvalidContextNS_ENUM_AVAILABLE(10_11,9_0) =kLAErrorInvalidContext&amp;#10;&amp;#125;NS_ENUM_AVAILABLE(10_10,8_0);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
-&lt;p&gt;而前四种error是针对于能确定使用验证后，在验证后返回的错误&lt;/p&gt;
-&lt;p&gt;后六种error是针对于不能使用验证的原因&lt;/p&gt;
-&lt;p&gt;你可以针对这些原因做一些相应的操作，比如弹窗等等&lt;/p&gt;
-</content>
-    
-    <summary type="html">
-    
-      &lt;p&gt;TouchID验证这个在iOS8中已经对开发者开放使用了，而且需在5s以上真机才能使用，这个出来已经比较早了，相信很多人都应该已经知道怎么使用TouchID了，但是就目前我使用的App来说，看到使用TouchID验证的占得数量并不多，对于一些涉及到安全性的App来说，很有可能你的解锁验证、App登录以及支付验证都是用的TouchID使用TouchID验证还是有风险的，但是有些App增加使用TouchID作为一种验证还是不错的选择，既快捷又方便，对于开发者来说增加的成本也很低&lt;/p&gt;
-&lt;p&gt;这个是我所讲的demo的源码&lt;a href=&quot;https://github.com/Yuzeyang/TouchIDDemo&quot;&gt;TouchID demo&lt;/a&gt;，代码量非常少&lt;/p&gt;
-    
-    </summary>
-    
-    
-      <category term="TouchID" scheme="http://yuzeyang.github.io/tags/TouchID/"/>
-    
-  </entry>
   
   <entry>
     <title>Hexo搭建GitHub blog</title>
@@ -129,6 +87,48 @@
     
     
       <category term="Hexo" scheme="http://yuzeyang.github.io/tags/Hexo/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>iOS 给App添加TouchID验证</title>
+    <link href="http://yuzeyang.github.io/2016/01/19/TouchID/"/>
+    <id>http://yuzeyang.github.io/2016/01/19/TouchID/</id>
+    <published>2016-01-19T14:47:27.000Z</published>
+    <updated>2016-05-18T15:03:06.000Z</updated>
+    
+    <content type="html">&lt;p&gt;TouchID验证这个在iOS8中已经对开发者开放使用了，而且需在5s以上真机才能使用，这个出来已经比较早了，相信很多人都应该已经知道怎么使用TouchID了，但是就目前我使用的App来说，看到使用TouchID验证的占得数量并不多，对于一些涉及到安全性的App来说，很有可能你的解锁验证、App登录以及支付验证都是用的TouchID使用TouchID验证还是有风险的，但是有些App增加使用TouchID作为一种验证还是不错的选择，既快捷又方便，对于开发者来说增加的成本也很低&lt;/p&gt;
+&lt;p&gt;这个是我所讲的demo的源码&lt;a href=&quot;https://github.com/Yuzeyang/TouchIDDemo&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;TouchID demo&lt;/a&gt;，代码量非常少&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;下面我就来介绍下怎么给App增加TouchID验证吧&lt;/p&gt;
+&lt;p&gt;首先，要使用TouchID，得先引入LocalAuthentication.framework这个库，这里面只有四个头文件，但实际使用到的只有LAContext.h和LAError.h这两个头文件&lt;/p&gt;
+&lt;p&gt;在做验证时，我们只需要使用到LAContext中的两个方法&lt;/p&gt;
+&lt;p&gt;我们先初始化一个LAContext对象&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;LAContext *ctx = [[LAContext alloc] init];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后调用&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (BOOL)canEvaluatePolicy:(LAPolicy)policy error:(NSError*__autoreleasing*)error;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;方法来确定当前指定的验证方法能否使用，LAPolicy是个枚举，里面只有两个值，一个是LAPolicyDeviceOwnerAuthenticationWithBiometrics（使用该设备的TouchID验证），LAPolicyDeviceOwnerAuthentication（使用该设备的TouchID和设备密码验证）&lt;/p&gt;
+&lt;p&gt;这里返回的是一个布尔值，错误处理我等下一起说明，当返回可以使用当前指定的验证法方法时，我们调用&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)evaluatePolicy:(LAPolicy)policy localizedReason:(NSString*)localizedReason reply:(void(^)(BOOLsuccess,NSError*__nullableerror))reply;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;方法开始使用TouchID验证，localizedReason指的是在弹出TouchID验证框时提示的文字，reply指的是在做指纹验证或者密码验证后的结果返回，我将localizedReason用@”通过Home键验证已有手机指纹”作为提示，下图比较直观&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/TouchID1.png!600x600&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;刚才布尔值的错误对应的是哪些呢？&lt;/p&gt;
+&lt;p&gt;这就用到了LAError.h这个类，这个类定义了目前所有的验证失败的错误code，我直接将它copy过来了&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;typedefNS_ENUM(NSInteger, LAError)&amp;#10;&amp;#123;&amp;#10;&amp;#9;/// &amp;#26657;&amp;#39564;&amp;#22833;&amp;#36133;&amp;#10;&amp;#9;LAErrorAuthenticationFailed =kLAErrorAuthenticationFailed,&amp;#10;&amp;#10;    /// &amp;#29992;&amp;#25143;&amp;#21462;&amp;#28040;&amp;#39564;&amp;#35777;&amp;#10;&amp;#9;LAErrorUserCancel=kLAErrorUserCancel,&amp;#10;&amp;#10;&amp;#9;/// &amp;#29992;&amp;#25143;&amp;#22238;&amp;#36864;&amp;#65288;&amp;#36820;&amp;#22238;&amp;#23494;&amp;#30721;&amp;#26657;&amp;#39564;&amp;#65289;&amp;#10;&amp;#9;LAErrorUserFallback=kLAErrorUserFallback,&amp;#10;&amp;#10;&amp;#9;/// &amp;#31995;&amp;#32479;&amp;#21462;&amp;#28040;&amp;#26657;&amp;#39564;&amp;#10;&amp;#9;LAErrorSystemCancel=kLAErrorSystemCancel,&amp;#10;&amp;#10;&amp;#9;/// &amp;#23494;&amp;#30721;&amp;#26410;&amp;#35774;&amp;#32622;&amp;#10;&amp;#9;LAErrorPasscodeNotSet=kLAErrorPasscodeNotSet,&amp;#10;&amp;#10;&amp;#9;/// &amp;#25351;&amp;#32441;&amp;#19981;&amp;#27491;&amp;#30830;&amp;#10;&amp;#9;LAErrorTouchIDNotAvailable=kLAErrorTouchIDNotAvailable,&amp;#10;&amp;#10;&amp;#9;/// &amp;#27809;&amp;#26377;&amp;#24405;&amp;#20837;&amp;#25351;&amp;#32441;&amp;#10;&amp;#9;LAErrorTouchIDNotEnrolled=kLAErrorTouchIDNotEnrolled,&amp;#10;&amp;#10;&amp;#9;/// TouchID&amp;#34987;&amp;#38145;&amp;#23450;&amp;#10;&amp;#9;LAErrorTouchIDLockoutNS_ENUM_AVAILABLE(10_11,9_0) =kLAErrorTouchIDLockout,&amp;#10;&amp;#10;&amp;#9;/// App&amp;#21462;&amp;#28040;&amp;#39564;&amp;#35777;&amp;#10;&amp;#9;LAErrorAppCancelNS_ENUM_AVAILABLE(10_11,9_0) =kLAErrorAppCancel,&amp;#10;&amp;#10;&amp;#9;/// &amp;#26080;&amp;#25928;&amp;#30340;&amp;#19978;&amp;#19979;&amp;#25991;&amp;#29615;&amp;#22659;&amp;#10;&amp;#9;LAErrorInvalidContextNS_ENUM_AVAILABLE(10_11,9_0) =kLAErrorInvalidContext&amp;#10;&amp;#125;NS_ENUM_AVAILABLE(10_10,8_0);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;而前四种error是针对于能确定使用验证后，在验证后返回的错误&lt;/p&gt;
+&lt;p&gt;后六种error是针对于不能使用验证的原因&lt;/p&gt;
+&lt;p&gt;你可以针对这些原因做一些相应的操作，比如弹窗等等&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;TouchID验证这个在iOS8中已经对开发者开放使用了，而且需在5s以上真机才能使用，这个出来已经比较早了，相信很多人都应该已经知道怎么使用TouchID了，但是就目前我使用的App来说，看到使用TouchID验证的占得数量并不多，对于一些涉及到安全性的App来说，很有可能你的解锁验证、App登录以及支付验证都是用的TouchID使用TouchID验证还是有风险的，但是有些App增加使用TouchID作为一种验证还是不错的选择，既快捷又方便，对于开发者来说增加的成本也很低&lt;/p&gt;
+&lt;p&gt;这个是我所讲的demo的源码&lt;a href=&quot;https://github.com/Yuzeyang/TouchIDDemo&quot;&gt;TouchID demo&lt;/a&gt;，代码量非常少&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="TouchID" scheme="http://yuzeyang.github.io/tags/TouchID/"/>
     
   </entry>
   
