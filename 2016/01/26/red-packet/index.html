@@ -1,0 +1,34 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> iOS 不付费看微信红包照片 · 宫城</title><meta name="description" content="iOS 不付费看微信红包照片 - 宫城"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="short icon" href="/CaptainAmerica.jpg"><link rel="stylesheet" href="/css/apollo.css"><link rel="stylesheet" href="http://fonts.useso.com/css?family=Source+Sans+Pro:400,600" type="text/css"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/CaptainAmerica.jpg"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="https://github.com/yuzeyang" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><section class="container"><div class="post"><article class="post-block"><h1 class="post-title">iOS 不付费看微信红包照片</h1><div class="post-info">2016年1月26日</div><div class="post-content"><p>相信今天微信红包照片已经席卷了朋友圈，微信这次创意是非常好的，对发布的照片进行了模糊处理，打开一看，是要发红包才能看到照片的，那怎么办呢？</p>
+<p>这怎么能难倒我们这些技术男，一招破解！</p>
+<p>第一种方法Charles</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/hongbaozhaopian.png!600x600" alt=""></p>
+<p>来我们一起来抓包看看~</p>
+<p>首先设置好自己的WiFi的http代理，绑定好自己的Mac ip地址，打开Charles，选择allow</p>
+<p>然后打开你的微信朋友圈，你在Charles里面可以看到</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/zhuabaojieguo.jpg!500x500" alt=""></p>
+<p>然后在overview的URL里面，你就可以看到图片的URL地址了，将其拷贝出来，放到浏览器里面打开</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/yuanshitu.png!600x600" alt=""></p>
+<p>ok~就这么简单~</p>
+<hr>
+<p><strong>下面讲下第二种方法</strong></p>
+<p>用另一个iOS工具，叫做Replica</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/replica.png!600x600" alt=""></p>
+<p>打开Replica之后，启动Start，然后会打开VPN，按操作一步一步即可</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/replica_start.png!600x600" alt=""></p>
+<p>然后打开微信朋友圈，再返回到Replica，进到Analytics，点击最新的session，里面会有最新的POST/GET的数据</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/post_get_data.png!600x600" alt=""></p>
+<p>然后找到180.163开头的GET请求，点进去，切到Response，可以看到这个GET请求到的数据类型是image，然后打开Image Viewer</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/180.163.png!600x600" alt=""></p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/yuanshitu2.png!600x600" alt=""></p>
+<p>也是可以将图片显示出来的</p>
+<p>我们可以发现照片的模糊处理是在本地做的</p>
+<p>当然这个我们只是娱乐为主，这次的产品设计还是非常不错的，点个赞喔~</p>
+</div></article></div></section><footer><div class="paginator"><a href="/2016/04/29/hexo_build_github_blog/" class="prev">上一篇</a><a href="/2016/01/19/TouchID/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+var disqus_identifier = '2016/01/26/red-packet/';
+var disqus_title = 'iOS 不付费看微信红包照片';
+var disqus_url = 'http://yuzeyang.github.io/2016/01/26/red-packet/';
+(function() {
+    var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+    dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+    (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2016 <a href="http://yuzeyang.github.io">宫城</a>, unless otherwise noted.</p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.6.1/MathJax.js?config=TeX-MML-AM_CHTML"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script><script>var _hmt = _hmt || [];(function() {var hm = document.createElement("script");hm.src = "//hm.baidu.com/hm.js?a36e15d9e2adec9a21fcdd9f686b1ed2";var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(hm, s);})();</script></body></html>

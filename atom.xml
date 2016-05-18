@@ -91,6 +91,54 @@
   </entry>
   
   <entry>
+    <title>iOS 不付费看微信红包照片</title>
+    <link href="http://yuzeyang.github.io/2016/01/26/red-packet/"/>
+    <id>http://yuzeyang.github.io/2016/01/26/red-packet/</id>
+    <published>2016-01-26T15:11:50.000Z</published>
+    <updated>2016-05-18T15:21:30.000Z</updated>
+    
+    <content type="html">&lt;p&gt;相信今天微信红包照片已经席卷了朋友圈，微信这次创意是非常好的，对发布的照片进行了模糊处理，打开一看，是要发红包才能看到照片的，那怎么办呢？&lt;/p&gt;
+&lt;p&gt;这怎么能难倒我们这些技术男，一招破解！&lt;/p&gt;
+&lt;p&gt;第一种方法Charles&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/hongbaozhaopian.png!600x600&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;来我们一起来抓包看看~&lt;/p&gt;
+&lt;p&gt;首先设置好自己的WiFi的http代理，绑定好自己的Mac ip地址，打开Charles，选择allow&lt;/p&gt;
+&lt;p&gt;然后打开你的微信朋友圈，你在Charles里面可以看到&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/zhuabaojieguo.jpg!500x500&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;然后在overview的URL里面，你就可以看到图片的URL地址了，将其拷贝出来，放到浏览器里面打开&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/yuanshitu.png!600x600&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;ok~就这么简单~&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;&lt;strong&gt;下面讲下第二种方法&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;用另一个iOS工具，叫做Replica&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/replica.png!600x600&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;打开Replica之后，启动Start，然后会打开VPN，按操作一步一步即可&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/replica_start.png!600x600&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;然后打开微信朋友圈，再返回到Replica，进到Analytics，点击最新的session，里面会有最新的POST/GET的数据&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/post_get_data.png!600x600&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;然后找到180.163开头的GET请求，点进去，切到Response，可以看到这个GET请求到的数据类型是image，然后打开Image Viewer&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/180.163.png!600x600&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/yuanshitu2.png!600x600&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;也是可以将图片显示出来的&lt;/p&gt;
+&lt;p&gt;我们可以发现照片的模糊处理是在本地做的&lt;/p&gt;
+&lt;p&gt;当然这个我们只是娱乐为主，这次的产品设计还是非常不错的，点个赞喔~&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;相信今天微信红包照片已经席卷了朋友圈，微信这次创意是非常好的，对发布的照片进行了模糊处理，打开一看，是要发红包才能看到照片的，那怎么办呢？&lt;/p&gt;
+&lt;p&gt;这怎么能难倒我们这些技术男，一招破解！&lt;/p&gt;
+&lt;p&gt;第一种方法Charles&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;htt
+    
+    </summary>
+    
+    
+      <category term="抓包" scheme="http://yuzeyang.github.io/tags/%E6%8A%93%E5%8C%85/"/>
+    
+  </entry>
+  
+  <entry>
     <title>iOS 给App添加TouchID验证</title>
     <link href="http://yuzeyang.github.io/2016/01/19/TouchID/"/>
     <id>http://yuzeyang.github.io/2016/01/19/TouchID/</id>
