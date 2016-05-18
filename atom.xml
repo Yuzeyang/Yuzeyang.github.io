@@ -95,11 +95,12 @@
     <link href="http://yuzeyang.github.io/2016/01/19/TouchID/"/>
     <id>http://yuzeyang.github.io/2016/01/19/TouchID/</id>
     <published>2016-01-19T14:47:27.000Z</published>
-    <updated>2016-05-18T15:03:06.000Z</updated>
+    <updated>2016-05-18T15:04:09.000Z</updated>
     
     <content type="html">&lt;p&gt;TouchID验证这个在iOS8中已经对开发者开放使用了，而且需在5s以上真机才能使用，这个出来已经比较早了，相信很多人都应该已经知道怎么使用TouchID了，但是就目前我使用的App来说，看到使用TouchID验证的占得数量并不多，对于一些涉及到安全性的App来说，很有可能你的解锁验证、App登录以及支付验证都是用的TouchID使用TouchID验证还是有风险的，但是有些App增加使用TouchID作为一种验证还是不错的选择，既快捷又方便，对于开发者来说增加的成本也很低&lt;/p&gt;
-&lt;p&gt;这个是我所讲的demo的源码&lt;a href=&quot;https://github.com/Yuzeyang/TouchIDDemo&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;TouchID demo&lt;/a&gt;，代码量非常少&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;这个是我所讲的demo的源码&lt;a href=&quot;https://github.com/Yuzeyang/TouchIDDemo&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;TouchID demo&lt;/a&gt;，代码量非常少&lt;/p&gt;
+&lt;hr&gt;
 &lt;p&gt;下面我就来介绍下怎么给App增加TouchID验证吧&lt;/p&gt;
 &lt;p&gt;首先，要使用TouchID，得先引入LocalAuthentication.framework这个库，这里面只有四个头文件，但实际使用到的只有LAContext.h和LAError.h这两个头文件&lt;/p&gt;
 &lt;p&gt;在做验证时，我们只需要使用到LAContext中的两个方法&lt;/p&gt;
@@ -123,7 +124,6 @@
     <summary type="html">
     
       &lt;p&gt;TouchID验证这个在iOS8中已经对开发者开放使用了，而且需在5s以上真机才能使用，这个出来已经比较早了，相信很多人都应该已经知道怎么使用TouchID了，但是就目前我使用的App来说，看到使用TouchID验证的占得数量并不多，对于一些涉及到安全性的App来说，很有可能你的解锁验证、App登录以及支付验证都是用的TouchID使用TouchID验证还是有风险的，但是有些App增加使用TouchID作为一种验证还是不错的选择，既快捷又方便，对于开发者来说增加的成本也很低&lt;/p&gt;
-&lt;p&gt;这个是我所讲的demo的源码&lt;a href=&quot;https://github.com/Yuzeyang/TouchIDDemo&quot;&gt;TouchID demo&lt;/a&gt;，代码量非常少&lt;/p&gt;
     
     </summary>
     
