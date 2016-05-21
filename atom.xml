@@ -91,6 +91,75 @@
   </entry>
   
   <entry>
+    <title>iOS 同时修改button位置和文字问题</title>
+    <link href="http://yuzeyang.github.io/2016/04/09/button-location-title-bug/"/>
+    <id>http://yuzeyang.github.io/2016/04/09/button-location-title-bug/</id>
+    <published>2016-04-09T03:27:16.000Z</published>
+    <updated>2016-05-21T03:29:01.000Z</updated>
+    
+    <content type="html">&lt;p&gt;今天在写App的登录注册界面，其中登录和注册之间的切换和印象笔记一样&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/744236-f0c2d58089286184.gif?imageMogr2/auto-orient/strip&quot; alt=&quot;印象笔记登录界面&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;中间的登录按钮会有一个下移以及更改文字的操作，但是我在加了下移动画之后，再修改按钮的文字，就出现了很奇怪的现象，按钮会先下移然后修改文字之后，又跳回到最初的位置&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/744236-e29a7b0751f3afa0.gif?imageMogr2/auto-orient/strip&quot; alt=&quot;问题操作&quot;&gt;&lt;br&gt;这就奇怪了，看逻辑上一点错误也没有，那怎么会这样呢？&lt;/p&gt;
+&lt;p&gt;检查了下按钮的类型也是自定义的，那会不会是动画影响的呢？&lt;br&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;+ (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion NS_AVAILABLE_IOS(4_0);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;在block里面，我在setTitle:forState的方法外面，去掉动画的影响&lt;br&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[UIView setAnimationsEnabled:NO];&amp;#10;[self.loginButton setTitle:@&amp;#34;&amp;#27880; &amp;#160; &amp;#20876;&amp;#34; forState:UIControlStateNormal];&amp;#10;[self.loginButton layoutIfNeeded];&amp;#10;[UIView setAnimationsEnabled:YES];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;或者&lt;br&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[UIView performWithoutAnimation:^&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [self.loginButton setTitle:@&amp;#34;&amp;#27880; &amp;#160; &amp;#20876;&amp;#34; forState:UIControlStateNormal];&amp;#10;        [self.loginButton layoutIfNeeded];&amp;#10;&amp;#125;];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;都还是不行。。。&lt;/p&gt;
+&lt;p&gt;干脆把动画方法去掉，直接改变按钮的位置再试试。。结果还是一样，那就纳闷了。。&lt;/p&gt;
+&lt;p&gt;后来找了很久的资料发现，原来是受到了autolayout的影响，因为在广泛开始使用autolayout之后，在storyboard，nib和实现文件里面，我们可能不像以前那样去繁琐的计算坐标了，我们通过自适应的方式，去确定控件的位置&lt;/p&gt;
+&lt;p&gt;因为我的登录按钮是自适应的，所以在修改了按钮位置后，再修改文字，就会出现这样的问题，但是我打印了很多方法，都没有发现调用，所以不知道系统在设置文字的时候，又调用了哪个方法&lt;/p&gt;
+&lt;p&gt;我试着调用了修改其他的属性的方法，比如背景色，setImage：forState，这些都没事，凡是调用了title相关的三个设置都会这样。。我就满脸黑线了。。&lt;/p&gt;
+&lt;p&gt;所以目前能找到的解决办法就是，该按钮&lt;strong&gt;用坐标计算的方式添加&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;如果哪位大神找到更好的解决办法，欢迎留言~&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;今天在写App的登录注册界面，其中登录和注册之间的切换和印象笔记一样&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/744236-f0c2d58089286184.gif?imageMogr2/auto
+    
+    </summary>
+    
+    
+      <category term="button" scheme="http://yuzeyang.github.io/tags/button/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>iOS 简单下载动画</title>
+    <link href="http://yuzeyang.github.io/2016/03/27/simple-download-animation/"/>
+    <id>http://yuzeyang.github.io/2016/03/27/simple-download-animation/</id>
+    <published>2016-03-27T03:22:17.000Z</published>
+    <updated>2016-05-21T03:26:23.000Z</updated>
+    
+    <content type="html">&lt;p&gt;这个动画比较简单基础，首先我们来看一下这个动画模拟的动图&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/744236-fb58b6534566518c.gif?imageMogr2/auto-orient/strip&quot; alt=&quot;下载动画&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;动画一共有四个状态，&lt;strong&gt;开始下载&lt;/strong&gt;、&lt;strong&gt;下载结束&lt;/strong&gt;、&lt;strong&gt;下载成功&lt;/strong&gt;和&lt;strong&gt;下载失败&lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;为什么会分有&lt;strong&gt;下载结束&lt;/strong&gt;这样的状态呢？因为考虑到实际场景，可能会有在加载过程中，用户返回上级界面，我们需要结束下载动画&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;我们按状态来实现，首先先看开始加载&lt;br&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;CABasicAnimation *rotationZAnimation = [CABasicAnimation animationWithKeyPath:@&amp;#34;transform.rotation.z&amp;#34;];&amp;#10;rotationZAnimation.fromValue = @(0);&amp;#10;rotationZAnimation.toValue = @(M_PI*2);&amp;#10;rotationZAnimation.repeatDuration = HUGE_VAL;&amp;#10;rotationZAnimation.duration = 1.0;&amp;#10;rotationZAnimation.cumulative = YES;&amp;#10;rotationZAnimation.beginTime = CACurrentMediaTime();&amp;#10;[self.loadingLayer addAnimation:rotationZAnimation forKey:@&amp;#34;rotationZAnimation&amp;#34;];&amp;#10;&amp;#160;&amp;#160; &amp;#160; &amp;#160; &amp;#160;&amp;#10;NSArray *values = [self valueArrayWithWidth:self.downloadingViewWidth];&amp;#10;CAKeyframeAnimation *boundsAnimation = [self bounsAnimationWithValues:values];&amp;#10;[self.loadingLayer addAnimation:boundsAnimation forKey:nil];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;这里分为两个动画，一个是&lt;strong&gt;旋转动画&lt;/strong&gt;，一个是&lt;strong&gt;放大缩小的动画&lt;/strong&gt;&lt;br&gt;&lt;strong&gt;旋转动画&lt;/strong&gt;，我们只有一个初始值和末值，所以我们只需要使用CABasicAnimation就可以了，不需要使用CAKeyframeAnimation，CAKeyframeAnimation是用来处理关键帧动画的，它的values属性用来存储关键帧的值，这就是我们用来做处理&lt;strong&gt;放大缩小动画&lt;/strong&gt;，上面代码可以看到我将它抽成了一个方法来用，因为在下载成功和失败的时候，成功和失败也是有放大缩小的动画，这三个其实是一个动画&lt;br&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (NSArray *)valueArrayWithWidth:(CGFloat)width &amp;#123;&amp;#10;&amp;#160; &amp;#160; return @[[NSValue valueWithCGRect:CGRectMake(0, 0, width * 0.7, width * 0.7)],&amp;#10;&amp;#160;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [NSValue valueWithCGRect:CGRectMake(0, 0, width, width)],&amp;#10;&amp;#160;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [NSValue valueWithCGRect:CGRectMake(0, 0, width * 0.9, width * 0.9)]];&amp;#10;&amp;#125;&amp;#10;&amp;#10;- (CAKeyframeAnimation *)bounsAnimationWithValues:(NSArray *)values &amp;#123;&amp;#10;&amp;#160; &amp;#160; CAKeyframeAnimation *boundsAnimation = [CAKeyframeAnimation animationWithKeyPath:@&amp;#34;bounds&amp;#34;];&amp;#10;&amp;#160; &amp;#160; boundsAnimation.duration = 0.6;&amp;#10;&amp;#160; &amp;#160; boundsAnimation.beginTime = CACurrentMediaTime();&amp;#10;&amp;#160; &amp;#160; boundsAnimation.values = values;&amp;#10;&amp;#160; &amp;#160; boundsAnimation.keyTimes = @[@(0),@(0.3),@(0.6)];&amp;#10;&amp;#160; &amp;#160; boundsAnimation.timingFunctions = @[[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut],&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut],&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; &amp;#160; [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseOut]];&amp;#10;&amp;#160; &amp;#160; boundsAnimation.removedOnCompletion = NO;&amp;#10;&amp;#160; &amp;#160; boundsAnimation.fillMode = kCAFillModeForwards;&amp;#10;&amp;#160; &amp;#160; return boundsAnimation;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;我们统一设置动画的values值，这里传入的width值是下载的背景大小，因为下载圆圈有个放大的过程，所以我们需要圆圈的原始大小要比背景的大小小，所以我默认设置圆圈的大小是背景大小的0.9倍，所以动画的效果是圆圈从背景大小的0.7倍-&amp;gt;背景大小-&amp;gt;背景大小的0.9倍（圆圈的原始大小）&lt;br&gt;在设置这个动画的时候，因为动画的值不止是初始值和末值，还是中间值，所以我使用CAKeyframeAnimation来做，每个关键帧之间的动画时间设置为0.3秒，这是最适合的动画时间，当然这是时间还是由自己反复调试动画决定的&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;下载结束我们只要将转圈的动画移除掉即可，这样转圈就恢复到原来的状态了&lt;br&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[self.loadingLayer removeAllAnimations];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;下载成功我们也需要将转圈动画移除，然后出现成功的动画，并且将成功图层的透明度从0变到1&lt;br&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[self.loadingLayer removeAllAnimations];&amp;#10;self.failLayer.opacity = 0.0;&amp;#10;NSArray *values = [self valueArrayWithWidth:self.downloadingViewWidth * 0.5];&amp;#10;CAKeyframeAnimation *boundsAnimation = [self bounsAnimationWithValues:values];&amp;#10;[self.doneLayer addAnimation:boundsAnimation forKey:nil];&amp;#10;&amp;#160;&amp;#160; &amp;#160; &amp;#160; &amp;#160;&amp;#10;[UIView animateWithDuration:1.0 animations:^&amp;#123;&amp;#10;&amp;#160; &amp;#160; self.doneLayer.opacity = 1.0;&amp;#10;&amp;#125;];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;下载失败也是同理&lt;br&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[self.loadingLayer removeAllAnimations];&amp;#10;self.doneLayer.opacity = 0.0;&amp;#10;NSArray *values = [self valueArrayWithWidth:self.downloadingViewWidth * 0.5];&amp;#10;CAKeyframeAnimation *boundsAnimation = [self bounsAnimationWithValues:values];&amp;#10;[self.failLayer addAnimation:boundsAnimation forKey:nil];&amp;#10;&amp;#160;&amp;#160; &amp;#160; &amp;#160; &amp;#160;&amp;#10;[UIView animateWithDuration:1.0 animations:^&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160;self.failLayer.opacity = 1.0;&amp;#10;&amp;#125;];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;好了，动画主要的原理就是这样，具体的代码实现可以看这里：&lt;a href=&quot;https://github.com/Yuzeyang/DownloadingAnimation&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/Yuzeyang/DownloadingAnimation&lt;/a&gt;&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这个动画比较简单基础，首先我们来看一下这个动画模拟的动图&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/744236-fb58b6534566518c.gif?imageMogr2/auto-orien
+    
+    </summary>
+    
+    
+      <category term="下载动画" scheme="http://yuzeyang.github.io/tags/%E4%B8%8B%E8%BD%BD%E5%8A%A8%E7%94%BB/"/>
+    
+  </entry>
+  
+  <entry>
     <title>iOS 不付费看微信红包照片</title>
     <link href="http://yuzeyang.github.io/2016/01/26/red-packet/"/>
     <id>http://yuzeyang.github.io/2016/01/26/red-packet/</id>
