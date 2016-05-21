@@ -95,12 +95,12 @@
     <link href="http://yuzeyang.github.io/2016/04/09/button-location-title-bug/"/>
     <id>http://yuzeyang.github.io/2016/04/09/button-location-title-bug/</id>
     <published>2016-04-09T03:27:16.000Z</published>
-    <updated>2016-05-21T03:29:01.000Z</updated>
+    <updated>2016-05-21T03:39:19.000Z</updated>
     
-    <content type="html">&lt;p&gt;今天在写App的登录注册界面，其中登录和注册之间的切换和印象笔记一样&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/744236-f0c2d58089286184.gif?imageMogr2/auto-orient/strip&quot; alt=&quot;印象笔记登录界面&quot;&gt;&lt;/p&gt;
+    <content type="html">&lt;p&gt;今天在写App的登录注册界面，其中登录和注册之间的切换和印象笔记一样&lt;br&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/Evernote.gif!500x500&quot; alt=&quot;印象笔记登录界面&quot;&gt;&lt;/p&gt;
 &lt;hr&gt;
 &lt;p&gt;中间的登录按钮会有一个下移以及更改文字的操作，但是我在加了下移动画之后，再修改按钮的文字，就出现了很奇怪的现象，按钮会先下移然后修改文字之后，又跳回到最初的位置&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/744236-e29a7b0751f3afa0.gif?imageMogr2/auto-orient/strip&quot; alt=&quot;问题操作&quot;&gt;&lt;br&gt;这就奇怪了，看逻辑上一点错误也没有，那怎么会这样呢？&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/Evernote%20bug.gif!500x500&quot; alt=&quot;问题操作&quot;&gt;&lt;br&gt;这就奇怪了，看逻辑上一点错误也没有，那怎么会这样呢？&lt;/p&gt;
 &lt;p&gt;检查了下按钮的类型也是自定义的，那会不会是动画影响的呢？&lt;br&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;+ (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion NS_AVAILABLE_IOS(4_0);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;在block里面，我在setTitle:forState的方法外面，去掉动画的影响&lt;br&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[UIView setAnimationsEnabled:NO];&amp;#10;[self.loginButton setTitle:@&amp;#34;&amp;#27880; &amp;#160; &amp;#20876;&amp;#34; forState:UIControlStateNormal];&amp;#10;[self.loginButton layoutIfNeeded];&amp;#10;[UIView setAnimationsEnabled:YES];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
 &lt;p&gt;或者&lt;br&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[UIView performWithoutAnimation:^&amp;#123;&amp;#10;&amp;#160; &amp;#160; &amp;#160; &amp;#160; [self.loginButton setTitle:@&amp;#34;&amp;#27880; &amp;#160; &amp;#20876;&amp;#34; forState:UIControlStateNormal];&amp;#10;        [self.loginButton layoutIfNeeded];&amp;#10;&amp;#125;];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
@@ -115,7 +115,9 @@
     
     <summary type="html">
     
-      &lt;p&gt;今天在写App的登录注册界面，其中登录和注册之间的切换和印象笔记一样&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/744236-f0c2d58089286184.gif?imageMogr2/auto
+      &lt;p&gt;今天在写App的登录注册界面，其中登录和注册之间的切换和印象笔记一样&lt;br&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/Evernote.gif!500x500&quot; alt=&quot;印象笔记登录界面&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;中
     
     </summary>
     
@@ -129,9 +131,9 @@
     <link href="http://yuzeyang.github.io/2016/03/27/simple-download-animation/"/>
     <id>http://yuzeyang.github.io/2016/03/27/simple-download-animation/</id>
     <published>2016-03-27T03:22:17.000Z</published>
-    <updated>2016-05-21T03:26:23.000Z</updated>
+    <updated>2016-05-21T03:40:35.000Z</updated>
     
-    <content type="html">&lt;p&gt;这个动画比较简单基础，首先我们来看一下这个动画模拟的动图&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/744236-fb58b6534566518c.gif?imageMogr2/auto-orient/strip&quot; alt=&quot;下载动画&quot;&gt;&lt;/p&gt;
+    <content type="html">&lt;p&gt;这个动画比较简单基础，首先我们来看一下这个动画模拟的动图&lt;br&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/downloadAnimation.gif!500x500&quot; alt=&quot;下载动画&quot;&gt;&lt;/p&gt;
 &lt;hr&gt;
 &lt;p&gt;动画一共有四个状态，&lt;strong&gt;开始下载&lt;/strong&gt;、&lt;strong&gt;下载结束&lt;/strong&gt;、&lt;strong&gt;下载成功&lt;/strong&gt;和&lt;strong&gt;下载失败&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;为什么会分有&lt;strong&gt;下载结束&lt;/strong&gt;这样的状态呢？因为考虑到实际场景，可能会有在加载过程中，用户返回上级界面，我们需要结束下载动画&lt;/p&gt;
@@ -150,7 +152,9 @@
     
     <summary type="html">
     
-      &lt;p&gt;这个动画比较简单基础，首先我们来看一下这个动画模拟的动图&lt;br&gt;&lt;img src=&quot;http://upload-images.jianshu.io/upload_images/744236-fb58b6534566518c.gif?imageMogr2/auto-orien
+      &lt;p&gt;这个动画比较简单基础，首先我们来看一下这个动画模拟的动图&lt;br&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/downloadAnimation.gif!500x500&quot; alt=&quot;下载动画&quot;&gt;&lt;/p&gt;
+&lt;hr&gt;
+&lt;p&gt;动画
     
     </summary>
     
