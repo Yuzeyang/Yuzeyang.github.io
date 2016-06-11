@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-05-28T03:24:10.000Z</updated>
+  <updated>2016-06-11T09:16:59.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -14,6 +14,73 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>模仿iOS7 task switcher的卡片动画</title>
+    <link href="http://yuzeyang.github.io/2016/06/11/iOS-card-animation/"/>
+    <id>http://yuzeyang.github.io/2016/06/11/iOS-card-animation/</id>
+    <published>2016-06-11T02:20:29.000Z</published>
+    <updated>2016-06-11T09:16:59.000Z</updated>
+    
+    <content type="html">&lt;p&gt;最近看到一个iOS9的task switcher开源实现，但是没有删除功能，就想着干脆做一个模仿iOS7系统的效果，加上删除和重用卡片功能，效果图如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/GCCardViewController.gif!500x500&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;这是代码地址：&lt;a href=&quot;https://github.com/Yuzeyang/GCCardViewController&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/Yuzeyang/GCCardViewController&lt;/a&gt;&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;实现上可以使用scrollView或者collectionView去做，这个我是用scrollView去做&lt;/p&gt;
+&lt;p&gt;功能点上分为三点：&lt;/p&gt;
+&lt;p&gt;1.卡片滑动的效果&lt;/p&gt;
+&lt;p&gt;2.卡片重用&lt;/p&gt;
+&lt;p&gt;3.卡片删除&lt;/p&gt;
+&lt;h2 id=&quot;u5361_u7247_u6ED1_u52A8_u6548_u679C&quot;&gt;&lt;a href=&quot;#u5361_u7247_u6ED1_u52A8_u6548_u679C&quot; class=&quot;headerlink&quot; title=&quot;卡片滑动效果&quot;&gt;&lt;/a&gt;卡片滑动效果&lt;/h2&gt;&lt;p&gt;通过- [scrollViewDidScroll:]代理获取scrollView滑动时的contentOffset值，计算当前contentOffset和原先contentOffset之间的差值diff，再算出进度值progress，以及根据差值diff是否大于0来获取卡片的滑动方向&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)scrollViewDidScroll:(UIScrollView *)scrollView &amp;#123;&amp;#10;    CGFloat orginContentOffset = self.currentCardIndex*kGCScrollViewWidth;&amp;#10;    CGFloat diff = scrollView.contentOffset.x - orginContentOffset;&amp;#10;    CGFloat progress = fabs(diff)/(kGCViewWidth*0.8);&amp;#10;    CardMoveDirection direction = diff &amp;#62; 0 ? CardMoveDirectionLeft : CardMoveDirectionRight;&amp;#10;    for (UIView *card in self.cards) &amp;#123;&amp;#10;        [self.cardDelegate updateCard:card withProgress:progress direction:direction];&amp;#10;    &amp;#125;&amp;#10;    &amp;#10;    // &amp;#21345;&amp;#29255;&amp;#37325;&amp;#29992;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;通过调用自己的cardDelegate方法更新卡片的状态&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)updateCard:(UIView *)card withProgress:(CGFloat)progress direction:(CardMoveDirection)direction;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;当前卡片不管是左移还是右移，只需要根据progress来更新状态&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;card.layer.transform = CATransform3DMakeScale(1 - 0.1 * progress, 1 - 0.1 * progress, 1.0);&amp;#10;card.layer.opacity = 1 - 0.2*progress;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;根据左移还是右移，来决定改变当前卡片下一张还是上一张卡片的状态&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;NSInteger transCardTag = direction == CardMoveDirectionLeft ? [self.cardScrollView currentCard] + 1 : [self.cardScrollView currentCard] - 1;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;card.layer.transform = CATransform3DMakeScale(0.9 + 0.1*progress, 0.9 + 0.1*progress, 1.0);&amp;#10;card.layer.opacity = 0.8 + 0.2*progress;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h2 id=&quot;u5361_u7247_u91CD_u7528&quot;&gt;&lt;a href=&quot;#u5361_u7247_u91CD_u7528&quot; class=&quot;headerlink&quot; title=&quot;卡片重用&quot;&gt;&lt;/a&gt;卡片重用&lt;/h2&gt;&lt;p&gt;由于页面上只显示三张卡片，所以要重用卡片的话，我们需要初始化四张卡片，类似于tableViewCell的重用处理一样，当第一张卡片离开屏幕显示之后，将第一张卡片移到最后一张卡片的后面，反之，同理&lt;/p&gt;
+&lt;p&gt;在- [scrollViewDidScroll:]里面，根据contentOffset变化的绝对值大于scrollView宽度的80%时，对卡片进行重用，以及改变当前的index&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;if (fabs(diff) &amp;#62;= kGCScrollViewWidth*0.8) &amp;#123;&amp;#10;        self.currentCardIndex = direction == CardMoveDirectionLeft ? self.currentCardIndex + 1 : self.currentCardIndex - 1;&amp;#10;        [self reuseCardWithMoveDirection:direction];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;在重用之前，并不是所有位置都需要重用，在index（index从0开始计算）小于2或者index大于总卡片数量-3的时候，才需要重用，左移时，取出cards数组里面第一个card，将card移到最后一个card后面，改变它的center就可以，右移时，取出最后一个card，移到第一个card前面&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)reuseCardWithMoveDirection:(CardMoveDirection)moveDirection &amp;#123;&amp;#10;    BOOL isLeft = moveDirection == CardMoveDirectionLeft;&amp;#10;    UIView *card = nil;&amp;#10;    if (isLeft) &amp;#123;&amp;#10;        if (self.currentCardIndex &amp;#62; self.totalNumberOfCards - 3 || self.currentCardIndex &amp;#60; 2) &amp;#123;&amp;#10;            return;&amp;#10;        &amp;#125;&amp;#10;        card = [self.cards objectAtIndex:0];&amp;#10;        card.tag+=4;&amp;#10;    &amp;#125; else &amp;#123;&amp;#10;        if (self.currentCardIndex &amp;#62; self.totalNumberOfCards - 4 ||&amp;#10;            self.currentCardIndex &amp;#60; 1) &amp;#123;&amp;#10;            return;&amp;#10;        &amp;#125;&amp;#10;        card = [self.cards objectAtIndex:3];&amp;#10;        card.tag-=4;&amp;#10;    &amp;#125;&amp;#10;    card.center = [self centerForCardWithIndex:card.tag];&amp;#10;    [self.cardDataSource cardReuseView:card atIndex:card.tag];&amp;#10;    [self ascendingSortCards];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;并且调用- [cardReuseView:atIndex:]对重用的卡片改变数据源，最后按tag值升序排序&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (UIView *)cardReuseView:(UIView *)reuseView atIndex:(NSInteger)index &amp;#123;&amp;#10;    if (reuseView) &amp;#123;&amp;#10;        // you can set new style&amp;#10;        return reuseView;&amp;#10;    &amp;#125;&amp;#10;    &amp;#10;    UIView *card = [[UIView alloc] initWithFrame:CGRectMake(0, 0, kGCCardWidth * 0.9, kGCCardHeight)];&amp;#10;    card.layer.backgroundColor = [UIColor whiteColor].CGColor;&amp;#10;    card.layer.cornerRadius = 4;&amp;#10;    card.layer.masksToBounds = YES;&amp;#10;    &amp;#10;    return card;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h2 id=&quot;u5361_u7247_u5220_u9664&quot;&gt;&lt;a href=&quot;#u5361_u7247_u5220_u9664&quot; class=&quot;headerlink&quot; title=&quot;卡片删除&quot;&gt;&lt;/a&gt;卡片删除&lt;/h2&gt;&lt;p&gt;卡片删除是一个可选功能，通过设置canDeleteCard来添加手势&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;@property (nonatomic, assign) BOOL canDeleteCard;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;if (self.canDeleteCard) &amp;#123;&amp;#10;    UIPanGestureRecognizer *deleteGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(deleteCard:)];&amp;#10;    deleteGesture.minimumNumberOfTouches = 1;&amp;#10;    deleteGesture.maximumNumberOfTouches = 1;&amp;#10;    deleteGesture.delegate = self;&amp;#10;    [card addGestureRecognizer:deleteGesture];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;由于卡片有拖动手势和scrollView也有拖动手势，这两个手势会出现冲突，所以我们需要根据手势的方向来判断到底应该是作用于卡片上还是scrollView上&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer &amp;#123;&amp;#10;    if ([gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) &amp;#123;&amp;#10;        CGPoint translatedPoint = [(UIPanGestureRecognizer *)gestureRecognizer translationInView:gestureRecognizer.view];&amp;#10;        if (fabs(translatedPoint.y) &amp;#62; fabs(translatedPoint.x)) &amp;#123;&amp;#10;            return YES;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;    return NO;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;在调用卡片删除手势时，向下拖动时不做删除，向上拖动屏幕高度的一半后，删除卡片，并且重用删除后的卡片，这部分重用相对比较复杂&lt;/p&gt;
+&lt;h5 id=&quot;u5F53_u5361_u7247_u5C0F_u4E8E_u7B49_u4E8E_u56DB_u5F20_u65F6_uFF0C_u6211_u4EEC_u76F4_u63A5_u79FB_u9664_u5F53_u524D_u7684_u5361_u7247&quot;&gt;&lt;a href=&quot;#u5F53_u5361_u7247_u5C0F_u4E8E_u7B49_u4E8E_u56DB_u5F20_u65F6_uFF0C_u6211_u4EEC_u76F4_u63A5_u79FB_u9664_u5F53_u524D_u7684_u5361_u7247&quot; class=&quot;headerlink&quot; title=&quot;当卡片小于等于四张时，我们直接移除当前的卡片&quot;&gt;&lt;/a&gt;当卡片小于等于四张时，我们直接移除当前的卡片&lt;/h5&gt;&lt;p&gt;-&amp;gt; 如果当前卡片index为0时 -&amp;gt; 右边的卡片左移 -&amp;gt; 右边卡片的tag均减1&lt;/p&gt;
+&lt;p&gt;-&amp;gt; 如果当前卡片index为最后一张时 -&amp;gt; 左边的卡片右移 -&amp;gt; 左边卡片的tag不变&lt;/p&gt;
+&lt;p&gt;-&amp;gt; 如果当前卡片index为中间时 -&amp;gt; 右边的卡片左移 -&amp;gt; 右边卡片的tag均减1&lt;/p&gt;
+&lt;p&gt;最后按升序排序&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;if (self.totalNumberOfCards &amp;#60;= 4) &amp;#123;&amp;#10;    [(UIView *)[self.cards objectAtIndex:index] removeFromSuperview];&amp;#10;    [self resetTagFromIndex:index];&amp;#10;    [self.cards removeObjectAtIndex:index];&amp;#10;    [self ascendingSortCards];&amp;#10;    return;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)resetTagFromIndex:(NSInteger)index &amp;#123;&amp;#10;    [self.cards enumerateObjectsUsingBlock:^(UIView *card, NSUInteger idx, BOOL * _Nonnull stop) &amp;#123;&amp;#10;        if ((NSInteger)idx &amp;#62; index) &amp;#123;&amp;#10;            card.tag-=1;&amp;#10;            [UIView animateWithDuration:0.3 animations:^&amp;#123;&amp;#10;                card.center = [self centerForCardWithIndex:card.tag];&amp;#10;            &amp;#125;];&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;当卡片超过四张时，我们需要重用删除的卡片&lt;/p&gt;
+&lt;p&gt;-&amp;gt; 如果当前卡片index为0时 -&amp;gt; 卡片的tag值加4 -&amp;gt; 右边的卡片左移 -&amp;gt; 右边卡片的tag均减1&lt;/p&gt;
+&lt;p&gt;-&amp;gt; 如果当前卡片index为最后一张时 -&amp;gt; 卡片的tag值减4 -&amp;gt; 左边的卡片右移 -&amp;gt; 左边卡片的tag不变&lt;/p&gt;
+&lt;p&gt;-&amp;gt; 如果当前卡片index为中间时 -&amp;gt; 以四个卡片为一组，获取第一个卡片和最后一个卡片的tag值 -&amp;gt; 判读最后一个卡片是否是最后一张卡片 -&amp;gt; 如果是，则将卡片移到第一张卡片的左边，如果不是，则将卡片移到最后一张卡片的右边 -&amp;gt; 右边的卡片左移 -&amp;gt; 右边卡片的tag均减1&lt;/p&gt;
+&lt;p&gt;最后按升序排序&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;UIView *card = [self.cards objectAtIndex:index];&amp;#10;NSInteger fromIndex = index;&amp;#10;if (index == 0) &amp;#123;&amp;#10;    card.tag+=4;&amp;#10;    fromIndex = index - 1;&amp;#10;&amp;#125; else if (index == 3) &amp;#123;&amp;#10;    card.tag-=4;&amp;#10;&amp;#125; else &amp;#123;&amp;#10;    NSInteger lastTag = ((UIView *)[self.cards lastObject]).tag;&amp;#10;    NSInteger firstTag = ((UIView *)[self.cards firstObject]).tag;&amp;#10;    if (lastTag == self.totalNumberOfCards - 1) &amp;#123;&amp;#10;        card.tag = firstTag - 1;&amp;#10;    &amp;#125; else &amp;#123;&amp;#10;        card.tag = lastTag + 1;&amp;#10;        fromIndex = index - 1;&amp;#10;    &amp;#125;&amp;#10;&amp;#125;&amp;#10;card.center = [self centerForCardWithIndex:card.tag];&amp;#10;[self ascendingSortCards];&amp;#10;[self resetTagFromIndex:fromIndex];&amp;#10;[self.cardDataSource cardReuseView:card atIndex:card.tag];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;最后只要改变scrollView的contentSize和卡片状态即可~&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[UIView animateWithDuration:0.3 animations:^&amp;#123;&amp;#10;    [self.scrollView setContentSize:CGSizeMake(kGCScrollViewWidth*self.totalNumberOfCards, kGCViewHeight)];&amp;#10;    for (UIView *card in self.cards) &amp;#123;&amp;#10;        [self.cardDelegate updateCard:card withProgress:1 direction:CardMoveDirectionNone];&amp;#10;    &amp;#125;&amp;#10;&amp;#125;];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;最近看到一个iOS9的task switcher开源实现，但是没有删除功能，就想着干脆做一个模仿iOS7系统的效果，加上删除和重用卡片功能，效果图如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/GCCardViewController.gif!500x500&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;这是代码地址：&lt;a href=&quot;https://github.com/Yuzeyang/GCCardViewController&quot;&gt;https://github.com/Yuzeyang/GCCardViewController&lt;/a&gt;&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="task switcher" scheme="http://yuzeyang.github.io/tags/task-switcher/"/>
+    
+  </entry>
   
   <entry>
     <title>iOS AFNetWorking源码详解（六）</title>
