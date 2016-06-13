@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-06-13T15:54:20.000Z</updated>
+  <updated>2016-06-13T16:22:03.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -20,17 +20,18 @@
     <link href="http://yuzeyang.github.io/2016/06/13/Qiniu-token/"/>
     <id>http://yuzeyang.github.io/2016/06/13/Qiniu-token/</id>
     <published>2016-06-13T15:07:54.000Z</published>
-    <updated>2016-06-13T15:54:20.000Z</updated>
+    <updated>2016-06-13T16:22:03.000Z</updated>
     
     <content type="html">&lt;p&gt;在使用七牛iOS SDK上传图片时需要用到上传的token，虽然七牛建议token不要在客户端生成，这样做是不安全的，但是我们还是需要了解下客户端是如何生成token的&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;我简单地对生成token和上传数据做了封装：&lt;a href=&quot;https://github.com/Yuzeyang/GCQiniuUploadManager&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;provide simple interface to create token,upload file and upload files&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;首先我们需要用到三个参数&lt;code&gt;scope&lt;/code&gt;、&lt;code&gt;AccessKey&lt;/code&gt;和&lt;code&gt;SecretKey&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;scope&lt;/code&gt;其实就是资源存放的文件夹名字，例如下图的&lt;code&gt;cmxj&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/Qiniu_scope.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;&lt;code&gt;AccessKey&lt;/code&gt;和&lt;code&gt;SecretKey&lt;/code&gt;在个人面板 -&amp;gt; 个人中心 -&amp;gt; 密钥管理里面就能看到&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/Qiniu_AK_SK.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;接下来就可以创建token了，首先我们将上传策略中的&lt;code&gt;scope&lt;/code&gt;和&lt;code&gt;deadline&lt;/code&gt;序列化成json格式，里面的&lt;code&gt;liveTime&lt;/code&gt;则是token的有效时间，可以以天为单位&lt;/p&gt;
-&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;NSMutableDictionary *authInfo = [NSMutableDictionary dictionary];&amp;#10;    [authInfo setObject:self.scope forKey:@&amp;#34;scope&amp;#34;];&amp;#10;    [authInfo&amp;#10;    setObject:[NSNumber numberWithLong:[[NSDate date] timeIntervalSince1970] + self.liveTime * 24 * 3600]&amp;#10;       forKey:@&amp;#34;deadline&amp;#34;];&amp;#10;&amp;#10;    NSData *jsonData =&amp;#10;    [NSJSONSerialization dataWithJSONObject:authInfo options:NSJSONWritingPrettyPrinted error:nil];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;NSMutableDictionary *authInfo = [NSMutableDictionary dictionary];&amp;#10;[authInfo setObject:self.scope forKey:@&amp;#34;scope&amp;#34;];&amp;#10;[authInfo&amp;#10;setObject:[NSNumber numberWithLong:[[NSDate date] timeIntervalSince1970] + self.liveTime * 24 * 3600]&amp;#10;   forKey:@&amp;#34;deadline&amp;#34;];&amp;#10;&amp;#10;NSData *jsonData =&amp;#10;[NSJSONSerialization dataWithJSONObject:authInfo options:NSJSONWritingPrettyPrinted error:nil];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;p&gt;再对json序列化后的上传策略进行URL安全的base64编码&lt;/p&gt;
 &lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;NSString *encodedString = [self urlSafeBase64Encode:jsonData];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;p&gt;&lt;code&gt;QN_GTM_Base64&lt;/code&gt;是七牛SDK提供给用户用来处理base64和WebSafeBase64编码的类，然后将里面的&lt;code&gt;+&lt;/code&gt;和&lt;code&gt;/&lt;/code&gt;替换成&lt;code&gt;_&lt;/code&gt;&lt;/p&gt;
