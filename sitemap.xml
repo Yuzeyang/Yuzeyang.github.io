@@ -2,51 +2,58 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://yuzeyang.github.io/2016/06/11/iOS-card-animation/</loc>
+    <loc>http://yuzeyang.github.io/2016/06/13/Qiniu-token/</loc>
     
-    <lastmod>2016-06-11T09:25:23.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yuzeyang.github.io/2016/05/27/AFNetWorking-six/</loc>
-    
-    <lastmod>2016-05-28T03:24:10.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yuzeyang.github.io/2016/05/25/AFNetWorking-five/</loc>
-    
-    <lastmod>2016-05-26T16:10:54.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yuzeyang.github.io/2016/05/23/AFNetWorking-four/</loc>
-    
-    <lastmod>2016-05-24T15:26:39.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yuzeyang.github.io/2016/05/22/AFNetWorking-three/</loc>
-    
-    <lastmod>2016-05-22T14:50:52.000Z</lastmod>
+    <lastmod>2016-06-13T15:54:20.000Z</lastmod>
     
   </url>
   
   <url>
     <loc>http://yuzeyang.github.io/2016/03/15/AFNetWorking-two/</loc>
     
-    <lastmod>2016-05-22T12:34:41.000Z</lastmod>
+    <lastmod>2016-06-12T15:28:26.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yuzeyang.github.io/2016/05/22/AFNetWorking-three/</loc>
+    
+    <lastmod>2016-06-12T15:26:20.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yuzeyang.github.io/2016/05/27/AFNetWorking-six/</loc>
+    
+    <lastmod>2016-06-12T15:25:24.000Z</lastmod>
     
   </url>
   
   <url>
     <loc>http://yuzeyang.github.io/2016/02/21/AFNetWorking-one/</loc>
     
-    <lastmod>2016-05-22T11:03:24.000Z</lastmod>
+    <lastmod>2016-06-12T15:23:30.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yuzeyang.github.io/2016/05/23/AFNetWorking-four/</loc>
+    
+    <lastmod>2016-06-12T15:18:07.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yuzeyang.github.io/2016/05/25/AFNetWorking-five/</loc>
+    
+    <lastmod>2016-06-12T15:17:30.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yuzeyang.github.io/2016/06/11/iOS-card-animation/</loc>
+    
+    <lastmod>2016-06-11T09:25:23.000Z</lastmod>
     
   </url>
   
