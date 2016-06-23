@@ -379,7 +379,7 @@
     <link href="http://yuzeyang.github.io/2016/04/29/hexo_build_github_blog/"/>
     <id>http://yuzeyang.github.io/2016/04/29/hexo_build_github_blog/</id>
     <published>2016-04-28T16:00:00.000Z</published>
-    <updated>2016-06-23T15:08:33.000Z</updated>
+    <updated>2016-06-23T15:57:21.000Z</updated>
     
     <content type="html">&lt;p&gt;如果你厌倦了使用了第三方的博客平台，你可以考虑一下用hexo和github来搭建自己的博客&lt;/p&gt;
 &lt;hr&gt;
@@ -433,7 +433,20 @@
 &lt;p&gt;最后再确认一下&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;http://7xtit4.com2.z0.glb.clouddn.com/update.jpg&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;上传成功~！&lt;/p&gt;
-&lt;h2 id=&quot;12-_u589E_u52A0_u8BC4_u8BBA_u529F_u80FD&quot;&gt;&lt;a href=&quot;#12-_u589E_u52A0_u8BC4_u8BBA_u529F_u80FD&quot; class=&quot;headerlink&quot; title=&quot;12.增加评论功能&quot;&gt;&lt;/a&gt;12.增加评论功能&lt;/h2&gt;&lt;p&gt;目前用的比较多的评论插件有&lt;a href=&quot;https://disqus.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;disqus&lt;/a&gt;、&lt;a href=&quot;http://duoshuo.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;多说&lt;/a&gt;、&lt;a href=&quot;http://www.uyan.cc/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;友言&lt;/a&gt;&lt;/p&gt;
+&lt;h2 id=&quot;12-_u7533_u8BF7_u4E2A_u4EBA_u57DF_u540D&quot;&gt;&lt;a href=&quot;#12-_u7533_u8BF7_u4E2A_u4EBA_u57DF_u540D&quot; class=&quot;headerlink&quot; title=&quot;12.申请个人域名&quot;&gt;&lt;/a&gt;12.申请个人域名&lt;/h2&gt;&lt;p&gt;使用xxx.github.io，其实还不是很方便，也没有xxx.com或者xxx.me这样的域名好（zhuang）记（bi），所以一般都会自己去申请一个个人域名&lt;/p&gt;
+&lt;p&gt;我们打开google，搜索一下&lt;code&gt;个人域名&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;恩，跳出&lt;a href=&quot;https://wanwang.aliyun.com/?utm_content=se_97054&amp;amp;gclid=CITQ0ce8vs0CFQqkvQodNFUPrA&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;万网&lt;/a&gt;和&lt;a href=&quot;https://sg.godaddy.com/zh/offers/default.aspx?tmskey=1dom_23&amp;amp;isc=gennlcn10&amp;amp;countrview=1&amp;amp;currencytype=CNY&amp;amp;cvosrc=ppc.google.+%C3%A4%C2%B8%C2%AA%C3%A4%C2%BA%C2%BA%C3%A5%C2%9F%C2%9F%C3%A5%C2%90%C2%8D&amp;amp;cvo_crid=103919011486&amp;amp;matchtype=b&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GoDaddy&lt;/a&gt;，不过好像GoDaddy续费比较贵，万网好像能查到你的个人信息资料…&lt;/p&gt;
+&lt;p&gt;所以我咨询了下同事，他们推荐了我&lt;a href=&quot;https://www.namesilo.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;namesilo&lt;/a&gt;，续费便宜，还能开启隐私保护~&lt;/p&gt;
+&lt;p&gt;进到首页之后我们在箭头位置搜索下我们想要的域名&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/namesilo.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;然后我们就能看到哪些是已经注册，哪些是可以使用的&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/namesiloRes.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在支付前看下价格，这上面显示的价格只是低价，类似于起拍价，实际价格在支付页可以看到，购买前请仔细看下数字…别付了好几万…（可以支持支付宝哦~）&lt;/p&gt;
+&lt;p&gt;然后我们到&lt;a href=&quot;https://www.dnspod.cn/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;DNSPOD&lt;/a&gt;里，对我们的xxx.github.io进行DNS转移到xxx.com&lt;/p&gt;
+&lt;p&gt;登录后，在域名解析里面，添加我们的个人域名，然后将默认的NS类型的记录值拷贝出来，回到我们的namesilo里面，将nameserver修改成NS类型的记录值，保存，然后过一会儿才会生效&lt;/p&gt;
+&lt;p&gt;在Github的xxx.github.io仓库的目录下面，新建一个CNAME文件，写上你的个人域名&lt;/p&gt;
+&lt;p&gt;在web导航栏里面输出你的个人域名，就可以正常访问了~&lt;/p&gt;
+&lt;h2 id=&quot;13-_u589E_u52A0_u8BC4_u8BBA_u529F_u80FD&quot;&gt;&lt;a href=&quot;#13-_u589E_u52A0_u8BC4_u8BBA_u529F_u80FD&quot; class=&quot;headerlink&quot; title=&quot;13.增加评论功能&quot;&gt;&lt;/a&gt;13.增加评论功能&lt;/h2&gt;&lt;p&gt;目前用的比较多的评论插件有&lt;a href=&quot;https://disqus.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;disqus&lt;/a&gt;、&lt;a href=&quot;http://duoshuo.com/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;多说&lt;/a&gt;、&lt;a href=&quot;http://www.uyan.cc/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;友言&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;但是多说和友言界面有点丑…相比之下disqus还是比较符合我的口味的~&lt;/p&gt;
 &lt;p&gt;那我就来介绍怎么加disqus&lt;/p&gt;
 &lt;p&gt;首先注册登录，然后点击右上角的设置按钮&lt;/p&gt;
