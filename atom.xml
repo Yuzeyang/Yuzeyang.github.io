@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-06-23T08:36:10.000Z</updated>
+  <updated>2016-06-23T08:48:55.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -20,10 +20,11 @@
     <link href="http://yuzeyang.github.io/2016/06/22/GCDAsyncSocket-socket-optimize/"/>
     <id>http://yuzeyang.github.io/2016/06/22/GCDAsyncSocket-socket-optimize/</id>
     <published>2016-06-22T15:02:22.000Z</published>
-    <updated>2016-06-23T08:36:10.000Z</updated>
+    <updated>2016-06-23T08:48:55.000Z</updated>
     
     <content type="html">&lt;p&gt;之前基于GCDAsyncSocket封装了一个Socket Manager类，但是由于业务复杂度的上升，之前设计的业务接口的数量逐渐增加，代理回调也随之增加，代理的使用也越来越麻烦，所以我们针对socket通信这块，进行了一次重构&lt;/p&gt;
 &lt;p&gt;这里有我们的新童鞋&lt;a href=&quot;http://broccoliii.me/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;西兰花&lt;/a&gt;很大的功劳哈~&lt;/p&gt;
+&lt;p&gt;代码地址：&lt;a href=&quot;https://github.com/Yuzeyang/GCDAsyncSocketManager&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;GCDAsyncSocketManager&lt;/a&gt;&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;p&gt;之前的设计方案可以看这里：&lt;a href=&quot;http://zeeyang.com/2016/01/17/GCDAsyncSocket-socket/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;socket重构前方案&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;针对老的设计，我们做出了以下几点修改方向：&lt;/p&gt;
@@ -62,6 +63,7 @@
     
       &lt;p&gt;之前基于GCDAsyncSocket封装了一个Socket Manager类，但是由于业务复杂度的上升，之前设计的业务接口的数量逐渐增加，代理回调也随之增加，代理的使用也越来越麻烦，所以我们针对socket通信这块，进行了一次重构&lt;/p&gt;
 &lt;p&gt;这里有我们的新童鞋&lt;a href=&quot;http://broccoliii.me/&quot;&gt;西兰花&lt;/a&gt;很大的功劳哈~&lt;/p&gt;
+&lt;p&gt;代码地址：&lt;a href=&quot;https://github.com/Yuzeyang/GCDAsyncSocketManager&quot;&gt;GCDAsyncSocketManager&lt;/a&gt;&lt;/p&gt;
     
     </summary>
     
