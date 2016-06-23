@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-06-13T16:24:10.000Z</updated>
+  <updated>2016-06-23T08:36:10.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -14,6 +14,61 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>iOS Socket重构设计</title>
+    <link href="http://yuzeyang.github.io/2016/06/22/GCDAsyncSocket-socket-optimize/"/>
+    <id>http://yuzeyang.github.io/2016/06/22/GCDAsyncSocket-socket-optimize/</id>
+    <published>2016-06-22T15:02:22.000Z</published>
+    <updated>2016-06-23T08:36:10.000Z</updated>
+    
+    <content type="html">&lt;p&gt;之前基于GCDAsyncSocket封装了一个Socket Manager类，但是由于业务复杂度的上升，之前设计的业务接口的数量逐渐增加，代理回调也随之增加，代理的使用也越来越麻烦，所以我们针对socket通信这块，进行了一次重构&lt;/p&gt;
+&lt;p&gt;这里有我们的新童鞋&lt;a href=&quot;http://broccoliii.me/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;西兰花&lt;/a&gt;很大的功劳哈~&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;p&gt;之前的设计方案可以看这里：&lt;a href=&quot;http://zeeyang.com/2016/01/17/GCDAsyncSocket-socket/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;socket重构前方案&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;针对老的设计，我们做出了以下几点修改方向：&lt;/p&gt;
+&lt;h2 id=&quot;0x00__u62C6_u5206SocketManager&quot;&gt;&lt;a href=&quot;#0x00__u62C6_u5206SocketManager&quot; class=&quot;headerlink&quot; title=&quot;0x00 拆分SocketManager&quot;&gt;&lt;/a&gt;0x00 拆分SocketManager&lt;/h2&gt;&lt;p&gt;首先我们对SocketManager进行开刀，我们将socket相关的操作和业务相关的操作进行拆分，将业务相关的单独放到一个类里面完成，我们命名它为CommunicationManager&lt;/p&gt;
+&lt;p&gt;现在在SocketManager里面，我们只保留了&lt;code&gt;服务器读写数据&lt;/code&gt;、&lt;code&gt;断开连接&lt;/code&gt;、&lt;code&gt;心跳&lt;/code&gt;、&lt;code&gt;重连&lt;/code&gt;、&lt;code&gt;GCDAsyncSocket回调设置&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;在CommunicationManager里面，我们做所有业务的操作&lt;/p&gt;
+&lt;h2 id=&quot;0x01__u4E1A_u52A1_u63A5_u53E3_u6539_u4E3A_u901A_u7528_u63A5_u53E3&quot;&gt;&lt;a href=&quot;#0x01__u4E1A_u52A1_u63A5_u53E3_u6539_u4E3A_u901A_u7528_u63A5_u53E3&quot; class=&quot;headerlink&quot; title=&quot;0x01 业务接口改为通用接口&quot;&gt;&lt;/a&gt;0x01 业务接口改为通用接口&lt;/h2&gt;&lt;p&gt;由于业务请求类型的不断增加，业务接口的数量也在不断增加，这样使得头文件一眼望不到底…自己看起来都很头疼，更别说是使用方了…&lt;/p&gt;
+&lt;p&gt;首先我们将不同的业务请求以枚举的方式列出来，方便外部调用的时候查看，并且最好在枚举后面加上注释，例如：&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;/**&amp;#10; *  &amp;#19994;&amp;#21153;&amp;#31867;&amp;#22411;&amp;#10; */&amp;#10;typedef NS_ENUM(NSInteger, FIMRequestType) &amp;#123;&amp;#10;    FIMRequestType_Beat = 1,                       //&amp;#24515;&amp;#36339;&amp;#10;    FIMRequestType_ConnectionAuthAppraisal,        //&amp;#36830;&amp;#25509;&amp;#37492;&amp;#26435;&amp;#10;  &amp;#9;FIMRequestType_GetConversationsList,           //&amp;#33719;&amp;#21462;&amp;#20250;&amp;#35805;&amp;#21015;&amp;#34920;&amp;#10;    ...&amp;#10;&amp;#125;;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;这样我们就可以将业务接口用下面这一个通用的接口替换掉，只需要传&lt;code&gt;type&lt;/code&gt;业务请求类型，&lt;code&gt;body&lt;/code&gt;请求体和&lt;code&gt;callback&lt;/code&gt;回调&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;/**&amp;#10; *  &amp;#21521;&amp;#26381;&amp;#21153;&amp;#22120;&amp;#21457;&amp;#36865;&amp;#25968;&amp;#25454;&amp;#10; *&amp;#10; *  @param type    &amp;#35831;&amp;#27714;&amp;#31867;&amp;#22411;&amp;#10; *  @param body    &amp;#35831;&amp;#27714;&amp;#20307;&amp;#10; */&amp;#10;- (void)socketWriteDataWithRequestType:(FIMRequestType)type&amp;#10;                           requestBody:(nonnull NSDictionary *)body&amp;#10;                            completion:(nullable SocketDidReadBlock)callback;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;比如业务方可以如下使用：&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;NSDictionary *requestBody = @&amp;#123; @&amp;#34;limit&amp;#34;: @(10), @&amp;#34;offset&amp;#34;: @(0) &amp;#125;;&amp;#10;[[FIMCommunicationManager sharedInstance]&amp;#10;socketWriteDataWithRequestType:FIMRequestType_GetConversationsList&amp;#10;                   requestBody:requestBody&amp;#10;                    completion:^(NSError *error, id data) &amp;#123;&amp;#10;                        // do something&amp;#10;                    &amp;#125;];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h2 id=&quot;0x02__u544A_u522BDelegate_uFF0C_u4F7F_u7528Blcok&quot;&gt;&lt;a href=&quot;#0x02__u544A_u522BDelegate_uFF0C_u4F7F_u7528Blcok&quot; class=&quot;headerlink&quot; title=&quot;0x02 告别Delegate，使用Blcok&quot;&gt;&lt;/a&gt;0x02 告别Delegate，使用Blcok&lt;/h2&gt;&lt;p&gt;前面也提到，之前会对不同的业务请求，设定相应的delegate回调，但是数量一多，使用起来那真的是槽糕，所以我们参考&lt;code&gt;AFNetworking&lt;/code&gt;的做法，发起请求时将block与一个唯一标识进行绑定，同时将这个唯一标识放到请求里面发给服务器（服务器对该标识不做任何处理），在等到GCDAsyncSocket回调回来的时候，我们通过服务器返回的这个标识，找到对应的block回调出去，这样对业务方来说，这个socket接口用起来其实和HTTP请求接口是一模一样的，将请求的上下文也关联起来了&lt;/p&gt;
+&lt;p&gt;如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/replaceDelegate.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;具体实现：&lt;/p&gt;
+&lt;p&gt;发起请求时&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)socketWriteDataWithRequestType:(FIMRequestType)type&amp;#10;                           requestBody:(nonnull NSDictionary *)body&amp;#10;                            completion:(nullable SocketDidReadBlock)callback &amp;#123;&amp;#10;  // ...                            &amp;#10;   &amp;#10;  // &amp;#29983;&amp;#25104;&amp;#21807;&amp;#19968;&amp;#26631;&amp;#35782;&amp;#10;  NSString *blockRequestID = [self createRequestID];&amp;#10;  if (callback) &amp;#123;&amp;#10;      // &amp;#23558;block&amp;#21644;&amp;#26631;&amp;#35782;&amp;#36827;&amp;#34892;&amp;#32465;&amp;#23450;&amp;#65292;&amp;#23384;&amp;#21040;&amp;#19968;&amp;#20010;&amp;#20840;&amp;#23616;&amp;#21464;&amp;#37327;&amp;#37324;&amp;#38754;&amp;#10;      [self.requestsMap setObject:callback forKey:blockRequestID];&amp;#10;  &amp;#125;&amp;#10;                              &amp;#10;  // ...&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;接收到GCDAsyncSocket回调时&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)socket:(GCDAsyncSocket *)sock didReadData:(NSData *)data withTag:(long)tag &amp;#123;&amp;#10;  // ...&amp;#10;  &amp;#10;  // &amp;#26681;&amp;#25454;&amp;#26381;&amp;#21153;&amp;#22120;&amp;#36820;&amp;#22238;&amp;#30340;&amp;#26631;&amp;#35782;&amp;#24471;&amp;#21040;&amp;#30456;&amp;#24212;&amp;#30340;block&amp;#10;  SocketDidReadBlock didReadBlock = self.requestsMap[requestID];&amp;#10;  &amp;#10;  switch (requestType) &amp;#123;&amp;#10;        case FIMRequestType_ConnectionAuthAppraisal: &amp;#123;&amp;#10;            if (didReadBlock) &amp;#123;&amp;#10;                didReadBlock(nil, nil);&amp;#10;            &amp;#125;&amp;#10;        &amp;#125; break;&amp;#10;    &amp;#9;// ...&amp;#10;    &amp;#9;default: &amp;#123;&amp;#10;            // do something&amp;#10;        &amp;#125; break;&amp;#10;  &amp;#125;&amp;#10;  &amp;#10;  // ...&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h2 id=&quot;0x03__u4F7F_u7528_u6A21_u62DF_u670D_u52A1_u5668_u65F6_u95F4_uFF0C_u6765_u89E3_u51B3_u7F13_u5B58_u6D88_u606F_u4FDD_u5E8F_u95EE_u9898&quot;&gt;&lt;a href=&quot;#0x03__u4F7F_u7528_u6A21_u62DF_u670D_u52A1_u5668_u65F6_u95F4_uFF0C_u6765_u89E3_u51B3_u7F13_u5B58_u6D88_u606F_u4FDD_u5E8F_u95EE_u9898&quot; class=&quot;headerlink&quot; title=&quot;0x03 使用模拟服务器时间，来解决缓存消息保序问题&quot;&gt;&lt;/a&gt;0x03 使用模拟服务器时间，来解决缓存消息保序问题&lt;/h2&gt;&lt;p&gt;在socket模块里面，我们基于FMDB实现了一套缓存机制，但是聊天页面对数据库读写操作的场景非常复杂，而且我们对发送失败的消息也进行了缓存，如果使用msgID对消息进行保序，你要考虑发送成功和失败消息的排序，以及重发消息之后的排序，等等场景，这样实现起来也会很让人头大&lt;/p&gt;
+&lt;p&gt;所以我们采用&lt;code&gt;消息的创建时间&lt;/code&gt;来进行保序，这样不管消息是怎么操作的，从数据库里面读出来的数据，我们只需要根据创建时间来排下序返回给业务层，如果业务层对数据进行修改的时候，我们更新消息的创建时间，这样下次取出来的顺序和UI展示的顺序也还是一样的&lt;/p&gt;
+&lt;p&gt;那这个创建时间是由服务器生成的，而且消息发送成功之后，服务器也不会返回给我们这条消息的创建时间，而且失败的消息服务器那边是不会存的，所以就需要我们本地模拟服务器来生成这个时间&lt;/p&gt;
+&lt;p&gt;因为考虑到本地时间和服务器时间存在偏差，所以我们在socket建立连接成功之后，返回给我们服务器时间，我们拿到服务器时间之后和手机的本地时间做个比较，记录下这个偏差值，然后业务层在调用发送消息的接口时，socket内部模拟出服务器创建时间赋值给该消息，然后存到数据库里面，这样就可以基本保证数据库存储消息的顺序和服务器的顺序是一致的&lt;/p&gt;
+&lt;p&gt;如图：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/serverCreateTime.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;0x04__u76D1_u542C_u7F51_u7EDC_u72B6_u6001_u6765_u6539_u53D8socket_u8FDE_u63A5_u72B6_u6001&quot;&gt;&lt;a href=&quot;#0x04__u76D1_u542C_u7F51_u7EDC_u72B6_u6001_u6765_u6539_u53D8socket_u8FDE_u63A5_u72B6_u6001&quot; class=&quot;headerlink&quot; title=&quot;0x04 监听网络状态来改变socket连接状态&quot;&gt;&lt;/a&gt;0x04 监听网络状态来改变socket连接状态&lt;/h2&gt;&lt;p&gt;我们对socket连接状态也做了微调，我们通过测试微信的连接，发现以下两点：&lt;/p&gt;
+&lt;p&gt;1、网络断开后，socket直接断开，显示“未连接”&lt;/p&gt;
+&lt;p&gt;2、有网但是socket连接不上时，socket会一直重连，重连n次后，休眠几秒后，再重连，如此循环&lt;/p&gt;
+&lt;p&gt;所以我们也对socket连接做了调整，用&lt;code&gt;AFNetWorking&lt;/code&gt;库里面监测网络状态类&lt;code&gt;AFNetworkReachabilityManager&lt;/code&gt;（&lt;a href=&quot;http://zeeyang.com/2016/05/23/AFNetWorking-four/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;AFNetworkReachabilityManager原理&lt;/a&gt;），在无网时，判断如果socket正在连接或者已连接时，我们主动调用&lt;code&gt;disconnect&lt;/code&gt;断开连接，如果有网，判断如果socket未连接，我们主动建立连接，建立连接不成功的情况时，我们走重连的流程，只是我们依旧保持了重连n次后，n次失败后不再重连了，这个是与微信不同的地方&lt;/p&gt;
+&lt;h2 id=&quot;0x05__u4F7F_u7528FIMSocketModel&quot;&gt;&lt;a href=&quot;#0x05__u4F7F_u7528FIMSocketModel&quot; class=&quot;headerlink&quot; title=&quot;0x05 使用FIMSocketModel&quot;&gt;&lt;/a&gt;0x05 使用FIMSocketModel&lt;/h2&gt;&lt;p&gt;因为请求的数据结构基本一样，所以我们定义了FIMSocketModel类来方便对数据的转化，我们定义了几个必传的字段，以及可能请求不同所需的一些非必传字段，由于之前我们body体里面的内容是做了2次JSON转化处理的，所以业务层传入body内容时叫苦连天，FIMSocketModel也增加了&lt;code&gt;- socketModelToJSONString&lt;/code&gt;方法，方便Socket内部转化成JSON处理，这样业务层只需要传一个字典进来，Socket内部就会处理好一切，使用起来一下就方便了~&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;之前基于GCDAsyncSocket封装了一个Socket Manager类，但是由于业务复杂度的上升，之前设计的业务接口的数量逐渐增加，代理回调也随之增加，代理的使用也越来越麻烦，所以我们针对socket通信这块，进行了一次重构&lt;/p&gt;
+&lt;p&gt;这里有我们的新童鞋&lt;a href=&quot;http://broccoliii.me/&quot;&gt;西兰花&lt;/a&gt;很大的功劳哈~&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="Socket" scheme="http://yuzeyang.github.io/tags/Socket/"/>
+    
+  </entry>
   
   <entry>
     <title>客户端生成七牛上传token</title>
