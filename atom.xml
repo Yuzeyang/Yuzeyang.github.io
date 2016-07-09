@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-07-09T13:28:37.000Z</updated>
+  <updated>2016-07-09T13:32:40.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://yuzeyang.github.io/2016/07/05/IM-UI-optimize/"/>
     <id>http://yuzeyang.github.io/2016/07/05/IM-UI-optimize/</id>
     <published>2016-07-05T14:35:44.000Z</published>
-    <updated>2016-07-09T13:28:37.000Z</updated>
+    <updated>2016-07-09T13:32:40.000Z</updated>
     
     <content type="html">&lt;p&gt;重构完Socket之后，最近我们也开始针对IM的UI做了优化，这次的优化我们主要是参考了&lt;a href=&quot;https://github.com/ibireme/YYKit&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;YYKit&lt;/a&gt;对于性能方面的优化，前期我的另一个小伙伴&lt;a href=&quot;http://broccoliii.me/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;西兰花&lt;/a&gt;也对&lt;a href=&quot;https://github.com/facebook/AsyncDisplayKit&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;AsyncDisplayKit&lt;/a&gt;做了调研，不过这个库理解起来确实要费一番功夫，后面西兰花也答应会对AsyncDisplayKit做一个讲解，大家可以到他的博客了解一下，由于YYkit的核心思路基本上都是学习AsyncDisplayKit的，,相信YYkit这个库大家都已经很熟悉了，不过可能还没有看过这个库，那下面我做一个简单的介绍&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
