@@ -37,7 +37,7 @@
 <p>在渲染<code>图片</code>时，我们应该在后台把图片绘制到<code>CGBitmapContext</code>中，然后从<code>Bitmap</code>直接创建图片，因为如果使用原来ImageView读取Image的方式是，在创建Image或者CGImageSource对象时，图片数据并不会立即解码，而是等到设置到ImageView或者layer.contents，layer被提交到GPU之前，才解码，并且这些操作都是在主线程进行，是相当耗性能的，所以我们应该用推荐的方式去绘制，而且AFNetworking在对图片处理的时候也是这么做的</p>
 <p><img src="http://7xtit4.com1.z0.glb.clouddn.com/AFURLResponseSerializationImage.png" alt=""></p>
 <h2 id="0x04__u7B80_u5355_u5B9E_u73B0demo"><a href="#0x04__u7B80_u5355_u5B9E_u73B0demo" class="headerlink" title="0x04 简单实现demo"></a>0x04 简单实现demo</h2><p>对于上述优化点，我实现了一个简单的<a href="https://github.com/Yuzeyang/GCAsyncDisplayDemo" target="_blank" rel="external">CoreText demo</a>，可以看一下这个demo做进一步了解~</p>
-</div></article></div></section><footer><div class="paginator"><a href="/2016/06/22/GCDAsyncSocket-socket-optimize/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+</div></article></div></section><footer><div class="paginator"><a href="/2016/07/23/FMDB-one/" class="prev">上一篇</a><a href="/2016/06/22/GCDAsyncSocket-socket-optimize/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2016/07/05/IM-UI-optimize/';
 var disqus_title = 'IM UI性能优化之异步绘制';
 var disqus_url = 'http://yuzeyang.github.io/2016/07/05/IM-UI-optimize/';
