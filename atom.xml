@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-07-23T10:27:00.000Z</updated>
+  <updated>2016-07-23T10:29:58.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -20,10 +20,13 @@
     <link href="http://yuzeyang.github.io/2016/07/23/FMDB-two/"/>
     <id>http://yuzeyang.github.io/2016/07/23/FMDB-two/</id>
     <published>2016-07-23T08:38:23.000Z</published>
-    <updated>2016-07-23T10:27:00.000Z</updated>
+    <updated>2016-07-23T10:29:58.000Z</updated>
     
-    <content type="html">&lt;h2 id=&quot;FMResultSet&quot;&gt;&lt;a href=&quot;#FMResultSet&quot; class=&quot;headerlink&quot; title=&quot;FMResultSet&quot;&gt;&lt;/a&gt;FMResultSet&lt;/h2&gt;&lt;p&gt;主要是根据&lt;code&gt;columnName&lt;/code&gt;列名/&lt;code&gt;columnIdx&lt;/code&gt;列索引获取到相应数据格式的数据，以及使用&lt;code&gt;- next&lt;/code&gt;方法，将查询结果逐行输入&lt;/p&gt;
+    <content type="html">&lt;p&gt;&lt;code&gt;FMResultSet&lt;/code&gt;用来执行SQL语句结果的查询&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;FMDatabaseQueue&lt;/code&gt;用不同的线程来执行若干个查询和更新操作&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;FMDatabasePool&lt;/code&gt;和&lt;code&gt;FMDatabaseQueue&lt;/code&gt;类型，但是只是用在数据库只读操作上&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;FMResultSet&quot;&gt;&lt;a href=&quot;#FMResultSet&quot; class=&quot;headerlink&quot; title=&quot;FMResultSet&quot;&gt;&lt;/a&gt;FMResultSet&lt;/h2&gt;&lt;p&gt;主要是根据&lt;code&gt;columnName&lt;/code&gt;列名/&lt;code&gt;columnIdx&lt;/code&gt;列索引获取到相应数据格式的数据，以及使用&lt;code&gt;- next&lt;/code&gt;方法，将查询结果逐行输入&lt;/p&gt;
 &lt;h4 id=&quot;u521D_u59CB_u5316&quot;&gt;&lt;a href=&quot;#u521D_u59CB_u5316&quot; class=&quot;headerlink&quot; title=&quot;初始化&quot;&gt;&lt;/a&gt;初始化&lt;/h4&gt;&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;+ (instancetype)resultSetWithStatement:(FMStatement *)statement usingParentDatabase:(FMDatabase*)aDB &amp;#123;&amp;#10;    // &amp;#21021;&amp;#22987;&amp;#21270;FMResultSet&amp;#23545;&amp;#35937;&amp;#10;    FMResultSet *rs = [[FMResultSet alloc] init];&amp;#10;    // &amp;#35774;&amp;#32622;prepared&amp;#35821;&amp;#21477;&amp;#21644;db&amp;#10;    [rs setStatement:statement];&amp;#10;    [rs setParentDB:aDB];&amp;#10;    // &amp;#35774;&amp;#32622;prepared&amp;#35821;&amp;#21477;&amp;#27491;&amp;#22312;&amp;#20351;&amp;#29992;&amp;#10;    NSParameterAssert(![statement inUse]);&amp;#10;    [statement setInUse:YES]; // weak reference&amp;#10;    &amp;#10;    return FMDBReturnAutoreleased(rs);&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;h4 id=&quot;u83B7_u53D6_u7ED3_u679C&quot;&gt;&lt;a href=&quot;#u83B7_u53D6_u7ED3_u679C&quot; class=&quot;headerlink&quot; title=&quot;获取结果&quot;&gt;&lt;/a&gt;获取结果&lt;/h4&gt;&lt;p&gt;返回结果的数据类型有很多种：除了基本数据类型之外，还有&lt;code&gt;NSString&lt;/code&gt;、&lt;code&gt;NSDate&lt;/code&gt;、&lt;code&gt;NSData&lt;/code&gt;&lt;/p&gt;
 &lt;p&gt;比如以下两个接口&lt;code&gt;- intForColumn:&lt;/code&gt;实际上调用的还是&lt;code&gt;- intForColumnIndex:&lt;/code&gt;&lt;/p&gt;
@@ -57,7 +60,9 @@
     
     <summary type="html">
     
-      &lt;h2 id=&quot;FMResultSet&quot;&gt;&lt;a href=&quot;#FMResultSet&quot; class=&quot;headerlink&quot; title=&quot;FMResultSet&quot;&gt;&lt;/a&gt;FMResultSet&lt;/h2&gt;&lt;p&gt;主要是根据&lt;code&gt;columnName&lt;/code&gt;列名/&lt;code&gt;columnIdx&lt;/code&gt;列索引获取到相应数据格式的数据，以及使用&lt;code&gt;- next&lt;/code&gt;方法，将查询结果逐行输入&lt;/p&gt;
+      &lt;p&gt;&lt;code&gt;FMResultSet&lt;/code&gt;用来执行SQL语句结果的查询&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;FMDatabaseQueue&lt;/code&gt;用不同的线程来执行若干个查询和更新操作&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;FMDatabasePool&lt;/code&gt;和&lt;code&gt;FMDatabaseQueue&lt;/code&gt;类型，但是只是用在数据库只读操作上&lt;/p&gt;
     
     </summary>
     
