@@ -1034,7 +1034,7 @@
     <link href="http://yuzeyang.github.io/2016/01/17/GCDAsyncSocket-socket/"/>
     <id>http://yuzeyang.github.io/2016/01/17/GCDAsyncSocket-socket/</id>
     <published>2016-01-17T14:10:53.000Z</published>
-    <updated>2016-05-18T14:45:49.000Z</updated>
+    <updated>2016-08-05T03:31:14.000Z</updated>
     
     <content type="html">&lt;p&gt;GCDAsyncSocket是CocoaAsyncSocket第三方库中的其中一个类，本文介绍的就是基于这一个类来做快速的socket通信开发，而且该库已经支持IPv4和IPv6&lt;/p&gt;
 &lt;p&gt;我们对GCDAsyncSocket做了一层封装调用，它包含了建连、断开、重连、心跳、自定义请求&lt;/p&gt;
@@ -1099,6 +1099,14 @@
 &lt;p&gt;我们需要加上消息回执的处理&lt;/p&gt;
 &lt;p&gt;客户端发出请求的时候，可以将该请求放到存到数组里面，等到后端的相应回调在移除掉，如果该请求超时或者在一段时间内没有收到确认返回，说明后端没有接收到我们的请求，我们可以将该请求重新发送&lt;/p&gt;
 &lt;p&gt;客户端接收请求的时候，后端将数据发给客户端，客户端需要增加回执处理，告诉后端，客户端接收到数据了，如果后端没接收到，也重新推一遍数据，客户端和后端双向保护来解决丢失问题&lt;/p&gt;
+&lt;p&gt;2016.8.5更新&lt;/p&gt;
+&lt;p&gt;有些时候，不能定位是否是后端问题还是客户端/SDK问题的时候，可以用命令行抓一下socket包看看（用Charles只能抓http和https包）&lt;/p&gt;
+&lt;p&gt;命令行如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;sudo tcpdump -i any -n -X port 7070&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;Tip：7070端口号请根据实际的调试端口号修改&lt;/p&gt;
+&lt;p&gt;效果如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/socketPacket.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;红色部分就是socket包的内容了&lt;/p&gt;
 </content>
     
     <summary type="html">

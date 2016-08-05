@@ -61,6 +61,14 @@
 <p>我们需要加上消息回执的处理</p>
 <p>客户端发出请求的时候，可以将该请求放到存到数组里面，等到后端的相应回调在移除掉，如果该请求超时或者在一段时间内没有收到确认返回，说明后端没有接收到我们的请求，我们可以将该请求重新发送</p>
 <p>客户端接收请求的时候，后端将数据发给客户端，客户端需要增加回执处理，告诉后端，客户端接收到数据了，如果后端没接收到，也重新推一遍数据，客户端和后端双向保护来解决丢失问题</p>
+<p>2016.8.5更新</p>
+<p>有些时候，不能定位是否是后端问题还是客户端/SDK问题的时候，可以用命令行抓一下socket包看看（用Charles只能抓http和https包）</p>
+<p>命令行如下：</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo tcpdump -i any -n -X port 7070</span><br></pre></td></tr></table></figure>
+<p>Tip：7070端口号请根据实际的调试端口号修改</p>
+<p>效果如下：</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/socketPacket.png" alt=""></p>
+<p>红色部分就是socket包的内容了</p>
 </div></article></div></section><footer><div class="paginator"><a href="/2016/01/19/TouchID/" class="prev">上一篇</a><a href="/2016/01/12/Harbin-travel/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2016/01/17/GCDAsyncSocket-socket/';
 var disqus_title = 'iOS 基于GCDAsyncSocket快速开发Socket通信';
