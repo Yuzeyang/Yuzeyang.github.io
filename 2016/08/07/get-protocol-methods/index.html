@@ -26,6 +26,8 @@
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">struct objc_method_description &#123;&#10;&#9;SEL name;               /**&#60; The name of the method */&#10;&#9;char *types;            /**&#60; The types of the method arguments */&#10;&#125;;</span><br></pre></td></tr></table></figure>
 <p>通过一系列的查找，我们又回到了<code>objc_method_description</code>，what？这<code>objc_class</code>最终拿到的数据还是从<code>objc_method_description</code>来的，那就是说明我们没有办法直接获得<code>- (BOOL)textView:(NSTextView *)textView clickedOnLink:(id)link atIndex:(NSUInteger)charIndex;</code>….这样就不能达到我们所预期的那样了</p>
 <h2 id="u603B_u7ED3"><a href="#u603B_u7ED3" class="headerlink" title="总结"></a>总结</h2><p>我们可以通过<code>protocol_copyMethodDescriptionList</code>方法获取到协议里面所有的代理方法，分为方法名和类型，但是不能获取到<code>- (BOOL)textView:(NSTextView *)textView clickedOnLink:(id)link atIndex:(NSUInteger)charIndex;</code>这样的，如果用a，b，c这样的来填充参数名，这样在使用起来，使用方还要自己再替换参数名，这样会比较麻烦，解决不了我们的需求，gg…..</p>
+<p>2016年8月10日补充：</p>
+<p>后来西兰花提出说根据协议名称去爬开发文档上相关的代理方法或者找本地开发包里面的相关头文件，不考虑是否可行，但是有个共同的问题是只能获取到官方的，自己创建的不行，而且前者没有require标记</p>
 </div></article></div></section><footer><div class="paginator"><a href="/2016/07/27/loadingAnimation-0727/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2016/08/07/get-protocol-methods/';
 var disqus_title = '根据协议名获取所有代理方法';
