@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-08-10T09:44:36.000Z</updated>
+  <updated>2016-09-02T09:48:25.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -14,6 +14,63 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>果冻效果下拉刷新控件</title>
+    <link href="http://yuzeyang.github.io/2016/09/02/loadingAniamtion-0902/"/>
+    <id>http://yuzeyang.github.io/2016/09/02/loadingAniamtion-0902/</id>
+    <published>2016-09-02T05:23:04.000Z</published>
+    <updated>2016-09-02T09:48:25.000Z</updated>
+    
+    <content type="html">&lt;p&gt;这个下拉控件是在&lt;a href=&quot;http://iostuts.io/2015/10/17/elastic-bounce-using-uibezierpath-and-pan-gesture/?sukey=3997c0719f151520e178bb5175f11bfb983f5560c51261103fafb276bac79e1371d16e07ede0cca9f23d826405507a3c&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;Elastic view animation using UIBezierPath&lt;/a&gt;这篇博客上看到的，觉得效果还不错，自己也就OC简单实现了一下（原作者是用Swift写的），控件效果如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/GCLoadingAnimationTwo.gif!700x700&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;这是代码地址：&lt;a href=&quot;https://github.com/Yuzeyang/GCLoadingAnimation/tree/master/GCLoadingAnimationTwo&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/Yuzeyang/GCLoadingAnimation/tree/master/GCLoadingAnimationTwo&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这个控件的动画效果分为两个部分：&lt;/p&gt;
+&lt;p&gt;1.下拉的果冻效果&lt;/p&gt;
+&lt;p&gt;2.下拉进度圆圈的显示及旋转&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;0x00__u4E0B_u62C9_u679C_u51BB_u72B6_u6001_u5B9E_u73B0_u601D_u8DEF&quot;&gt;&lt;a href=&quot;#0x00__u4E0B_u62C9_u679C_u51BB_u72B6_u6001_u5B9E_u73B0_u601D_u8DEF&quot; class=&quot;headerlink&quot; title=&quot;0x00 下拉果冻状态实现思路&quot;&gt;&lt;/a&gt;0x00 下拉果冻状态实现思路&lt;/h2&gt;&lt;p&gt;对于下拉的状态，我将其分为三种，然后在初始化的时候，将状态设置为正常状态&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;typedef NS_ENUM(NSInteger, GCLoadingState) &amp;#123;&amp;#10;    GCLoadingStateNormal,&amp;#9;// &amp;#27491;&amp;#24120;&amp;#29366;&amp;#24577;&amp;#10;    GCLoadingStateLoading,&amp;#9;// &amp;#21152;&amp;#36733;&amp;#20013;&amp;#29366;&amp;#24577;&amp;#10;    GCLoadingStateCancelled&amp;#9;// &amp;#21462;&amp;#28040;&amp;#21152;&amp;#36733;&amp;#29366;&amp;#24577;&amp;#10;&amp;#125;;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;并且在初始化的时候，绘制曲线的初始样式&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)drawOriginPath &amp;#123;&amp;#10;    UIBezierPath *path = [UIBezierPath bezierPath];&amp;#10;    [path moveToPoint:CGPointMake(0, 0)];&amp;#10;    [path addLineToPoint:CGPointMake(0, kGCLoadingViewMinHeight)];&amp;#10;    [path addLineToPoint:CGPointMake(CGRectGetWidth(self.associatedScrollView.frame), kGCLoadingViewMinHeight)];&amp;#10;    [path addLineToPoint:CGPointMake(CGRectGetWidth(self.associatedScrollView.frame), 0)];&amp;#10;    &amp;#10;    self.loadLayer.path = path.CGPath;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;那在手指拖动的过程中，我们该如果实现果冻拉伸的效果呢？&lt;/p&gt;
+&lt;p&gt;我们需要一个辅助视图&lt;code&gt;centerHelperView&lt;/code&gt;，这个辅助视图是加在下面这条线的中间的，如图的小黑点：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/centerHelperView.png!500x500&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在下拉时我们就根据这个&lt;code&gt;centerHelperView&lt;/code&gt;的变化来不断的绘制我们的曲线，所以我们用到了&lt;code&gt;CADisplayLink&lt;/code&gt;，这个应该在写动画的时候用的也是比较多了，是根据屏幕的刷新频率将内容绘制到屏幕的定时器，当我们将定时器加到&lt;code&gt;runLoop&lt;/code&gt;里时，我们需要注意在设置&lt;code&gt;mode&lt;/code&gt;时，如果将&lt;code&gt;mode&lt;/code&gt;设置为&lt;code&gt;NSDefaultRunLoopMode&lt;/code&gt;，那么在滑动的时候，定时器会暂停，直到停止滑动才会继续工作，所以我们需要将&lt;code&gt;mode&lt;/code&gt;设置为&lt;code&gt;NSRunLoopCommonModes&lt;/code&gt;，这样能保证定时器在滑动的过程中也能正常工作&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (CADisplayLink *)displayLink &amp;#123;&amp;#10;    if (!_displayLink) &amp;#123;&amp;#10;        _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkAction:)];&amp;#10;        [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];&amp;#10;        _displayLink.paused = YES;&amp;#10;    &amp;#125;&amp;#10;    return _displayLink;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后在取出&lt;code&gt;centerHelperView&lt;/code&gt;的原点，来不断绘制果冻的曲线&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)displayLinkAction:(CADisplayLink *)displayLink &amp;#123;&amp;#10;    CALayer *centerHelperViewLayer = (CALayer *)[self.centerHelperView.layer presentationLayer];&amp;#10;    CGRect centerHelperViewRect = [[centerHelperViewLayer valueForKey:@&amp;#34;frame&amp;#34;] CGRectValue];&amp;#10;    [self drawLoadLayerWithCenter:centerHelperViewRect.origin];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;既然我们能够获取到&lt;code&gt;centerHelperView&lt;/code&gt;在不同时间里的位置，那么我们就可以根据它来绘制我们的曲线&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/loadingPoint.png!300x300&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;我们可以看到左右两边都是直线，调用&lt;code&gt;- addLineToPoint&lt;/code&gt;方法即可，重要的是底下这条线，我们获取到&lt;code&gt;centerHelperView&lt;/code&gt;的位置后，暂且用&lt;code&gt;c&lt;/code&gt;来表示，我们在绘制曲线时，需要用到&lt;code&gt;controlPoint1&lt;/code&gt;和&lt;code&gt;controlPoint2&lt;/code&gt;，那我们就把底下的线分为三段，并且以&lt;code&gt;c&lt;/code&gt;为中心店，左边取出&lt;code&gt;l3&lt;/code&gt;、&lt;code&gt;l2&lt;/code&gt;、&lt;code&gt;l1&lt;/code&gt;，右边取出&lt;code&gt;r3&lt;/code&gt;、&lt;code&gt;r2&lt;/code&gt;、&lt;code&gt;r1&lt;/code&gt;，曲线分为三条：&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;UIBezierPath *path = [UIBezierPath bezierPath];&amp;#10;[path moveToPoint:CGPointMake(0, 0)];&amp;#10;[path addLineToPoint:l3];&amp;#10;[path addCurveToPoint:l1 controlPoint1:l3 controlPoint2:l2];&amp;#10;[path addCurveToPoint:r1 controlPoint1:l1 controlPoint2:c];&amp;#10;[path addCurveToPoint:r3 controlPoint1:r1 controlPoint2:r2];&amp;#10;[path addLineToPoint:CGPointMake(CGRectGetWidth(self.associatedScrollView.frame), 0)];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;果冻的曲线我们就完成了，然后我们就要开始对手势的状态来进行处理&lt;/p&gt;
+&lt;p&gt;在写控件调试的时候，你可以通过给目标视图添加&lt;code&gt;UIPanGestureRecognizer&lt;/code&gt;，调用&lt;code&gt;- translationInView:&lt;/code&gt;来获取到手指在屏幕上拖动时位置的变化，但是下拉刷新控件一般都是加在ScrollView上的，ScrollView自己是有一个只读的&lt;code&gt;UIPanGestureRecognizer&lt;/code&gt;属性，所以我们不必自己再添加一个，我们只需要观察&lt;code&gt;UIPanGestureRecognizer&lt;/code&gt;的&lt;code&gt;state&lt;/code&gt;即可&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[self.associatedScrollView addObserver:self forKeyPath:@&amp;#34;panGestureRecognizer.state&amp;#34; options:NSKeyValueObservingOptionNew context:nil];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;在取消拖动时，我们根据&lt;code&gt;ScrollView&lt;/code&gt;的&lt;code&gt;contentOffset&lt;/code&gt;来判断，是否是取消加载还是加载&lt;/p&gt;
+&lt;h2 id=&quot;0x01__u4E0B_u62C9_u8FDB_u5EA6_u5706_u5708_u7684_u663E_u793A_u53CA_u65CB_u8F6C&quot;&gt;&lt;a href=&quot;#0x01__u4E0B_u62C9_u8FDB_u5EA6_u5706_u5708_u7684_u663E_u793A_u53CA_u65CB_u8F6C&quot; class=&quot;headerlink&quot; title=&quot;0x01 下拉进度圆圈的显示及旋转&quot;&gt;&lt;/a&gt;0x01 下拉进度圆圈的显示及旋转&lt;/h2&gt;&lt;p&gt;进度圆圈的显示主要是依赖于下拉的进度，然后改变&lt;code&gt;progress&lt;/code&gt;，圆圈随之绘制就好&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;if (contentOffset.y &amp;#60; 0) &amp;#123;&amp;#10;    self.progress = MAX(0.0, MIN(fabs(contentOffset.y/kGCPullMaxDistance), 1.0));&amp;#10;&amp;#125; else &amp;#123;&amp;#10;    self.progress = 0;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)drawRect:(CGRect)rect &amp;#123;&amp;#10;    UIBezierPath *circlePath = [UIBezierPath bezierPath];&amp;#10;    [circlePath moveToPoint:CGPointMake(0, - kGCLoadingCircleRadius)];&amp;#10;    [circlePath addArcWithCenter:CGPointMake(0, 0) radius:kGCLoadingCircleRadius startAngle:-M_PI/2 endAngle:((M_PI*17/9)*self.progess - M_PI/2) clockwise:YES];&amp;#10;    &amp;#10;    self.circleLayer.path = circlePath.CGPath;&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;当&lt;code&gt;progress&lt;/code&gt;达到1之后，就开始旋转动画了，这个我们使用&lt;code&gt;CABasicAnimation&lt;/code&gt;即可&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@&amp;#34;transform.rotation.z&amp;#34;];&amp;#10;rotationAnimation.toValue = @(M_PI*2);&amp;#10;rotationAnimation.beginTime = CACurrentMediaTime();&amp;#10;rotationAnimation.duration = 1.0;&amp;#10;rotationAnimation.fillMode = kCAFillModeForwards;&amp;#10;rotationAnimation.repeatCount = HUGE_VALF;&amp;#10;[self.circleLayer addAnimation:rotationAnimation forKey:nil];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;ok，大功告成~&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;这个下拉控件是在&lt;a href=&quot;http://iostuts.io/2015/10/17/elastic-bounce-using-uibezierpath-and-pan-gesture/?sukey=3997c0719f151520e178bb5175f11bfb983f5560c51261103fafb276bac79e1371d16e07ede0cca9f23d826405507a3c&quot;&gt;Elastic view animation using UIBezierPath&lt;/a&gt;这篇博客上看到的，觉得效果还不错，自己也就OC简单实现了一下（原作者是用Swift写的），控件效果如下：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/GCLoadingAnimationTwo.gif!700x700&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;这是代码地址：&lt;a href=&quot;https://github.com/Yuzeyang/GCLoadingAnimation/tree/master/GCLoadingAnimationTwo&quot;&gt;https://github.com/Yuzeyang/GCLoadingAnimation/tree/master/GCLoadingAnimationTwo&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这个控件的动画效果分为两个部分：&lt;/p&gt;
+&lt;p&gt;1.下拉的果冻效果&lt;/p&gt;
+&lt;p&gt;2.下拉进度圆圈的显示及旋转&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="下拉刷新" scheme="http://yuzeyang.github.io/tags/%E4%B8%8B%E6%8B%89%E5%88%B7%E6%96%B0/"/>
+    
+  </entry>
   
   <entry>
     <title>根据协议名获取所有代理方法</title>
