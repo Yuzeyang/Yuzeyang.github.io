@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-09-09T15:29:27.000Z</updated>
+  <updated>2016-09-10T14:43:37.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -20,13 +20,14 @@
     <link href="http://yuzeyang.github.io/2016/09/08/iOS-Drawer-Table-View/"/>
     <id>http://yuzeyang.github.io/2016/09/08/iOS-Drawer-Table-View/</id>
     <published>2016-09-08T14:16:43.000Z</published>
-    <updated>2016-09-09T15:29:27.000Z</updated>
+    <updated>2016-09-10T14:43:37.000Z</updated>
     
     <content type="html">&lt;p&gt;之前很喜欢收藏&lt;a href=&quot;https://dribbble.com/shots&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;dribbble&lt;/a&gt;里面的一些动效gif，里面不仅是动效还是配色等等都非常的美，作为一个视觉动物，真的想把他们一个一个都实现出来，作为自己的一个作品，那真的是一件赏心悦目的事情，看着G20也快结束了，赶紧趁还闲着，先实现一个，我先挑选了一个比较简单的动效—–&lt;strong&gt;抽屉式效果列表&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;我们先来看下效果:&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/GCDrawerTableView.gif!500x500&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
 &lt;p&gt;原来的动效地址找不到了…有知道的请留言给我…&lt;/p&gt;
+&lt;p&gt;代码地址：&lt;a href=&quot;https://github.com/Yuzeyang/GCDrawerTableView&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://github.com/Yuzeyang/GCDrawerTableView&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;老样子，我们来分析下步骤&lt;/p&gt;
 &lt;h2 id=&quot;0x00_cell_u7684_u5904_u7406&quot;&gt;&lt;a href=&quot;#0x00_cell_u7684_u5904_u7406&quot; class=&quot;headerlink&quot; title=&quot;0x00 cell的处理&quot;&gt;&lt;/a&gt;0x00 cell的处理&lt;/h2&gt;&lt;p&gt;我们将&lt;code&gt;cell&lt;/code&gt;和&lt;code&gt;详情界面&lt;/code&gt;分开来处理&lt;/p&gt;
 &lt;p&gt;我们可以看到，当我们选中其中一个&lt;code&gt;cell&lt;/code&gt;的时候，该&lt;code&gt;cell&lt;/code&gt;会移动到列表上方的某一个位置，其他&lt;code&gt;cell&lt;/code&gt;则不显示，点击&lt;code&gt;x&lt;/code&gt;的时候，&lt;code&gt;cell&lt;/code&gt;返回为原位，其他&lt;code&gt;cell&lt;/code&gt;又重新显示&lt;/p&gt;
