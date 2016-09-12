@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-09-10T14:43:37.000Z</updated>
+  <updated>2016-09-12T11:40:32.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://yuzeyang.github.io/2016/09/08/iOS-Drawer-Table-View/"/>
     <id>http://yuzeyang.github.io/2016/09/08/iOS-Drawer-Table-View/</id>
     <published>2016-09-08T14:16:43.000Z</published>
-    <updated>2016-09-10T14:43:37.000Z</updated>
+    <updated>2016-09-12T11:40:32.000Z</updated>
     
     <content type="html">&lt;p&gt;之前很喜欢收藏&lt;a href=&quot;https://dribbble.com/shots&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;dribbble&lt;/a&gt;里面的一些动效gif，里面不仅是动效还是配色等等都非常的美，作为一个视觉动物，真的想把他们一个一个都实现出来，作为自己的一个作品，那真的是一件赏心悦目的事情，看着G20也快结束了，赶紧趁还闲着，先实现一个，我先挑选了一个比较简单的动效—–&lt;strong&gt;抽屉式效果列表&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;我们先来看下效果:&lt;/p&gt;
@@ -38,7 +38,7 @@
 &lt;p&gt;由于cell的动画处理是放在自定义cell里面做的，所以在点击关闭的时候，需要在动画结束之后回调给视图控制器，所以这里就用了block来回调关闭的状态&lt;/p&gt;
 &lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (void)deselectCell &amp;#123;&amp;#10;    [UIView animateWithDuration:0.3 animations:^&amp;#123;&amp;#10;        self.frame = self.originCellFrame;&amp;#10;        &amp;#10;        self.layer.shadowColor = [UIColor clearColor].CGColor;&amp;#10;        self.layer.shadowRadius = 0;&amp;#10;        self.layer.shadowOpacity = 0.0;&amp;#10;        &amp;#10;        // &amp;#35814;&amp;#24773;&amp;#39029;&amp;#22788;&amp;#29702;&amp;#10;        [self.detailButton setTitle:@&amp;#34;...&amp;#34; forState:UIControlStateNormal];&amp;#10;    &amp;#125; completion:^(BOOL finished) &amp;#123;&amp;#10;        [self.helperHideView removeFromSuperview];&amp;#10;        [self.detailView removeFromSuperview];&amp;#10;        if (_deselectBlock) &amp;#123;&amp;#10;            _deselectBlock();&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;p&gt;然后在试图控制器里面，将其他的cell透明度改成1&lt;/p&gt;
-&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[cell addDeselectBlock:^() &amp;#123;&amp;#10;    for (UIView *subcell in tableView.visibleCells) &amp;#123;&amp;#10;        if (subcell != cell) &amp;#123;&amp;#10;            subcell.alpha = 0;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;    tableView.allowsSelection = YES;&amp;#10;    tableView.scrollEnabled = YES;&amp;#10;&amp;#125;];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[cell addDeselectBlock:^() &amp;#123;&amp;#10;    for (UIView *subcell in tableView.visibleCells) &amp;#123;&amp;#10;        if (subcell != cell) &amp;#123;&amp;#10;            subcell.alpha = 1;&amp;#10;        &amp;#125;&amp;#10;    &amp;#125;&amp;#10;    tableView.allowsSelection = YES;&amp;#10;    tableView.scrollEnabled = YES;&amp;#10;&amp;#125;];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;h2 id=&quot;0x01__u8BE6_u60C5_u9875&quot;&gt;&lt;a href=&quot;#0x01__u8BE6_u60C5_u9875&quot; class=&quot;headerlink&quot; title=&quot;0x01 详情页&quot;&gt;&lt;/a&gt;0x01 详情页&lt;/h2&gt;&lt;p&gt;可以看到&lt;code&gt;详情页&lt;/code&gt;是类似于从上掉落的感觉，可能会联想到电商的那些筛选栏，但是筛选栏点击的时候，是上部分开始出现一直到下面，展示的顺序是反过来的，后面想了很久，只能想到利用视觉错误的效果，将详情页添加到cell的下一层，然后&lt;code&gt;cell&lt;/code&gt;动画时候，详情页也做相应的动画，但是由于详情页的&lt;code&gt;size&lt;/code&gt;比&lt;code&gt;cell&lt;/code&gt;肯定是要大的，所以如果加到&lt;code&gt;cell&lt;/code&gt;下一层时，是遮挡不住的，所以就需要一个遮挡的view来遮住详情页&lt;/p&gt;
 &lt;p&gt;首先我们需要将&lt;code&gt;cell&lt;/code&gt;移到最前&lt;/p&gt;
 &lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[self.tableView bringSubviewToFront:cell];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
