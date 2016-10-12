@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-09-12T11:40:32.000Z</updated>
+  <updated>2016-10-12T14:26:58.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -14,6 +14,203 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>React Native接入现有项目</title>
+    <link href="http://yuzeyang.github.io/2016/10/09/react-native/"/>
+    <id>http://yuzeyang.github.io/2016/10/09/react-native/</id>
+    <published>2016-10-09T13:53:32.000Z</published>
+    <updated>2016-10-12T14:26:58.000Z</updated>
+    
+    <content type="html">&lt;p&gt;有一段时间没有写东西了，因为最近项目开始尝试使用React Native（以下简称RN）来开发，所以这段时间一直在研究这，目前为止开发的内容不对，所以使用过的东西也不算多，这里也只是做个简单的记录&lt;/p&gt;
+&lt;p&gt;这里我打算从以下几个方面来讲：&lt;/p&gt;
+&lt;p&gt;1.背景介绍&lt;br&gt;2.环境的配置&lt;br&gt;3.项目的结构与设计&lt;br&gt;4.RN与原生的交互&lt;br&gt;5.本地调试与本地打包调试&lt;br&gt;6.远程热更新&lt;br&gt;7.踩坑记录&lt;br&gt;8.相关资料（中、英文官网，GitHub中资料，掘金，江青请博客）&lt;/p&gt;
+&lt;h2 id=&quot;0x00__u80CC_u666F_u4ECB_u7ECD&quot;&gt;&lt;a href=&quot;#0x00__u80CC_u666F_u4ECB_u7ECD&quot; class=&quot;headerlink&quot; title=&quot;0x00 背景介绍&quot;&gt;&lt;/a&gt;0x00 背景介绍&lt;/h2&gt;&lt;p&gt;RN是Facebook在React.js 2015大会上公布开源的，它是基于开源框架React.js来实现的，它支持了iOS和Android两大平台，解决开发者们编写重复代码的痛点，实现了所谓的跨平台开发，Write Once , Run Anywhere，这是目前很多开发者所追求的，特别是一些独立开发者或者项目快速迭代的团队，可以尝试使用RN来开发，另外包括方便的npm管理，快速的调试等等&lt;/p&gt;
+&lt;p&gt;那么既然优点这么明显，为什么大部分的团队还是采用传统的iOS、Android开发呢，踩过坑的同学都知道，首先在支持上还做得不够完善，在使用组件时，RN原有提供的组件往往不能很好的支持，与原生组件多少存在着差异，而且在使用第三方组件时，又会因为长期不更新的原因，存在很多坑，对于新手来说，根本不知道坑在哪，完全无从下手。另外RN的性能也不能和原生的相提并论，特别是列表组件在渲染大量数据时，流畅性方面还是原生更加优越，而且并非所以代码iOS和Android都能公用，如果某个组件只支持某一个平台，那你必须分开编写代码，实际上还是存在重复代码，除此之外学习的成本以及团队RN推广等等原因都需要考量，但是我相信，跨平台开发始终是一个趋势，RN整个社区也在不断的发展，相信未来我们会实现真正意义上的跨平台开发~&lt;/p&gt;
+&lt;h2 id=&quot;0x01__u73AF_u5883_u914D_u7F6E&quot;&gt;&lt;a href=&quot;#0x01__u73AF_u5883_u914D_u7F6E&quot; class=&quot;headerlink&quot; title=&quot;0x01 环境配置&quot;&gt;&lt;/a&gt;0x01 环境配置&lt;/h2&gt;&lt;p&gt;相对于Android的环境配置过程来说，iOS可以说是简单轻松…出现的问题要少很多&lt;/p&gt;
+&lt;p&gt;首先我们需要安装&lt;strong&gt;Homebrew&lt;/strong&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight bash&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;$ ruby &lt;span class=&quot;operator&quot;&gt;-e&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&quot;&lt;span class=&quot;variable&quot;&gt;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)&lt;/span&gt;&quot;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后安装&lt;strong&gt;node&lt;/strong&gt;和&lt;strong&gt;watchman&lt;/strong&gt;(用于监测文件系统的变更)&lt;/p&gt;
+&lt;figure class=&quot;highlight crmsh&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;brew install &lt;span class=&quot;keyword&quot;&gt;node&lt;/span&gt;&lt;span class=&quot;identifier&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;span class=&quot;title&quot;&gt;brew&lt;/span&gt; install watchman&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;RN的命令行工具&lt;strong&gt;react-native-cli&lt;/strong&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight sql&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;npm &lt;span class=&quot;operator&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;install&lt;/span&gt; -&lt;span class=&quot;keyword&quot;&gt;g&lt;/span&gt; react-&lt;span class=&quot;keyword&quot;&gt;native&lt;/span&gt;-cli&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;如果遇到权限问题，只要前面加个&lt;strong&gt;sudo&lt;/strong&gt;即可&lt;/p&gt;
+&lt;figure class=&quot;highlight sql&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;sudo npm &lt;span class=&quot;operator&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;install&lt;/span&gt; -&lt;span class=&quot;keyword&quot;&gt;g&lt;/span&gt; react-&lt;span class=&quot;keyword&quot;&gt;native&lt;/span&gt;-cli&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;yeah~that’s all~我在配置的过程中，基本没有报错，如果有出现配置问题的话，请自行Google一下，看看大家的解决方法&lt;/p&gt;
+&lt;h2 id=&quot;0x02_RN_u7684_u8FD0_u884C_u6D41_u7A0B&quot;&gt;&lt;a href=&quot;#0x02_RN_u7684_u8FD0_u884C_u6D41_u7A0B&quot; class=&quot;headerlink&quot; title=&quot;0x02 RN的运行流程&quot;&gt;&lt;/a&gt;0x02 RN的运行流程&lt;/h2&gt;&lt;h3 id=&quot;RN_u7684_u8FD0_u884C_u673A_u5236&quot;&gt;&lt;a href=&quot;#RN_u7684_u8FD0_u884C_u673A_u5236&quot; class=&quot;headerlink&quot; title=&quot;RN的运行机制&quot;&gt;&lt;/a&gt;RN的运行机制&lt;/h3&gt;&lt;p&gt;在开始写代码之前，我们需要了解RN的运行机制是怎么样的，这样写起来思路会更加清晰&lt;/p&gt;
+&lt;p&gt;首先，程序需要有个入口，我们可以创建很多的组件，但是有且只有一个组件用来做为程序的入口，RN的入口则类似于iOS的main.m，在iOS里我们会在main函数里设置应用程序类的代理类&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;return UIApplicationMain(argc, argv, nil, NSStringFromClass([KDAppDelegate class]));&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;同样，RN里我们需要注册入口的名称，并且这个名称要和原生的初始化RN界面时的入口名称保持一致&lt;/p&gt;
+&lt;figure class=&quot;highlight javascript&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;12&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;13&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;14&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// 引用navigation使用的组件&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; React, &amp;#123; Component &amp;#125; &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&#39;react&#39;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;import&lt;/span&gt; &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  AppRegistry,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  ...&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125; &lt;span class=&quot;keyword&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;string&quot;&gt;&#39;react-native&#39;&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// 创建navigation类&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;class&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;class&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;navigation&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;extends&lt;/span&gt; &lt;span class=&quot;title&quot;&gt;Component&lt;/span&gt; &lt;/span&gt;&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  &lt;span class=&quot;comment&quot;&gt;// set compnent&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;comment&quot;&gt;// 注册navigation为程序的入口&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;AppRegistry.registerComponent(&lt;span class=&quot;string&quot;&gt;&#39;navigation&#39;&lt;/span&gt;, () =&amp;gt; navigation);&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;在iOS原生这边需要用到RN的地方，我们需要初始化它&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;NSURL *jsCodeLocation =&amp;#10;[[NSBundle mainBundle] URLForResource:@&amp;#34;bundle/index.ios&amp;#34; withExtension:@&amp;#34;jsbundle&amp;#34;];&amp;#10;//        [NSURL URLWithString:@&amp;#34;http://172.17.9.188:8081/index.ios.bundle?platform=ios&amp;#34;];&amp;#10;RCTRootView *rootView = [[RCTRootView alloc] initWithBundleURL:jsCodeLocation&amp;#10;                                                    moduleName:@&amp;#34;navigation&amp;#34;&amp;#10;                                            initialProperties:nil&amp;#10;                                                 launchOptions:nil];&amp;#10;self.view = rootView;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;Tip：&lt;/p&gt;
+&lt;figure class=&quot;highlight nginx&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;title&quot;&gt;jsCodeLocation&lt;/span&gt; 是RN资源加载的路径，我们有两种方式去加载，一种是加载本地的js文件及其他资源文件，一种是我们将其打包成bundle文件，前者的优势在于方便调试，后者是用来打包发布上线用&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&lt;code&gt;moduleName&lt;/code&gt;是对应于RN的入口名字，且这个是唯一的，那我们如果原生有多个入口需要初始化不同的RN界面，那该怎么办呢？这就用到了&lt;code&gt;initialProperties&lt;/code&gt;，它是字典类型，我们可以将入口作为路由，在&lt;code&gt;initialProperties&lt;/code&gt;里传入我们需要初始化的界面名称，入口获取到名称之后，渲染对应的界面即可&lt;/p&gt;
+&lt;h3 id=&quot;RN_u7EC4_u4EF6_u7684_u751F_u547D_u5468_u671F&quot;&gt;&lt;a href=&quot;#RN_u7EC4_u4EF6_u7684_u751F_u547D_u5468_u671F&quot; class=&quot;headerlink&quot; title=&quot;RN组件的生命周期&quot;&gt;&lt;/a&gt;RN组件的生命周期&lt;/h3&gt;&lt;p&gt;在RN里面，所谓的界面应该称作类或者组件更为合适&lt;/p&gt;
+&lt;p&gt;并且组件也有它的生命周期，和iOS里的&lt;code&gt;viewWillAppear&lt;/code&gt;、&lt;code&gt;viewDidDisappear&lt;/code&gt;等等很像，下面生命周期内容取自于&lt;a href=&quot;http://www.race604.com/react-native-component-lifecycle/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.race604.com/react-native-component-lifecycle/&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/RNCycleLife.jpg!700x700&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;我们可以把组件生命周期大致分为三个阶段：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;第一阶段：是组件第一次绘制阶段，如图中的上面虚线框内，在这里完成了组件的加载和初始化；&lt;/li&gt;
+&lt;li&gt;第二阶段：是组件在运行和交互阶段，如图中左下角虚线框，这个阶段组件可以处理用户交互，或者接收事件更新界面；&lt;/li&gt;
+&lt;li&gt;第三阶段：是组件卸载消亡的阶段，如图中右下角的虚线框中，这里做一些组件的清理工作。&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;下面来详细介绍生命周期中的各回调函数。&lt;/p&gt;
+&lt;h4 id=&quot;getDefaultProps&quot;&gt;&lt;a href=&quot;#getDefaultProps&quot; class=&quot;headerlink&quot; title=&quot;getDefaultProps&quot;&gt;&lt;/a&gt;getDefaultProps&lt;/h4&gt;&lt;p&gt;在组件创建之前，会先调用 &lt;code&gt;getDefaultProps()&lt;/code&gt;，这是全局调用一次，严格地来说，这不是组件的生命周期的一部分。在组件被创建并加载候，首先调用 &lt;code&gt;getInitialState()&lt;/code&gt;，来初始化组件的状态。&lt;/p&gt;
+&lt;h4 id=&quot;componentWillMount&quot;&gt;&lt;a href=&quot;#componentWillMount&quot; class=&quot;headerlink&quot; title=&quot;componentWillMount&quot;&gt;&lt;/a&gt;componentWillMount&lt;/h4&gt;&lt;p&gt;然后，准备加载组件，会调用 &lt;code&gt;componentWillMount()&lt;/code&gt;，其原型如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight stylus&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;void &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;title&quot;&gt;componentWillMount&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;这个函数调用时机是在组件创建，并初始化了状态之后，在第一次绘制 &lt;code&gt;render()&lt;/code&gt; 之前。可以在这里做一些业务初始化操作，也可以设置组件状态。这个函数在整个生命周期中只被调用一次。&lt;/p&gt;
+&lt;h4 id=&quot;componentDidMount&quot;&gt;&lt;a href=&quot;#componentDidMount&quot; class=&quot;headerlink&quot; title=&quot;componentDidMount&quot;&gt;&lt;/a&gt;componentDidMount&lt;/h4&gt;&lt;p&gt;在组件第一次绘制之后，会调用 &lt;code&gt;componentDidMount()&lt;/code&gt;，通知组件已经加载完成。函数原型如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight stylus&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;void &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;title&quot;&gt;componentDidMount&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;这个函数调用的时候，其虚拟 DOM 已经构建完成，你可以在这个函数开始获取其中的元素或者子组件了。需要注意的是，RN 框架是先调用子组件的 &lt;code&gt;componentDidMount()&lt;/code&gt;，然后调用父组件的函数。从这个函数开始，就可以和 JS 其他框架交互了，例如设置计时 &lt;code&gt;setTimeout&lt;/code&gt; 或者 &lt;code&gt;setInterval&lt;/code&gt;，或者发起网络请求。这个函数也是只被调用一次。这个函数之后，就进入了稳定运行状态，等待事件触发。&lt;/p&gt;
+&lt;h4 id=&quot;componentWillReceiveProps&quot;&gt;&lt;a href=&quot;#componentWillReceiveProps&quot; class=&quot;headerlink&quot; title=&quot;componentWillReceiveProps&quot;&gt;&lt;/a&gt;componentWillReceiveProps&lt;/h4&gt;&lt;p&gt;如果组件收到新的属性（props），就会调用 &lt;code&gt;componentWillReceiveProps()&lt;/code&gt;，其原型如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight ceylon&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;void&lt;/span&gt; componentWillReceiveProps(  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;object&lt;/span&gt; nextProps&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;)&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;输入参数 &lt;code&gt;nextProps&lt;/code&gt; 是即将被设置的属性，旧的属性还是可以通过 &lt;code&gt;this.props&lt;/code&gt; 来获取。在这个回调函数里面，你可以根据属性的变化，通过调用 &lt;code&gt;this.setState()&lt;/code&gt; 来更新你的组件状态，这里调用更新状态是安全的，并不会触发额外的 &lt;code&gt;render()&lt;/code&gt; 调用。如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight less&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;tag&quot;&gt;componentWillReceiveProps&lt;/span&gt;: &lt;span class=&quot;tag&quot;&gt;function&lt;/span&gt;(nextProps) &amp;#123;  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  &lt;span class=&quot;tag&quot;&gt;this&lt;/span&gt;&lt;span class=&quot;class&quot;&gt;.setState&lt;/span&gt;(&amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;attribute&quot;&gt;likesIncreasing&lt;/span&gt;: nextProps.likeCount &amp;gt; this.props.likeCount&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  &amp;#125;);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h4 id=&quot;shouldComponentUpdate&quot;&gt;&lt;a href=&quot;#shouldComponentUpdate&quot; class=&quot;headerlink&quot; title=&quot;shouldComponentUpdate&quot;&gt;&lt;/a&gt;shouldComponentUpdate&lt;/h4&gt;&lt;p&gt;当组件接收到新的属性和状态改变的话，都会触发调用 &lt;code&gt;shouldComponentUpdate(...)&lt;/code&gt;，函数原型如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight stylus&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;boolean shouldComponentUpdate(  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  &lt;span class=&quot;tag&quot;&gt;object&lt;/span&gt; nextProps, &lt;span class=&quot;tag&quot;&gt;object&lt;/span&gt; nextState&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;)&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;输入参数 &lt;code&gt;nextProps&lt;/code&gt; 和上面的 &lt;code&gt;componentWillReceiveProps&lt;/code&gt; 函数一样，&lt;code&gt;nextState&lt;/code&gt; 表示组件即将更新的状态值。这个函数的返回值决定是否需要更新组件，如果 &lt;code&gt;true&lt;/code&gt; 表示需要更新，继续走后面的更新流程。否者，则不更新，直接进入等待状态。&lt;/p&gt;
+&lt;p&gt;默认情况下，这个函数永远返回 &lt;code&gt;true&lt;/code&gt; 用来保证数据变化的时候 UI 能够同步更新。在大型项目中，你可以自己重载这个函数，通过检查变化前后属性和状态，来决定 UI 是否需要更新，能有效提高应用性能。&lt;/p&gt;
+&lt;h4 id=&quot;componentWillUpdate&quot;&gt;&lt;a href=&quot;#componentWillUpdate&quot; class=&quot;headerlink&quot; title=&quot;componentWillUpdate&quot;&gt;&lt;/a&gt;componentWillUpdate&lt;/h4&gt;&lt;p&gt;如果组件状态或者属性改变，并且上面的 &lt;code&gt;shouldComponentUpdate(...)&lt;/code&gt; 返回为 &lt;code&gt;true&lt;/code&gt;，就会开始准更新组件，并调用 &lt;code&gt;componentWillUpdate()&lt;/code&gt;，其函数原型如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight stylus&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;void componentWillUpdate(  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  &lt;span class=&quot;tag&quot;&gt;object&lt;/span&gt; nextProps, &lt;span class=&quot;tag&quot;&gt;object&lt;/span&gt; nextState&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;)&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;输入参数与 &lt;code&gt;shouldComponentUpdate&lt;/code&gt; 一样，在这个回调中，可以做一些在更新界面之前要做的事情。需要特别注意的是，在这个函数里面，你就不能使用 &lt;code&gt;this.setState&lt;/code&gt; 来修改状态。这个函数调用之后，就会把 &lt;code&gt;nextProps&lt;/code&gt; 和 &lt;code&gt;nextState&lt;/code&gt; 分别设置到 &lt;code&gt;this.props&lt;/code&gt;和 &lt;code&gt;this.state&lt;/code&gt; 中。紧接着这个函数，就会调用 &lt;code&gt;render()&lt;/code&gt; 来更新界面了。&lt;/p&gt;
+&lt;h4 id=&quot;componentDidUpdate&quot;&gt;&lt;a href=&quot;#componentDidUpdate&quot; class=&quot;headerlink&quot; title=&quot;componentDidUpdate&quot;&gt;&lt;/a&gt;componentDidUpdate&lt;/h4&gt;&lt;p&gt;调用了 &lt;code&gt;render()&lt;/code&gt; 更新完成界面之后，会调用 &lt;code&gt;componentDidUpdate()&lt;/code&gt; 来得到通知，其函数原型如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight stylus&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;void componentDidUpdate(  &lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  &lt;span class=&quot;tag&quot;&gt;object&lt;/span&gt; prevProps, &lt;span class=&quot;tag&quot;&gt;object&lt;/span&gt; prevState&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;)&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;因为到这里已经完成了属性和状态的更新了，此函数的输入参数变成了 &lt;code&gt;prevProps&lt;/code&gt; 和 &lt;code&gt;prevState&lt;/code&gt;。&lt;/p&gt;
+&lt;h4 id=&quot;componentWillUnmount&quot;&gt;&lt;a href=&quot;#componentWillUnmount&quot; class=&quot;headerlink&quot; title=&quot;componentWillUnmount&quot;&gt;&lt;/a&gt;componentWillUnmount&lt;/h4&gt;&lt;p&gt;当组件要被从界面上移除的时候，就会调用 &lt;code&gt;componentWillUnmount()&lt;/code&gt;，其函数原型如下：&lt;/p&gt;
+&lt;figure class=&quot;highlight stylus&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;void &lt;span class=&quot;function&quot;&gt;&lt;span class=&quot;title&quot;&gt;componentWillUnmount&lt;/span&gt;&lt;span class=&quot;params&quot;&gt;()&lt;/span&gt;&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;在这个函数中，可以做一些组件相关的清理工作，例如取消计时器、网络请求等。&lt;/p&gt;
+&lt;p&gt;下表是生命周期函数的调用次数，以及能否使用 setSate()：&lt;/p&gt;
+&lt;table&gt;
+&lt;thead&gt;
+&lt;tr&gt;
+&lt;th&gt;生命周期&lt;/th&gt;
+&lt;th&gt;调用次数&lt;/th&gt;
+&lt;th&gt;能否使用 setSate()&lt;/th&gt;
+&lt;/tr&gt;
+&lt;/thead&gt;
+&lt;tbody&gt;
+&lt;tr&gt;
+&lt;td&gt;getDefaultProps&lt;/td&gt;
+&lt;td&gt;1(全局调用一次)&lt;/td&gt;
+&lt;td&gt;否&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;getInitialState&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;否&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;componentWillMount&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;是&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;render&lt;/td&gt;
+&lt;td&gt;&amp;gt;=1&lt;/td&gt;
+&lt;td&gt;否&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;componentDidMount&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;td&gt;是&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;componentWillReceiveProps&lt;/td&gt;
+&lt;td&gt;&amp;gt;=0&lt;/td&gt;
+&lt;td&gt;是&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;shouldComponentUpdate&lt;/td&gt;
+&lt;td&gt;&amp;gt;=0&lt;/td&gt;
+&lt;td&gt;否&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;componentWillUpdate&lt;/td&gt;
+&lt;td&gt;&amp;gt;=0&lt;/td&gt;
+&lt;td&gt;否&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;componentDidUpdate&lt;/td&gt;
+&lt;td&gt;&amp;gt;=0&lt;/td&gt;
+&lt;td&gt;否&lt;/td&gt;
+&lt;/tr&gt;
+&lt;tr&gt;
+&lt;td&gt;componentWillUnmount&lt;/td&gt;
+&lt;td&gt;1&lt;/td&gt;
+&lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+&lt;h3 id=&quot;RN_u7684_u8BBE_u8BA1_u6A21_u5F0F&quot;&gt;&lt;a href=&quot;#RN_u7684_u8BBE_u8BA1_u6A21_u5F0F&quot; class=&quot;headerlink&quot; title=&quot;RN的设计模式&quot;&gt;&lt;/a&gt;RN的设计模式&lt;/h3&gt;&lt;p&gt;目前设计模式也非常多，如Flux，Reflux，Redux，Relay，Marty，不过以上都不是很了解，可以参考&lt;a href=&quot;https://segmentfault.com/a/1190000004161358&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;ReactNative的组件架构设计&lt;/a&gt;学习了解一下，由于做客户端的同学接触的最多的是MVC，MVVM、MVCS等等，所以我觉得选用类似MVCS的模式可能更加适合新手的学习，比如写组件时，通常我们会创建一个组件，里面会包含数据的处理，页面的渲染，样式的设置，网络请求，当这些内容过多时，组件就会显得特别臃肿，所以我们需要将其拆分开为数据模型（Model），页面渲染，样式设置，网路请求（Service），这里的页面渲染和样式设置，不能算是称作为iOS里的Controller和View，应该跟前端一样，在html文件里面写布局，css文件里面写样式，感觉像是MVCS和前端的融合&lt;/p&gt;
+&lt;h2 id=&quot;0x03_RN_u4E0E_u539F_u751F_u7684_u4EA4_u4E92&quot;&gt;&lt;a href=&quot;#0x03_RN_u4E0E_u539F_u751F_u7684_u4EA4_u4E92&quot; class=&quot;headerlink&quot; title=&quot;0x03 RN与原生的交互&quot;&gt;&lt;/a&gt;0x03 RN与原生的交互&lt;/h2&gt;&lt;p&gt;在写RN时不免会遇到与原生交互，下面我分JS调用原生、原生调用JS来讲&lt;/p&gt;
+&lt;h3 id=&quot;JS_u8C03_u7528_u539F_u751F&quot;&gt;&lt;a href=&quot;#JS_u8C03_u7528_u539F_u751F&quot; class=&quot;headerlink&quot; title=&quot;JS调用原生&quot;&gt;&lt;/a&gt;JS调用原生&lt;/h3&gt;&lt;p&gt;在调用原生时，我们需要实现&lt;code&gt;RCTBridgeModule&lt;/code&gt;和&lt;code&gt;RCT_EXPORT_MODULE();&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;RCT_EXPORT_MODULE();&lt;/code&gt;则是一个宏定义，返回moduleName，并且调用&lt;code&gt;+ load&lt;/code&gt;方法注册&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;#define RCT_EXPORT_MODULE(js_name) \&amp;#10;RCT_EXTERN void RCTRegisterModule(Class); \&amp;#10;+ (NSString *)moduleName &amp;#123; return @#js_name; &amp;#125; \&amp;#10;+ (void)load &amp;#123; RCTRegisterModule(self); &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;例如我们增加一个bridge方法，获取版本号，&lt;code&gt;getVersion&lt;/code&gt;为方法名，&lt;code&gt;callback&lt;/code&gt;是原生回调给JS的内容&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;RCT_EXPORT_METHOD(getVersion : (RCTResponseSenderBlock)callback) &amp;#123;&amp;#10;    NSString *version =&amp;#10;    [[NSBundle mainBundle] objectForInfoDictionaryKey:@&amp;#34;CFBundleShortVersionString&amp;#34;];&amp;#10;    callback(@[[NSNull null], @[version]]);&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后返回方法的队列为主队列&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (dispatch_queue_t)methodQueue &amp;#123;&amp;#10;    return dispatch_get_main_queue();&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;在JS文件里，我们可以定义一个全局变量&lt;/p&gt;
+&lt;figure class=&quot;highlight javascript&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;var&lt;/span&gt; ZanIntentModule = NativeModules.ZanIntentModule;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后在使用的时候调用我们在原生时定义方法&lt;/p&gt;
+&lt;figure class=&quot;highlight javascript&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;ZanIntentModule.getVersion(&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;(callback) =&amp;gt; &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;comment&quot;&gt;// do some thing&lt;/span&gt;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;)&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h3 id=&quot;u539F_u751F_u8C03_u7528JS&quot;&gt;&lt;a href=&quot;#u539F_u751F_u8C03_u7528JS&quot; class=&quot;headerlink&quot; title=&quot;原生调用JS&quot;&gt;&lt;/a&gt;原生调用JS&lt;/h3&gt;&lt;p&gt;老版本的调用方式为，但是接口被标记为deprecated：&lt;code&gt;__deprecated_msg(&amp;quot;Subclass RCTEventEmitter instead&amp;quot;);&lt;/code&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[self.bridge.eventDispatcher sendAppEventWithName:kGiftReloadData body:nil];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;新版本的调用方式为&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;ZanEventEmitter *emitter = [[ZanEventEmitter alloc] init];&amp;#10;emitter.bridge = self.bridge;&amp;#10;[emitter sendEventWithName:kGiftReloadData body:nil];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;但是新版本坑的是，直接这样调用时bridge居然是nil，网上说用单例，但是也不行…所以我还是用老版本的调用方法，有哪个大神知道怎么用新版本接口调用的正确姿势，请留言交流哈&lt;/p&gt;
+&lt;p&gt;然后在实现&lt;code&gt;RCTBridgeDelegate&lt;/code&gt;&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;- (NSURL *)sourceURLForBridge:(RCTBridge *)bridge &amp;#123;&amp;#10;    return [[NSBundle mainBundle] URLForResource:@&amp;#34;bundle/index.ios&amp;#34; withExtension:@&amp;#34;jsbundle&amp;#34;];&amp;#10;//    return [NSURL URLWithString:@&amp;#34;http://172.17.9.94:8081/index.ios.bundle?platform=ios&amp;#34;];&amp;#10;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;在对应的组件里，需要在&lt;code&gt;componentWillMount&lt;/code&gt;增加监听&lt;/p&gt;
+&lt;figure class=&quot;highlight javascript&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;componentWillMount() &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;.eventEmitter = NativeAppEventEmitter.addListener(&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;string&quot;&gt;&#39;GiftReloadData&#39;&lt;/span&gt;,&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    () =&amp;gt; &lt;span class=&quot;keyword&quot;&gt;this&lt;/span&gt;._reloadData()&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  );&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;对应的也需要移除掉监听&lt;/p&gt;
+&lt;figure class=&quot;highlight javascript&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;componentWillUnmount() &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;  subscription.remove();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后原生发送action之后，会触发我们设定好的&lt;code&gt;reloadData()&lt;/code&gt;方法&lt;/p&gt;
+&lt;h2 id=&quot;0x04__u672C_u5730_u8C03_u8BD5_u4E0E_u6253_u5305_u8C03_u8BD5&quot;&gt;&lt;a href=&quot;#0x04__u672C_u5730_u8C03_u8BD5_u4E0E_u6253_u5305_u8C03_u8BD5&quot; class=&quot;headerlink&quot; title=&quot;0x04 本地调试与打包调试&quot;&gt;&lt;/a&gt;0x04 本地调试与打包调试&lt;/h2&gt;&lt;p&gt;在编写的过程中，也需要进行调试，调试有两种方法：一种是本地调试，一种是打包调试&lt;/p&gt;
+&lt;h3 id=&quot;u672C_u5730_u8C03_u8BD5&quot;&gt;&lt;a href=&quot;#u672C_u5730_u8C03_u8BD5&quot; class=&quot;headerlink&quot; title=&quot;本地调试&quot;&gt;&lt;/a&gt;本地调试&lt;/h3&gt;&lt;p&gt;我们在加载bundle时，需要替换成你的ip地址，端口号不要变&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[NSURL URLWithString:@&amp;#34;http://172.17.9.94:8081/index.ios.bundle?platform=ios&amp;#34;]&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;如果你是在真机上调试，你需要开启HTTP代理，填写你的ip地址和端口号&lt;/p&gt;
+&lt;p&gt;在终端上，先进入到你的项目目录（与node_modules目录同级），然后开启服务&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;yzydeMacBook-Pro:shangjiaban-ios yzy$ npm start&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;你修改了某处之后，在模拟器上点击&lt;code&gt;Shake Gesture&lt;/code&gt;或者快捷键，在真机上只要摇一摇就可以&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/Shake.png!400x400&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在模拟器弹出框里选择&lt;code&gt;Roload&lt;/code&gt;，这样就会重新加载你本地的JS文件&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/simulation.png!400x400&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;如果你想查看JS里面的log日志，你可以选择&lt;code&gt;Start Remote JS Debugging&lt;/code&gt;，在chrome浏览器里就能看到输出的日志了&lt;/p&gt;
+&lt;h3 id=&quot;u6253_u5305_u8C03_u8BD5&quot;&gt;&lt;a href=&quot;#u6253_u5305_u8C03_u8BD5&quot; class=&quot;headerlink&quot; title=&quot;&lt;img src=&quot; http:=&quot;&quot; 7xtit4.com1.z0.glb.clouddn.com=&quot;&quot; chromedebug.png&quot;=&quot;&quot; alt=&quot;&quot;&gt;打包调试&quot;&gt;&lt;/a&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/chromeDebug.png&quot; alt=&quot;&quot;&gt;打包调试&lt;/h3&gt;&lt;p&gt;另外一种就是打包调试，但是比较麻烦，首先我们要讲bundle加载方式改为&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[[NSBundle mainBundle] URLForResource:@&amp;#34;bundle/index.ios&amp;#34; withExtension:@&amp;#34;jsbundle&amp;#34;];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;然后在终端里面，输入&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;yzydeMacBook-Pro:shangjiaban-ios yzy$ react-native bundle --entry-file index.ios.js --platform ios --dev false --bundle-output ./xxx/bundle/index.ios.jsbundle --assets-dest ./xxx/bundle&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;&lt;code&gt;--bundle-output ./xxx/bundle/index.ios.jsbundle&lt;/code&gt;指的是输出的bundle文件路径&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[20:54:43] &amp;#60;START&amp;#62; Building Dependency Graph&amp;#10;[20:54:43] &amp;#60;START&amp;#62; Crawling File System&amp;#10;[20:54:43] &amp;#60;START&amp;#62; find dependencies&amp;#10;[20:54:48] &amp;#60;END&amp;#62;   Crawling File System (4712ms)&amp;#10;[20:54:48] &amp;#60;START&amp;#62; Building in-memory fs for JavaScript&amp;#10;[20:54:48] &amp;#60;END&amp;#62;   Building in-memory fs for JavaScript (230ms)&amp;#10;[20:54:48] &amp;#60;START&amp;#62; Building in-memory fs for Assets&amp;#10;[20:54:48] &amp;#60;END&amp;#62;   Building in-memory fs for Assets (154ms)&amp;#10;[20:54:48] &amp;#60;START&amp;#62; Building Haste Map&amp;#10;[20:54:48] &amp;#60;START&amp;#62; Building (deprecated) Asset Map&amp;#10;[20:54:48] &amp;#60;END&amp;#62;   Building (deprecated) Asset Map (66ms)&amp;#10;[20:54:48] &amp;#60;END&amp;#62;   Building Haste Map (154ms)&amp;#10;[20:54:48] &amp;#60;END&amp;#62;   Building Dependency Graph (5261ms)&amp;#10;transformed 372/372 (100%)&amp;#10;[20:54:49] &amp;#60;END&amp;#62;   find dependencies (6402ms)&amp;#10;bundle: start&amp;#10;bundle: finish&amp;#10;bundle: Writing bundle output to: ./Koudaitong/bundle/index.ios.jsbundle&amp;#10;bundle: Copying 5 asset files&amp;#10;bundle: Done writing bundle output&amp;#10;bundle: Done copying assets&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;当看到这样的信息的时候，说明已经打包成功了，再将生成的bundle文件夹以&lt;code&gt;Create folder references&lt;/code&gt;形式加到工程里，然后就可以run了&lt;/p&gt;
+&lt;p&gt;Tip:&lt;/p&gt;
+&lt;figure class=&quot;highlight mathematica&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;在真机调试时，需要在Edit Scheme里在&lt;span class=&quot;keyword&quot;&gt;Run&lt;/span&gt;模式里，将Build Configuration改为&lt;span class=&quot;keyword&quot;&gt;Release&lt;/span&gt;模式&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;h2 id=&quot;0x05__u8FDC_u7A0B_u70ED_u66F4_u65B0&quot;&gt;&lt;a href=&quot;#0x05__u8FDC_u7A0B_u70ED_u66F4_u65B0&quot; class=&quot;headerlink&quot; title=&quot;0x05 远程热更新&quot;&gt;&lt;/a&gt;0x05 远程热更新&lt;/h2&gt;&lt;p&gt;这块网上的方案大同小异，因为目前我们还是采取本地打包加载的方式，还未上热更新，所以在这不好多做说明，等上了热更新之后，我再来补充~&lt;/p&gt;
+&lt;h2 id=&quot;0x06__u8E29_u5751_u8BB0_u5F55&quot;&gt;&lt;a href=&quot;#0x06__u8E29_u5751_u8BB0_u5F55&quot; class=&quot;headerlink&quot; title=&quot;0x06 踩坑记录&quot;&gt;&lt;/a&gt;0x06 踩坑记录&lt;/h2&gt;&lt;p&gt;踩坑最多是应该是使用上的&lt;/p&gt;
+&lt;p&gt;1.RN系统的组件并不是所有都是共用的，比如segment支持iOS，不支持Android，Alert分为iOS和Android等等，所以还是要写重复的代码&lt;/p&gt;
+&lt;p&gt;2.ListView不支持iOS原生的滑动操作，需要使用第三方库，但是第三方库不能控制只编辑一个Cell&lt;/p&gt;
+&lt;p&gt;3.由于原先iOS和Android的代码仓库是分开的，所以接入RN时，JS文件也是跟着仓库走的，这样iOS和Android会存在重复代码，并且目前两个人分别接iOS和Android，写JS时，有时并不共享，容易代码写着写着就有差异了，偏离了Write Once , Run Anywhere的初衷&lt;/p&gt;
+&lt;h2 id=&quot;0x07__u76F8_u5173_u8D44_u6599&quot;&gt;&lt;a href=&quot;#0x07__u76F8_u5173_u8D44_u6599&quot; class=&quot;headerlink&quot; title=&quot;0x07 相关资料&quot;&gt;&lt;/a&gt;0x07 相关资料&lt;/h2&gt;&lt;p&gt;&lt;a href=&quot;https://facebook.github.io/react-native/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;React Native&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://reactnative.cn/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;React Native 中文网&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;https://github.com/reactnativecn/react-native-guide&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;汇集了各类react-native学习资源、开源App和组件&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://blog.talisk.cn/blog/2016/08/13/RN-Learning-path-for-iOS-developer/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;写给 iOS 开发者的 React Native 学习路线&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://www.lcode.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;江清清的技术专栏&lt;/a&gt;&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;有一段时间没有写东西了，因为最近项目开始尝试使用React Native（以下简称RN）来开发，所以这段时间一直在研究这，目前为止开发的内容不对，所以使用过的东西也不算多，这里也只是做个简单的记录&lt;/p&gt;
+&lt;p&gt;这里我打算从以下几个方面来讲：&lt;/p&gt;
+&lt;p&gt;1.背景介绍&lt;b
+    
+    </summary>
+    
+    
+      <category term="React Native" scheme="http://yuzeyang.github.io/tags/React-Native/"/>
+    
+  </entry>
   
   <entry>
     <title>iOS 抽屉式效果列表</title>

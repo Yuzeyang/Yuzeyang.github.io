@@ -23,7 +23,7 @@
 <p>然后在关闭的时候，移除掉</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)deselectCell &#123;&#10;    [UIView animateWithDuration:0.3 animations:^&#123;&#10;        // cell&#22788;&#29702;&#10;        &#10;        self.detailView.layer.shadowColor = [UIColor clearColor].CGColor;&#10;        self.detailView.layer.shadowRadius = 0;&#10;        self.detailView.layer.shadowOpacity = 0.0;&#10;        &#10;        self.detailView.frame = self.originDetailViewFrame;&#10;        self.helperHideView.frame = self.originHelperViewFrame;&#10;        &#10;        [self.detailButton setTitle:@&#34;...&#34; forState:UIControlStateNormal];&#10;    &#125; completion:^(BOOL finished) &#123;&#10;        [self.helperHideView removeFromSuperview];&#10;        [self.detailView removeFromSuperview];&#10;        if (_deselectBlock) &#123;&#10;            _deselectBlock();&#10;        &#125;&#10;    &#125;];&#10;&#125;</span><br></pre></td></tr></table></figure>
 <p>这样就实现了抽屉式的效果，但是总感觉还有更好的办法实现，如果有思路的，欢迎交流~</p>
-</div></article></div></section><footer><div class="paginator"><a href="/2016/09/02/loadingAniamtion-0902/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+</div></article></div></section><footer><div class="paginator"><a href="/2016/10/09/react-native/" class="prev">上一篇</a><a href="/2016/09/02/loadingAniamtion-0902/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2016/09/08/iOS-Drawer-Table-View/';
 var disqus_title = 'iOS 抽屉式效果列表';
 var disqus_url = 'http://yuzeyang.github.io/2016/09/08/iOS-Drawer-Table-View/';
