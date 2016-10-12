@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-10-12T14:29:00.000Z</updated>
+  <updated>2016-10-12T14:30:53.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -20,9 +20,9 @@
     <link href="http://yuzeyang.github.io/2016/10/09/react-native/"/>
     <id>http://yuzeyang.github.io/2016/10/09/react-native/</id>
     <published>2016-10-09T13:53:32.000Z</published>
-    <updated>2016-10-12T14:29:00.000Z</updated>
+    <updated>2016-10-12T14:30:53.000Z</updated>
     
-    <content type="html">&lt;p&gt;有一段时间没有写东西了，因为最近项目开始尝试使用React Native（以下简称RN）来开发，所以这段时间一直在研究这，目前为止开发的内容不对，所以使用过的东西也不算多，这里也只是做个简单的记录&lt;/p&gt;
+    <content type="html">&lt;p&gt;有一段时间没有写东西了，因为最近项目开始尝试使用React Native（以下简称RN）来开发，所以这段时间一直在研究，目前为止开发的内容不多，所以使用过的东西也不算多，这里也只是做个简单的记录&lt;/p&gt;
 &lt;p&gt;这里我打算从以下几个方面来讲：&lt;/p&gt;
 &lt;p&gt;1.背景介绍&lt;br&gt;2.环境的配置&lt;br&gt;3.项目的结构与设计&lt;br&gt;4.RN与原生的交互&lt;br&gt;5.本地调试与本地打包调试&lt;br&gt;6.远程热更新&lt;br&gt;7.踩坑记录&lt;br&gt;8.相关资料&lt;/p&gt;
 &lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
@@ -202,7 +202,7 @@
     
     <summary type="html">
     
-      &lt;p&gt;有一段时间没有写东西了，因为最近项目开始尝试使用React Native（以下简称RN）来开发，所以这段时间一直在研究这，目前为止开发的内容不对，所以使用过的东西也不算多，这里也只是做个简单的记录&lt;/p&gt;
+      &lt;p&gt;有一段时间没有写东西了，因为最近项目开始尝试使用React Native（以下简称RN）来开发，所以这段时间一直在研究，目前为止开发的内容不多，所以使用过的东西也不算多，这里也只是做个简单的记录&lt;/p&gt;
 &lt;p&gt;这里我打算从以下几个方面来讲：&lt;/p&gt;
 &lt;p&gt;1.背景介绍&lt;br&gt;2.环境的配置&lt;br&gt;3.项目的结构与设计&lt;br&gt;4.RN与原生的交互&lt;br&gt;5.本地调试与本地打包调试&lt;br&gt;6.远程热更新&lt;br&gt;7.踩坑记录&lt;br&gt;8.相关资料&lt;/p&gt;
     
