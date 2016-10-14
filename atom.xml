@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-10-12T14:39:31.000Z</updated>
+  <updated>2016-10-14T06:30:55.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://yuzeyang.github.io/2016/10/09/react-native/"/>
     <id>http://yuzeyang.github.io/2016/10/09/react-native/</id>
     <published>2016-10-09T13:53:32.000Z</published>
-    <updated>2016-10-12T14:39:31.000Z</updated>
+    <updated>2016-10-14T06:30:55.000Z</updated>
     
     <content type="html">&lt;p&gt;有一段时间没有写东西了，因为最近项目开始尝试使用React Native（以下简称RN）来开发，所以这段时间一直在研究，目前为止开发的内容不多，所以使用过的东西也不算多，这里也只是做个简单的记录&lt;/p&gt;
 &lt;p&gt;这里我打算从以下几个方面来讲：&lt;/p&gt;
@@ -199,6 +199,7 @@
 &lt;p&gt;&lt;a href=&quot;https://github.com/reactnativecn/react-native-guide&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;汇集了各类react-native学习资源、开源App和组件&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;http://blog.talisk.cn/blog/2016/08/13/RN-Learning-path-for-iOS-developer/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;写给 iOS 开发者的 React Native 学习路线&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;&lt;a href=&quot;http://www.lcode.org/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;江清清的技术专栏&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://bbs.reactnative.cn/topic/15/react-react-native-%E7%9A%84es5-es6%E5%86%99%E6%B3%95%E5%AF%B9%E7%85%A7%E8%A1%A8&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;React/React Native 的ES5 ES6写法对照表&lt;/a&gt;&lt;/p&gt;
 </content>
     
     <summary type="html">
