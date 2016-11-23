@@ -160,7 +160,8 @@
 <p>在模拟器弹出框里选择<code>Roload</code>，这样就会重新加载你本地的JS文件</p>
 <p><img src="http://7xtit4.com1.z0.glb.clouddn.com/simulation.png!400x400" alt=""></p>
 <p>如果你想查看JS里面的log日志，你可以选择<code>Start Remote JS Debugging</code>，在chrome浏览器里就能看到输出的日志了</p>
-<h3 id="u6253_u5305_u8C03_u8BD5"><a href="#u6253_u5305_u8C03_u8BD5" class="headerlink" title="<img src=" http:="" 7xtit4.com1.z0.glb.clouddn.com="" chromedebug.png"="" alt="">打包调试"></a><img src="http://7xtit4.com1.z0.glb.clouddn.com/chromeDebug.png" alt="">打包调试</h3><p>另外一种就是打包调试，但是比较麻烦，首先我们要讲bundle加载方式改为</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/chromeDebug.png" alt=""></p>
+<h3 id="u6253_u5305_u8C03_u8BD5"><a href="#u6253_u5305_u8C03_u8BD5" class="headerlink" title="打包调试"></a>打包调试</h3><p>另外一种就是打包调试，但是比较麻烦，首先我们要讲bundle加载方式改为</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[NSBundle mainBundle] URLForResource:@&#34;bundle/index.ios&#34; withExtension:@&#34;jsbundle&#34;];</span><br></pre></td></tr></table></figure>
 <p>然后在终端里面，输入</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yzydeMacBook-Pro:shangjiaban-ios yzy$ react-native bundle --entry-file index.ios.js --platform ios --dev false --bundle-output ./xxx/bundle/index.ios.jsbundle --assets-dest ./xxx/bundle</span><br></pre></td></tr></table></figure>

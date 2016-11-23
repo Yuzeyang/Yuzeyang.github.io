@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2016-11-23T15:12:52.000Z</updated>
+  <updated>2016-11-23T15:17:38.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://yuzeyang.github.io/2016/10/09/react-native/"/>
     <id>http://yuzeyang.github.io/2016/10/09/react-native/</id>
     <published>2016-10-09T13:53:32.000Z</published>
-    <updated>2016-11-23T15:12:52.000Z</updated>
+    <updated>2016-11-23T15:17:38.000Z</updated>
     
     <content type="html">&lt;p&gt;有一段时间没有写东西了，因为最近项目开始尝试使用React Native（以下简称RN）来开发，所以这段时间一直在研究，目前为止开发的内容不多，所以使用过的东西也不算多，这里也只是做个简单的记录&lt;/p&gt;
 &lt;p&gt;这里我打算从以下几个方面来讲：&lt;/p&gt;
@@ -184,7 +184,8 @@
 &lt;p&gt;在模拟器弹出框里选择&lt;code&gt;Roload&lt;/code&gt;，这样就会重新加载你本地的JS文件&lt;/p&gt;
 &lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/simulation.png!400x400&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;如果你想查看JS里面的log日志，你可以选择&lt;code&gt;Start Remote JS Debugging&lt;/code&gt;，在chrome浏览器里就能看到输出的日志了&lt;/p&gt;
-&lt;h3 id=&quot;u6253_u5305_u8C03_u8BD5&quot;&gt;&lt;a href=&quot;#u6253_u5305_u8C03_u8BD5&quot; class=&quot;headerlink&quot; title=&quot;&lt;img src=&quot; http:=&quot;&quot; 7xtit4.com1.z0.glb.clouddn.com=&quot;&quot; chromedebug.png&quot;=&quot;&quot; alt=&quot;&quot;&gt;打包调试&quot;&gt;&lt;/a&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/chromeDebug.png&quot; alt=&quot;&quot;&gt;打包调试&lt;/h3&gt;&lt;p&gt;另外一种就是打包调试，但是比较麻烦，首先我们要讲bundle加载方式改为&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/chromeDebug.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h3 id=&quot;u6253_u5305_u8C03_u8BD5&quot;&gt;&lt;a href=&quot;#u6253_u5305_u8C03_u8BD5&quot; class=&quot;headerlink&quot; title=&quot;打包调试&quot;&gt;&lt;/a&gt;打包调试&lt;/h3&gt;&lt;p&gt;另外一种就是打包调试，但是比较麻烦，首先我们要讲bundle加载方式改为&lt;/p&gt;
 &lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;[[NSBundle mainBundle] URLForResource:@&amp;#34;bundle/index.ios&amp;#34; withExtension:@&amp;#34;jsbundle&amp;#34;];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
 &lt;p&gt;然后在终端里面，输入&lt;/p&gt;
 &lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;yzydeMacBook-Pro:shangjiaban-ios yzy$ react-native bundle --entry-file index.ios.js --platform ios --dev false --bundle-output ./xxx/bundle/index.ios.jsbundle --assets-dest ./xxx/bundle&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
