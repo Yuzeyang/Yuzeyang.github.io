@@ -170,6 +170,89 @@
 <p>Tip:</p>
 <figure class="highlight mathematica"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">在真机调试时，需要在Edit Scheme里在<span class="keyword">Run</span>模式里，将Build Configuration改为<span class="keyword">Release</span>模式</span><br></pre></td></tr></table></figure>
 <h2 id="0x05__u8FDC_u7A0B_u70ED_u66F4_u65B0"><a href="#0x05__u8FDC_u7A0B_u70ED_u66F4_u65B0" class="headerlink" title="0x05 远程热更新"></a>0x05 远程热更新</h2><p>这块网上的方案大同小异，因为目前我们还是采取本地打包加载的方式，还未上热更新，所以在这不好多做说明，等上了热更新之后，我再来补充~</p>
+<p>2016年11月23日更新：</p>
+<p>Tips：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">该热更新方法取自于有赞技术团队官方博客里《React <span class="keyword">Native</span>有赞初探》，欢迎关注我们技术团队的博客~</span><br></pre></td></tr></table></figure>
+<h3 id="u9009_u578B"><a href="#u9009_u578B" class="headerlink" title="选型"></a>选型</h3><p>经过调研和选型，最终选择了微软出品的 <code>CodePush</code> 作为 <code>React Native</code> 热部署方案。</p>
+<p><code>CodePush</code> 是提供给 <code>React Native</code> 开发者直接部署移动应用更新给用户设备的云服务。<code>CodePush</code> 作为一个中央仓库，开发者可以推送更新 (JS, HTML, CSS and images)，应用可以从客户端 <code>SDK</code> 里面查询更新。<code>CodePush</code> 可以让应用有更多的可确定性，也可以让你直接接触用户群。在修复一些小问题和添加新特性的时候，不需要经过二进制打包，可以直接推送代码进行实时更新。</p>
+<p><code>CodePush</code> 可以进行实时的推送代码更新：</p>
+<ul>
+<li>直接对用户部署代码更新</li>
+<li>管理 <code>Alpha</code> ， <code>Beta</code> 和生产环境应用</li>
+<li>支持 <code>JavaScript</code> 文件与图片资源的更新</li>
+<li>暂不支持增量更新</li>
+</ul>
+<p><code>CodePush</code> 开源了 <code>react-native</code> 版本，<a href="https://github.com/Microsoft/react-native-code-push" target="_blank" rel="external">react-native-code-push</a>托管在GitHub上。</p>
+<p>具体的教程和用法微软都在 <code>Github上</code> 做了详细说明，接下来简单地梳理一下从配置、编码、部署等具体流程。</p>
+<p>(1) 安装 <code>CodePush CLI</code></p>
+<p>管理 <code>CodePush</code> 账号需要通过 <code>NodeJS-based CLI</code>。 只需要在终端输入 <code>npm install -g code-push-cli</code> ，就可以安装了。 安装完毕后，输入 <code>code-push -v</code> 查看版本，如看到版本代表成功。</p>
+<p>(2) 创建一个 <code>CodePush</code> 账号 在终端输入 <code>code-push register</code> ，会打开如下注册页面让你选择授权账号。</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/codepush.png" alt=""></p>
+<p>授权通过之后，<code>CodePush</code> 会告诉你“access key”，复制此key到终端即可完成注册。</p>
+<p>然后终端输入 <code>code-push login</code> 进行登陆，登陆成功后，你的session文件将会写在 /Users/你的用户名 <code>/.code-push.config</code>。</p>
+<p>(3) 在CodePush服务器注册app 为了让 <code>CodePush</code> 服务器知道你的app，我们需要向它注册app： 在终端输入 <code>code-push app add</code> 即可完成注册。</p>
+<p>例如：</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">code</span>-<span class="keyword">push </span>app <span class="keyword">add </span>shangjiaban-<span class="keyword">android</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>如果是iOS平台，命令为 <code>code-push app add shangjiaban-ios</code> ， <code>Android</code> 和 <code>iOS</code> 必须要区分</p>
+</blockquote>
+<p>还有很多 <code>code-push app</code> 相关的命令，参考如下：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">$: code-push app <span class="operator"><span class="keyword">help</span></span><br><span class="line"><span class="keyword">Usage</span>: code-push app &lt;command&gt;</span><br><span class="line"></span><br><span class="line">命令：</span><br><span class="line">  <span class="keyword">add</span>       <span class="keyword">Add</span> a <span class="keyword">new</span> app <span class="keyword">to</span> your <span class="keyword">account</span></span><br><span class="line">  remove    Remove an app <span class="keyword">from</span> your <span class="keyword">account</span></span><br><span class="line">  rm        Remove an app <span class="keyword">from</span> your <span class="keyword">account</span></span><br><span class="line">  <span class="keyword">rename</span>    <span class="keyword">Rename</span> an existing app</span><br><span class="line">  <span class="keyword">list</span>      Lists the apps associated <span class="keyword">with</span> your <span class="keyword">account</span></span><br><span class="line">  ls        Lists the apps associated <span class="keyword">with</span> your <span class="keyword">account</span></span><br><span class="line">  transfer  Transfer the ownership <span class="keyword">of</span> an app <span class="keyword">to</span> another <span class="keyword">account</span></span></span><br></pre></td></tr></table></figure>
+<h3 id="iOS_u914D_u7F6E"><a href="#iOS_u914D_u7F6E" class="headerlink" title="iOS配置"></a>iOS配置</h3><p>iOS平台上关于 <code>CodePush</code> 的配置和 <code>Android</code> 平台是类似的，可以参考上文的(1)(2)(3)，iOS平台集成 <code>CodePush</code> 比较简单，官网提供了3种集成方式，这里重点介绍如何通过 <code>cocoapods</code> 来集成。</p>
+<p>(1) 引入 <code>CodePush</code></p>
+<p>首先在Podfile文件中添加 <code>CodePush</code>，配置如下：</p>
+<figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod <span class="string">'CodePush'</span>, :path =&gt; <span class="string">'./node_modules/react-native-code-push'</span></span><br></pre></td></tr></table></figure>
+<p>然后执行 <code>pod install</code> 就可以了。</p>
+<p>(2) 声明 <code>bundle</code> 文件来源</p>
+<p>引入 <code>CodePush</code> 后还需要在代码中声明 <code>bundle</code> 的加载来源，之前是加载本地的<code>bundle</code>文件，现在需要调用 <code>CodePush</code> 提供的方法指定加载 <code>Bundle</code> 文件，代码如下：</p>
+<figure class="highlight objectivec"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="preprocessor">#import <span class="title">"CodePush.h"</span></span></span><br><span class="line">...</span><br><span class="line"><span class="comment">// 原来的bundle加载方法</span></span><br><span class="line">jsCodeLocation = [[<span class="built_in">NSBundle</span> mainBundle] URLForResource:<span class="string">@"main"</span> withExtension:<span class="string">@"jsbundle"</span>];</span><br><span class="line"></span><br><span class="line"><span class="comment">// CodePush的bundle加载方法，这里的bundleURL默认加载的是main.jsbundle，</span></span><br><span class="line"><span class="comment">// 如果你的名称不一样，需要调用CodePush提供的其他方法来自定义。</span></span><br><span class="line">jsCodeLocation = [CodePush bundleURL];</span><br></pre></td></tr></table></figure>
+<p>最后还需要在 <code>Info.plist</code> 中添加一个 <code>key</code> 为 <code>CodePushDeploymentKey</code> ,其<code>value</code> 就是 <code>CodePush</code> 提供的唯一 <code>token</code> 值。具体获取方法，可以通过如下命令获得</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">code</span>-<span class="keyword">push </span>deployment ls &lt;appName&gt; -k</span><br></pre></td></tr></table></figure>
+<h3 id="RN_u914D_u7F6E"><a href="#RN_u914D_u7F6E" class="headerlink" title="RN配置"></a>RN配置</h3><p>为了达到更好的体验效果，我们决定采用静默升级的策略，让用户无感知地体验热更新，也可以是具体的升级流程图如下：</p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/updateStrategy.png!500x500" alt=""></p>
+<p>如果要达成上述热部署效果，那么还需要在 <code>JavaScript</code> 文件中完成更新时机和更新策略的设置。</p>
+<p>(1)在js中导入 <code>CodePush</code> 模块：</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> codePush <span class="keyword">from</span> <span class="string">'react-native-code-push'</span></span><br></pre></td></tr></table></figure>
+<p>(2)在 <code>componentDidMount</code> 中调用 <code>sync</code> 方法，后台请求更新</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">codePush.<span class="function"><span class="title">sync</span><span class="params">()</span></span></span><br></pre></td></tr></table></figure>
+<p>如果是非强制并允许更新， <code>CodePush</code> 会在后台静默地将更新下载到本地，等待APP再一次启动或者加载 <code>React Native</code> 页面的时候更新应用。</p>
+<p>如果更新是强制性的，更新文件下载好之后会立即进行更新。关于如何配置是否强制更新，会在下文发布更新处重点说明。</p>
+<p>如果你期望更及时的获得更新，可以在每次APP从后台进入前台的时候去主动的检查更新：</p>
+<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">AppState.addEventListener(<span class="string">"change"</span>, <span class="function"><span class="params">(newState)</span> =&gt;</span> &#123;  </span><br><span class="line">        newState === <span class="string">"active"</span> &amp;&amp; codePush.sync(&#123;</span><br><span class="line">            <span class="attribute">installMode</span>:codePush.InstallMode.ON_NEXT_RESUME,</span><br><span class="line">            <span class="attribute">deploymentKey</span>: DEPLOYMENT_KEY,</span><br><span class="line">          &#125;);</span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure>
+<p>上述流程图提及的三种更新方式，就是通过 <code>installMode</code> 参数控制的，取值方式分别为：</p>
+<ol>
+<li><code>codePush.InstallMode.ON_NEXT_RESTART</code>即下一次启动的时候安装更新</li>
+<li><code>codePush.InstallMode.ON_NEXT_RESUME</code>即下一次切后台切换的时候安装更新</li>
+<li><code>codePush.InstallMode. IMMEDIATE</code>立即下载安装更新</li>
+</ol>
+<blockquote>
+<p>如果发布更新时 <code>mandatory</code> 参数为true，即强制更新，则上述设置都会无效，只有<code>mandatory</code> 参数为fasle时，设置才会有效。</p>
+</blockquote>
+<h3 id="u6253_u5305_u5E76_u53D1_u5E03"><a href="#u6253_u5305_u5E76_u53D1_u5E03" class="headerlink" title="打包并发布"></a>打包并发布</h3><p>(1) 打包js 发布更新之前，需要先把js打包成 <code>bundle</code> ，以下是Android的做法：</p>
+<p>第一步： 在 <code>Android</code> 工程目录里面新增 <code>release</code> 文件： <code>mkdir release</code> ，对于iOS来说，目前 <code>bundle</code> 文件直接放在工程根目录下，所以无需这一步。 第二步： 运行命令打包</p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">react</span><span class="literal">-</span><span class="comment">native</span> <span class="comment">bundle</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">platform</span> <span class="comment">平台</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">entry</span><span class="literal">-</span><span class="comment">file</span> <span class="comment">启动文件</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">bundle</span><span class="literal">-</span><span class="comment">output</span> <span class="comment">打包js输出文件</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">assets</span><span class="literal">-</span><span class="comment">dest</span> <span class="comment">资源输出目录</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">dev</span> <span class="comment">是否调试。</span></span><br></pre></td></tr></table></figure>
+<p>例如:</p>
+<p>Android</p>
+<figure class="highlight armasm"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="label">react</span>-native <span class="keyword">bundle </span>--platform <span class="keyword">android </span>--<span class="preprocessor">entry</span>-file index.<span class="keyword">android.js </span>--<span class="keyword">bundle-output </span>./release/index.<span class="keyword">android.bundle </span>--assets-dest ./release --dev false</span><br></pre></td></tr></table></figure>
+<p>iOS</p>
+<figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">react</span><span class="literal">-</span><span class="comment">native</span> <span class="comment">bundle</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">platform</span> <span class="comment">ios</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">entry</span><span class="literal">-</span><span class="comment">file</span> <span class="comment">index</span><span class="string">.</span><span class="comment">ios</span><span class="string">.</span><span class="comment">js</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">bundle</span><span class="literal">-</span><span class="comment">output</span> <span class="string">.</span><span class="comment">/Koudaitong/main</span><span class="string">.</span><span class="comment">jsbundle</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">assets</span><span class="literal">-</span><span class="comment">dest</span> <span class="string">.</span><span class="comment">/Koudaitong</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">dev</span> <span class="comment">false</span></span><br></pre></td></tr></table></figure>
+<p>(2) 发布更新</p>
+<p>打包 <code>bundle</code> 结束后，就可以通过 <code>CodePush</code> 发布更新了。在终端输入</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">code-push release <span class="tag">&lt;<span class="title">应用名称</span>&gt;</span> <span class="tag">&lt;<span class="title">Bundles所在目录</span>&gt;</span> <span class="tag">&lt;<span class="title">对应的应用版本</span>&gt;</span> --deploymentName： 更新环境  </span><br><span class="line">--description： 更新描述 --mandatory： 是否强制更新</span><br></pre></td></tr></table></figure>
+<p>例如：</p>
+<p>Android</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">code-push release shangjiaban-android ./release <span class="number">3.12</span><span class="number">.1</span> --description <span class="string">"update React Native"</span> --mandatory <span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p>iOS</p>
+<figure class="highlight gradle"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">code-<span class="keyword">push</span> release shangjiaban-ios .<span class="regexp">/Koudaitong/m</span>ain.jsbundle <span class="number">3.12</span>.<span class="number">0</span> --<span class="keyword">description</span> <span class="string">"update React Native"</span> --mandatory <span class="keyword">false</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>注意：</p>
+</blockquote>
+<ol>
+<li><code>CodePush</code> 默认是更新 <code>Staging</code> 环境的，如果是 <code>Staging</code> ，则不需要填写<code>deploymentName</code>。</li>
+<li>如果有 <code>mandatory</code> 则 <code>Code Push</code> 会根据 <code>mandatory</code> 是 <code>true</code> 或<code>false</code> 来控制应用是否强制更新。默认情况下 <code>mandatory</code> 为 <code>false</code> 即不强制更新。</li>
+<li>对应的应用版本 <code>targetBinaryVersion</code> 是指当前app的版本(对应 <code>build.gradle</code> 中设置的versionName “3.12.1”)，也就是说此次更新的 <code>js/images</code> 对应的是app的那个版本。不要将其理解为这次js更新的版本。 如客户端版本是3.12.1，那么我们对3.12.1的客户端更新 <code>js/images</code> ， <code>targetBinaryVersion</code> 填的就是3.12.1。</li>
+<li>对于对某个应用版本进行多次更新的情况， <code>CodePush</code> 会检查每次上传的 <code>bundle</code> ，如果在该版本下如3.12.1已经存在与这次上传完全一样的 <code>bundle</code> (对应一个版本有两个 <code>bundle</code> 的 <code>md5</code> 完全一样)，那么 <code>CodePush</code> 会拒绝此次更新。</li>
+</ol>
 <h2 id="0x06__u8E29_u5751_u8BB0_u5F55"><a href="#0x06__u8E29_u5751_u8BB0_u5F55" class="headerlink" title="0x06 踩坑记录"></a>0x06 踩坑记录</h2><p>踩坑最多是应该是使用上的</p>
 <p>1.RN系统的组件并不是所有都是共用的，比如segment支持iOS，不支持Android，Alert分为iOS和Android等等，所以还是要写重复的代码</p>
 <p>2.ListView不支持iOS原生的滑动操作，需要使用第三方库，但是第三方库不能控制只编辑一个Cell</p>
@@ -180,6 +263,7 @@
 <p><a href="http://blog.talisk.cn/blog/2016/08/13/RN-Learning-path-for-iOS-developer/" target="_blank" rel="external">写给 iOS 开发者的 React Native 学习路线</a></p>
 <p><a href="http://www.lcode.org/" target="_blank" rel="external">江清清的技术专栏</a></p>
 <p><a href="http://bbs.reactnative.cn/topic/15/react-react-native-%E7%9A%84es5-es6%E5%86%99%E6%B3%95%E5%AF%B9%E7%85%A7%E8%A1%A8" target="_blank" rel="external">React/React Native 的ES5 ES6写法对照表</a></p>
+<p><a href="http://tech.youzan.com/react-native-zan/" target="_blank" rel="external">React Native有赞初探</a></p>
 </div></article></div></section><footer><div class="paginator"><a href="/2016/09/08/iOS-Drawer-Table-View/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2016/10/09/react-native/';
 var disqus_title = '项目接入使用React Native';
