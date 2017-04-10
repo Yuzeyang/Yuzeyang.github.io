@@ -11,49 +11,49 @@
 <p>CocoaAsyncSocket为Mac和iOS提供了易于使用且强大的异步通信库</p>
 </blockquote>
 <p>在Podfile文件中，只要加上这句话就可以使用了</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pod &#39;CocoaAsyncSocket&#39;, &#39;7.4.1&#39;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">pod &apos;CocoaAsyncSocket&apos;, &apos;7.4.1&apos;</div></pre></td></tr></table></figure>
 <hr>
 <p>简单的Socket通信包括了建连、断开连接、发送socket业务请求、重连这四个基本功能</p>
 <p>下面，我就按照这个四个基本功能来讲一下，怎么来使用CocoaAsyncSocket中GCDAsyncSocket这个类来开发Socket通信</p>
 <p>首先，Socket在第一步时，需要建连才能开始通信</p>
 <p>在GCDAsyncSocket中提供了四种初始化的方法</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (id)init;&#10;- (id)initWithSocketQueue:(dispatch_queue_t)sq;&#10;- (id)initWithDelegate:(id)aDelegate delegateQueue:(dispatch_queue_t)dq;&#10;- (id)initWithDelegate:(id)aDelegate delegateQueue:(dispatch_queue_t)dq socketQueue:(dispatch_queue_t)sq;&#10;&#10;@property (atomic, weak, readwrite) id delegate;&#10;#if OS_OBJECT_USE_OBJC&#10;@property (atomic, strong, readwrite) dispatch_queue_t delegateQueue;&#10;#else&#10;@property (atomic, assign, readwrite) dispatch_queue_t delegateQueue;&#10;#endif</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">- (id)init;</div><div class="line">- (id)initWithSocketQueue:(dispatch_queue_t)sq;</div><div class="line">- (id)initWithDelegate:(id)aDelegate delegateQueue:(dispatch_queue_t)dq;</div><div class="line">- (id)initWithDelegate:(id)aDelegate delegateQueue:(dispatch_queue_t)dq socketQueue:(dispatch_queue_t)sq;</div><div class="line"></div><div class="line">@property (atomic, weak, readwrite) id delegate;</div><div class="line">#if OS_OBJECT_USE_OBJC</div><div class="line">@property (atomic, strong, readwrite) dispatch_queue_t delegateQueue;</div><div class="line">#else</div><div class="line">@property (atomic, assign, readwrite) dispatch_queue_t delegateQueue;</div><div class="line">#endif</div></pre></td></tr></table></figure>
 <p>sq是socket的线程，这个是可选的设置，如果你写null，GCDAsyncSocket内部会帮你创建一个它自己的socket线程，如果你要自己提供一个socket线程的话，千万不要提供一个并发线程，在频繁socket通信过程中，可能会阻塞掉，个人建议是不用创建</p>
 <p>aDelegate就是socket的代理</p>
 <p>dq是delegate的线程</p>
 <p>必须要需要设置socket的代理以及代理的线程，否则socket的回调你压根儿就不知道了，</p>
 <p>比如：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">self.socket =[[GCDAsyncSocket alloc] initWithDelegate:delegate delegateQueue:dispatch_get_main_queue()];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">self.socket =[[GCDAsyncSocket alloc] initWithDelegate:delegate delegateQueue:dispatch_get_main_queue()];</div></pre></td></tr></table></figure>
 <p>接着，在设置代理之后，你需要尝试连接到相应的地址来确定你的socket是否能连通了</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (BOOL)connectToHost:(NSString *)host&#10;               onPort:(uint16_t)port&#10;          withTimeout:(NSTimeInterval)timeout&#10;                error:(NSError **)errPtr;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">- (BOOL)connectToHost:(NSString *)host</div><div class="line">               onPort:(uint16_t)port</div><div class="line">          withTimeout:(NSTimeInterval)timeout</div><div class="line">                error:(NSError **)errPtr;</div></pre></td></tr></table></figure>
 <p>host是主机地址，port是端口号</p>
 <p>如果建连成功之后，会收到socket成功的回调，在成功里面你可以做你需要做的一些事情，我这边的话，是做了心跳的处理</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">- (void)socket:(GCDAsyncSocket *)sock didConnectToHost:(NSString *)host port:(uint16_t)port;</div></pre></td></tr></table></figure>
 <p>如果建连失败了，会收到失败的回调，我这边在失败里面做了重连的操作</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">- (void)socketDidDisconnect:(GCDAsyncSocket *)sock withError:(NSError *)err;</div></pre></td></tr></table></figure>
 <p>重连操作其实比较简单，只需要再调用一次建连请求，我这边设置的重连规则是重连次数为5次，每次的时间间隔为2的n次方，超过次数之后，就不再去重连了</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)socketDidDisconnect:(GCDAsyncSocket*)sock withError:(NSError*)err &#123;&#10;&#10;&#9;self.status= -1;&#10;&#10;&#9;if(self.reconnection_time&#62;=0 &#38;&#38; self.reconnection_time &#60;= kMaxReconnection_time) &#123;&#10;&#10;&#9;&#9;[self.timer invalidate];&#10;&#10;&#9;&#9;self.timer=nil;&#10;&#10;&#9;&#9;int time =pow(2,self.reconnection_time);&#10;&#10;&#9;&#9;self.timer= [NSTimer scheduledTimerWithTimeInterval:time target:selfselector:@selector(reconnection) userInfo:nil repeats:NO];&#10;&#10;&#9;&#9;self.reconnection_time++;&#10;&#10;&#9;&#9;NSLog(@&#34;socket did reconnection,after %ds try again&#34;,time);&#10;&#10;&#9;&#125; else &#123;&#10;&#10;&#9;&#9;self.reconnection_time=0;&#10;&#10;&#9;&#9;NSLog(@&#34;socketDidDisconnect:%p withError: %@&#34;, sock, err);&#10;&#9;&#125;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div></pre></td><td class="code"><pre><div class="line">- (void)socketDidDisconnect:(GCDAsyncSocket*)sock withError:(NSError*)err &#123;</div><div class="line"></div><div class="line">	self.status= -1;</div><div class="line"></div><div class="line">	if(self.reconnection_time&gt;=0 &amp;&amp; self.reconnection_time &lt;= kMaxReconnection_time) &#123;</div><div class="line"></div><div class="line">		[self.timer invalidate];</div><div class="line"></div><div class="line">		self.timer=nil;</div><div class="line"></div><div class="line">		int time =pow(2,self.reconnection_time);</div><div class="line"></div><div class="line">		self.timer= [NSTimer scheduledTimerWithTimeInterval:time target:selfselector:@selector(reconnection) userInfo:nil repeats:NO];</div><div class="line"></div><div class="line">		self.reconnection_time++;</div><div class="line"></div><div class="line">		NSLog(@&quot;socket did reconnection,after %ds try again&quot;,time);</div><div class="line"></div><div class="line">	&#125; else &#123;</div><div class="line"></div><div class="line">		self.reconnection_time=0;</div><div class="line"></div><div class="line">		NSLog(@&quot;socketDidDisconnect:%p withError: %@&quot;, sock, err);</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>这里我用status来标记socket的连接状态</p>
 <p>那么socket已经建连了，该怎么发起socket通信呢？</p>
 <p>你需要和后端开发人员商定好socket协议格式，比如：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[NSString stringWithFormat:@&#34;&#123;\&#34;version\&#34;:%d,\&#34;reqType\&#34;:%d,\&#34;body\&#34;:\&#34;%@\&#34;&#125;\r\n&#34;,PROTOCOL_VERSION,reqType,reqBody];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[NSString stringWithFormat:@&quot;&#123;\&quot;version\&quot;:%d,\&quot;reqType\&quot;:%d,\&quot;body\&quot;:\&quot;%@\&quot;&#125;\r\n&quot;,PROTOCOL_VERSION,reqType,reqBody];</div></pre></td></tr></table></figure>
 <p>中间应该大家都能看得懂，那为什么后面需要加上\r\n呢？</p>
 <p>这个\r\n是socket消息的边界符，是为了防止发生消息黏连，没有\r\n的话，可能由于某种原因，后端会收到两条socket请求，但是后端不知道怎么拆分这两个请求</p>
 <p>同理，在收到socket请求回调时，也会根据这个边界符去拆分</p>
 <p>那为什么要用\r\n呢？</p>
 <p>而且GCDAsyncSocket不支持自定义边界符，它提供了四种边界符供你使用\r\n、\r、\n、空字符串</p>
 <p>在拼装好socket请求之后，你需要调用GCDAsyncSocket的写方法，来发送请求，然后在写完成之后你会收到写的回调</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[self.socket writeData:requestData withTimeout:-1 tag:0];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[self.socket writeData:requestData withTimeout:-1 tag:0];</div></pre></td></tr></table></figure>
 <p>timeout是超时时间，这个根据实际的需要去设置</p>
 <p>这个是写的回调</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)socket:(GCDAsyncSocket*)sock didWriteDataWithTag:(long)tag&#65307;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">- (void)socket:(GCDAsyncSocket*)sock didWriteDataWithTag:(long)tag；</div></pre></td></tr></table></figure>
 <p>在写之后，需要再调用读方法，这样才能收到你发出请求后从服务器那边收到的数据</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[self.socketreadDataToData:[GCDAsyncSocket CRLFData] withTimeout:10 maxLength:50000 tag:0];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[self.socketreadDataToData:[GCDAsyncSocket CRLFData] withTimeout:10 maxLength:50000 tag:0];</div></pre></td></tr></table></figure>
 <p>[GCDAsyncSocket CRLFData]这里是设置边界符，maxLength是设置你收到的请求数据内容的最大值</p>
 <p>在读回调里面，你可以根据不同业务来执行不同的操作</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)socket:(GCDAsyncSocket*)sock didReadData:(NSData*)data withTag:(long)tag;</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">- (void)socket:(GCDAsyncSocket*)sock didReadData:(NSData*)data withTag:(long)tag;</div></pre></td></tr></table></figure>
 <p>最后一个则是断开连接，这个只需要调用</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[self.socket disconnect];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">[self.socket disconnect];</div></pre></td></tr></table></figure>
 <p>ok，这样的话，最简单基础的socket通信，你已经大致能完成了~</p>
 <hr>
 <p>2016.4.26更新</p>
@@ -64,12 +64,12 @@
 <p>2016.8.5更新</p>
 <p>有些时候，不能定位是否是后端问题还是客户端/SDK问题的时候，可以用命令行抓一下socket包看看（用Charles只能抓http和https包）</p>
 <p>命令行如下：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo tcpdump -i any -n -X port 7070</span><br></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo tcpdump -i any -n -X port 7070</div></pre></td></tr></table></figure>
 <p>Tip：7070端口号请根据实际的调试端口号修改</p>
 <p>效果如下：</p>
 <p><img src="http://7xtit4.com1.z0.glb.clouddn.com/socketPacket.png" alt=""></p>
 <p>红色部分就是socket包的内容了</p>
-</div></article></div></section><footer><div class="paginator"><a href="/2016/01/19/TouchID/" class="prev">上一篇</a><a href="/2016/01/12/Harbin-travel/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+</div></article></div></section><footer><div class="paginator"><a href="/2016/01/12/Harbin-travel/" class="prev">PREV</a><a href="/2016/01/19/TouchID/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2016/01/17/GCDAsyncSocket-socket/';
 var disqus_title = 'iOS 基于GCDAsyncSocket快速开发Socket通信';
 var disqus_url = 'http://yuzeyang.github.io/2016/01/17/GCDAsyncSocket-socket/';

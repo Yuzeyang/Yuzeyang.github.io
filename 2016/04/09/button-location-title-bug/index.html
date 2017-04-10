@@ -2,9 +2,9 @@
 <hr>
 <p>中间的登录按钮会有一个下移以及更改文字的操作，但是我在加了下移动画之后，再修改按钮的文字，就出现了很奇怪的现象，按钮会先下移然后修改文字之后，又跳回到最初的位置</p>
 <p><img src="http://7xtit4.com1.z0.glb.clouddn.com/Evernote%20bug.gif!500x500" alt="问题操作"><br>这就奇怪了，看逻辑上一点错误也没有，那怎么会这样呢？</p>
-<p>检查了下按钮的类型也是自定义的，那会不会是动画影响的呢？<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion NS_AVAILABLE_IOS(4_0);</span><br></pre></td></tr></table></figure></p>
-<p>在block里面，我在setTitle:forState的方法外面，去掉动画的影响<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[UIView setAnimationsEnabled:NO];&#10;[self.loginButton setTitle:@&#34;&#27880; &#160; &#20876;&#34; forState:UIControlStateNormal];&#10;[self.loginButton layoutIfNeeded];&#10;[UIView setAnimationsEnabled:YES];</span><br></pre></td></tr></table></figure></p>
-<p>或者<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[UIView performWithoutAnimation:^&#123;&#10;&#160; &#160; &#160; &#160; [self.loginButton setTitle:@&#34;&#27880; &#160; &#20876;&#34; forState:UIControlStateNormal];&#10;        [self.loginButton layoutIfNeeded];&#10;&#125;];</span><br></pre></td></tr></table></figure></p>
+<p>检查了下按钮的类型也是自定义的，那会不会是动画影响的呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">+ (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion NS_AVAILABLE_IOS(4_0);</div></pre></td></tr></table></figure></p>
+<p>在block里面，我在setTitle:forState的方法外面，去掉动画的影响<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[UIView setAnimationsEnabled:NO];</div><div class="line">[self.loginButton setTitle:@&quot;注   册&quot; forState:UIControlStateNormal];</div><div class="line">[self.loginButton layoutIfNeeded];</div><div class="line">[UIView setAnimationsEnabled:YES];</div></pre></td></tr></table></figure></p>
+<p>或者<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">[UIView performWithoutAnimation:^&#123;</div><div class="line">        [self.loginButton setTitle:@&quot;注   册&quot; forState:UIControlStateNormal];</div><div class="line">        [self.loginButton layoutIfNeeded];</div><div class="line">&#125;];</div></pre></td></tr></table></figure></p>
 <p>都还是不行。。。</p>
 <p>干脆把动画方法去掉，直接改变按钮的位置再试试。。结果还是一样，那就纳闷了。。</p>
 <p>后来找了很久的资料发现，原来是受到了autolayout的影响，因为在广泛开始使用autolayout之后，在storyboard，nib和实现文件里面，我们可能不像以前那样去繁琐的计算坐标了，我们通过自适应的方式，去确定控件的位置</p>
@@ -12,7 +12,7 @@
 <p>我试着调用了修改其他的属性的方法，比如背景色，setImage：forState，这些都没事，凡是调用了title相关的三个设置都会这样。。我就满脸黑线了。。</p>
 <p>所以目前能找到的解决办法就是，该按钮<strong>用坐标计算的方式添加</strong></p>
 <p>如果哪位大神找到更好的解决办法，欢迎留言~</p>
-</div></article></div></section><footer><div class="paginator"><a href="/2016/04/29/hexo_build_github_blog/" class="prev">上一篇</a><a href="/2016/03/27/simple-download-animation/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+</div></article></div></section><footer><div class="paginator"><a href="/2016/03/27/simple-download-animation/" class="prev">PREV</a><a href="/2016/04/29/hexo_build_github_blog/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2016/04/09/button-location-title-bug/';
 var disqus_title = 'iOS 同时修改button位置和文字问题';
 var disqus_url = 'http://yuzeyang.github.io/2016/04/09/button-location-title-bug/';
