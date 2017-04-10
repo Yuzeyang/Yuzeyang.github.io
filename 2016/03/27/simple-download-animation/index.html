@@ -13,7 +13,7 @@
 <hr>
 <p>下载失败也是同理<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[self.loadingLayer removeAllAnimations];&#10;self.doneLayer.opacity = 0.0;&#10;NSArray *values = [self valueArrayWithWidth:self.downloadingViewWidth * 0.5];&#10;CAKeyframeAnimation *boundsAnimation = [self bounsAnimationWithValues:values];&#10;[self.failLayer addAnimation:boundsAnimation forKey:nil];&#10;&#160;&#160; &#160; &#160; &#160;&#10;[UIView animateWithDuration:1.0 animations:^&#123;&#10;&#160; &#160; &#160;self.failLayer.opacity = 1.0;&#10;&#125;];</span><br></pre></td></tr></table></figure></p>
 <p>好了，动画主要的原理就是这样，具体的代码实现可以看这里：<a href="https://github.com/Yuzeyang/DownloadingAnimation" target="_blank" rel="external">https://github.com/Yuzeyang/DownloadingAnimation</a></p>
-</div></article></div></section><footer><div class="paginator"><a href="/2016/04/09/button-location-title-bug/" class="prev">PREV</a><a href="/2016/03/15/AFNetWorking-two/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+</div></article></div></section><footer><div class="paginator"><a href="/2016/04/09/button-location-title-bug/" class="prev">上一篇</a><a href="/2016/03/15/AFNetWorking-two/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2016/03/27/simple-download-animation/';
 var disqus_title = 'iOS 简单下载动画';
 var disqus_url = 'http://yuzeyang.github.io/2016/03/27/simple-download-animation/';
