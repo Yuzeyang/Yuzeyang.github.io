@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2017-01-03T16:26:19.000Z</updated>
+  <updated>2017-04-10T12:01:36.000Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -14,6 +14,74 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>有赞 App 动态化配置中心实践</title>
+    <link href="http://yuzeyang.github.io/2017/04/06/Youzan-App-Config-Center/"/>
+    <id>http://yuzeyang.github.io/2017/04/06/Youzan-App-Config-Center/</id>
+    <published>2017-04-06T12:16:19.000Z</published>
+    <updated>2017-04-10T12:01:36.000Z</updated>
+    
+    <content type="html">&lt;h2 id=&quot;u80CC_u666F&quot;&gt;&lt;a href=&quot;#u80CC_u666F&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h2&gt;&lt;p&gt;客户端大量的硬编码导致其灵活性大大降低，一些细小的改动只能通过发布版本解决，用户升级更新迭代速度慢，时效性差等原因，催生出了有赞 App 的动态化配置中心，它可以将配置，功能，界面，数据等各种配置数据统一进行管理下发，实时生效，极大地提升了客户端的灵活性。&lt;/p&gt;
+&lt;p&gt;同时配置中心不仅仅是简单的对配置数据进行修改、读取而已，更需要在容错性、流量优化、带宽节省等各方面的优化上下功夫。本文主要提供了有赞 App 的动态化配置中心解决方案，也总结了版本迭代中所做的优化。&lt;/p&gt;
+&lt;a id=&quot;more&quot;&gt;&lt;/a&gt;
+&lt;h2 id=&quot;u914D_u7F6E_u4E2D_u5FC3_u8BBE_u8BA1&quot;&gt;&lt;a href=&quot;#u914D_u7F6E_u4E2D_u5FC3_u8BBE_u8BA1&quot; class=&quot;headerlink&quot; title=&quot;配置中心设计&quot;&gt;&lt;/a&gt;配置中心设计&lt;/h2&gt;&lt;p&gt;起初有赞各 App 内都散落着一些写死的链接，但随着 WWDC 16 中，Apple 表示将继续在 iOS 10 和 macOS 10.12 里收紧对普通 HTTP 的访问限制，并且无法使用 &lt;code&gt;NSAllowsArbitraryLoads&lt;/code&gt; 来绕过 ATS 限制。我们只能很费时费力的把各 App 内所有访问 HTTP 的链接都修改成 HTTPS，这一个小小的改动就如此麻烦，那后续大的改动更难以想象，所以我们开始思考能否将这些重复且动态的工作抽象成一个配置中心，用它来支撑各个业务。&lt;/p&gt;
+&lt;h4 id=&quot;u7B2C_u4E00_u7248&quot;&gt;&lt;a href=&quot;#u7B2C_u4E00_u7248&quot; class=&quot;headerlink&quot; title=&quot;第一版&quot;&gt;&lt;/a&gt;第一版&lt;/h4&gt;&lt;p&gt;第一版设计的相对简单，我们只是专门设计了一个 API，通过 API 请求配置数据，并且每个业务单独维护一份配置文件。&lt;/p&gt;
+&lt;p&gt;具体流程：客户端进入到前台，也就是应用程序被激活的时候，通过配置中心的接口向服务端请求最新的配置数据，如果配置文件有更新，则下发最新的配置给客户端，并且客户端本地存储这份最新的配置，用于应用运行时使用。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/AppConfigCenter1.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;但随着模块化的推进和应用数量的增加，配置文件的体积和数量会逐渐增大，每一次修改都会全量下发到客户端，这部分的流量累积起来是一个非常庞大的数字。并且使用配置文件去管理配置，只能维护到最新的配置，无法做到下发指定版本的配置。&lt;/p&gt;
+&lt;p&gt;所以针对这些弊端问题，我们衍生出了第二版配置中心。&lt;/p&gt;
+&lt;h4 id=&quot;u7B2C_u4E8C_u7248&quot;&gt;&lt;a href=&quot;#u7B2C_u4E8C_u7248&quot; class=&quot;headerlink&quot; title=&quot;第二版&quot;&gt;&lt;/a&gt;第二版&lt;/h4&gt;&lt;p&gt;为了解决第一版产生的流量浪费和配置管理弱的问题，我们优化了配置下发和管理流程，我们采取的策略是 &lt;code&gt;增量更新&lt;/code&gt; 和 &lt;code&gt;数据库存储配置&lt;/code&gt; 。&lt;/p&gt;
+&lt;p&gt;具体流程改动：&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/AppConfigCenter2.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h4 id=&quot;u589E_u91CF_u66F4_u65B0&quot;&gt;&lt;a href=&quot;#u589E_u91CF_u66F4_u65B0&quot; class=&quot;headerlink&quot; title=&quot;增量更新&quot;&gt;&lt;/a&gt;增量更新&lt;/h4&gt;&lt;p&gt;增量更新的优势主要体现在业务增长的过程中。我们的配置文件可能会从几十 KB 增长到几百 KB 甚至更大，如果还继续使用全量更新，这部分流量对用户来说是非常浪费的。而使用增量更新之后，服务端只需要下发不同配置之间的差异补丁包，补丁包的大小相比于原始配置的大小是非常小的，可以节省下90%左右的流量，这是非常可观的。&lt;/p&gt;
+&lt;p&gt;增量更新我们目前使用的是 Google 出的 &lt;a href=&quot;https://code.google.com/p/google-diff-match-patch/&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;google-diff-match-patch&lt;/a&gt; ，支持 Java,  JavaScript, Dart, C++, C#,  Objective-C, Lua 和 Python，但是官网已经下掉了该 SDK（不明白为什么），需要到 GitHub 上搜索类似于 &lt;code&gt;diff patch language:java&lt;/code&gt; 这样的关键词，就能找到对应平台下的 SDK 了，有人已经 fork 出来了，因为只是字符串的比较处理，所以可以放心使用。&lt;/p&gt;
+&lt;p&gt;该增量更新的原理是先通过比较首部和尾部的相同部分，目的是提升一定的效率，再比较中间差异的部分，差异的部分通过一些字符去表示该改动是  &lt;code&gt;DEL&lt;/code&gt;  还是  &lt;code&gt;ADD&lt;/code&gt;  还是  &lt;code&gt;EQUAL&lt;/code&gt;  ，这样最终形成的补丁包比改动部分要大一点，但是相比于全量更新已经减少很多了。&lt;/p&gt;
+&lt;p&gt;并且生成补丁包基本是毫秒级的，也不必担心接口请求的耗时问题。&lt;/p&gt;
+&lt;p&gt;服务端把前后配置的字符串进行比较即可得到一组补丁数据：&lt;/p&gt;
+&lt;figure class=&quot;highlight php&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;variable&quot;&gt;$dmp&lt;/span&gt; = &lt;span class=&quot;keyword&quot;&gt;new&lt;/span&gt; DiffMatchPatch();&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;variable&quot;&gt;$patches&lt;/span&gt; = &lt;span class=&quot;variable&quot;&gt;$dmp&lt;/span&gt;-&amp;gt;patch_make(&lt;span class=&quot;variable&quot;&gt;$oldConfigString&lt;/span&gt;, &lt;span class=&quot;variable&quot;&gt;$latestConfigString&lt;/span&gt;);&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;variable&quot;&gt;$patchStrings&lt;/span&gt; = [];&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;foreach&lt;/span&gt; (&lt;span class=&quot;variable&quot;&gt;$patches&lt;/span&gt; &lt;span class=&quot;keyword&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;variable&quot;&gt;$patchObject&lt;/span&gt;) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    array_push(&lt;span class=&quot;variable&quot;&gt;$patchStrings&lt;/span&gt;, &lt;span class=&quot;variable&quot;&gt;$patchObject&lt;/span&gt;-&amp;gt;__toString());&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;生成的补丁以官方为例，补丁内包含两个字符串之间变动部分的 location 和 length，并最终下发给客户端：&lt;/p&gt;
+&lt;figure class=&quot;highlight&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;@@ -16,21 +16,29 @@&amp;#10; see &amp;#10;-yonder&amp;#10;+the&amp;#10;  cloud &amp;#10;+over there &amp;#10; that&amp;#10;@@ -47,18 +47,19 @@&amp;#10;  almost &amp;#10;-in&amp;#10;+the&amp;#10;  shape o&amp;#10;@@ -86,24 +86,18 @@&amp;#10;  By &amp;#10;-the mass, and &amp;#39;t&amp;#10;+golly, it &amp;#10; is l&amp;#10;@@ -129,21 +129,23 @@&amp;#10; et: &amp;#10;-Me&amp;#10;+I &amp;#10; think&amp;#10;-s&amp;#10;  it &amp;#10;-i&amp;#10;+look&amp;#10; s li&amp;#10;@@ -177,12 +177,12 @@&amp;#10;  is &amp;#10;-back&amp;#10;+shap&amp;#10; ed l&amp;#10;@@ -234,11 +234,19 @@&amp;#10; us: &amp;#10;-Ver&amp;#10;+It&amp;#39;s totall&amp;#10; y li&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;以 iOS 为例，客户端获取补丁包后，根据补丁包内变动符号以及变动内容对本地配置文件内容进行字符串拼接或删除操作，形成最终的配置：&lt;/p&gt;
+&lt;figure class=&quot;highlight objc&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;2&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;3&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;4&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;5&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;6&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;7&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;8&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;9&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;10&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;11&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;DiffMatchPatch *dmp = [[DiffMatchPatch alloc] init];&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;NSError&lt;/span&gt; *error = &lt;span class=&quot;literal&quot;&gt;nil&lt;/span&gt;;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;NSArray&lt;/span&gt;&amp;lt;&lt;span class=&quot;built_in&quot;&gt;NSString&lt;/span&gt; *&amp;gt; *patchStrings = configDic[&lt;span class=&quot;string&quot;&gt;@&quot;patches&quot;&lt;/span&gt;];&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;NSMutableArray&lt;/span&gt;&amp;lt;Patch *&amp;gt; *patches = [&lt;span class=&quot;built_in&quot;&gt;NSMutableArray&lt;/span&gt; array];&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;keyword&quot;&gt;for&lt;/span&gt; (&lt;span class=&quot;built_in&quot;&gt;NSString&lt;/span&gt; *patchString &lt;span class=&quot;keyword&quot;&gt;in&lt;/span&gt; patchStrings) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;built_in&quot;&gt;NSArray&lt;/span&gt;&amp;lt;Patch *&amp;gt; *patch = [dmp patch_fromText:patchString error:&amp;amp;error];&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &lt;span class=&quot;keyword&quot;&gt;if&lt;/span&gt; (!error) &amp;#123;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;        [patches addObjectsFromArray:patch];&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;    &amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&amp;#125;&lt;/span&gt;&lt;br&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;built_in&quot;&gt;NSString&lt;/span&gt; *newCacheConfig = [[dmp patch_apply:patches toString:cacheConfig] objectAtIndex:&lt;span class=&quot;number&quot;&gt;0&lt;/span&gt;];&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;为了确保客户端最终生成的配置与服务端保持一致，客户端在打好补丁之后，用该配置生成 MD5 值，与我们在服务端下发补丁包时携带的最新配置的 MD5 值进行比较，在一致的情况下才去缓存配置，避免因为补丁造成 App 无法使用的问题。&lt;/p&gt;
+&lt;h4 id=&quot;u6570_u636E_u5E93_u7BA1_u7406_u914D_u7F6E&quot;&gt;&lt;a href=&quot;#u6570_u636E_u5E93_u7BA1_u7406_u914D_u7F6E&quot; class=&quot;headerlink&quot; title=&quot;数据库管理配置&quot;&gt;&lt;/a&gt;数据库管理配置&lt;/h4&gt;&lt;p&gt;实现增量更新的前提是我们需要有不同版本的配置记录，而用文件去管理是非常不可控的，取而代之的是我们可以通过数据库来管理，同时利于后期的横向扩展，可以针对不同平台，不同渠道，不同版本等规则下发。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/dbConfig.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;目前我们是根据版本和应用来关联到配置，所以表结构设计的很简单，把应用、版本和配置放在一张表里面，后面针对多渠道和多平台等规则之后，表结构上会做一定调整。&lt;/p&gt;
+&lt;p&gt;由于需要 App 能及时获取到最新配置，我们选择在 App 激活的时机去获取配置，通过数据统计中心我们可以看到 App 当日启动次数的时段分析，再结合配置文件大小，我们可以预估所占带宽的大小，运维是非常担心你把他的带宽跑满，影响到其他业务，所以我们需要做两个优化，一个是压缩配置，一个是本地缓存。&lt;/p&gt;
+&lt;h5 id=&quot;u538B_u7F29_u914D_u7F6E&quot;&gt;&lt;a href=&quot;#u538B_u7F29_u914D_u7F6E&quot; class=&quot;headerlink&quot; title=&quot;压缩配置&quot;&gt;&lt;/a&gt;压缩配置&lt;/h5&gt;&lt;p&gt;为了不占用过多的带宽，我们需要在写入之前把配置压缩，读取之后解压配置。&lt;/p&gt;
+&lt;p&gt;这里我们通过 &lt;code&gt;gzip&lt;/code&gt; 来压缩配置：&lt;/p&gt;
+&lt;figure class=&quot;highlight php&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&lt;span class=&quot;variable&quot;&gt;$data&lt;/span&gt;[&lt;span class=&quot;string&quot;&gt;&#39;config&#39;&lt;/span&gt;] = base64_encode(gzcompress(json_encode(&lt;span class=&quot;variable&quot;&gt;$config&lt;/span&gt;)));&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;需要注意的是 &lt;code&gt;gzip&lt;/code&gt; 可以设置压缩等级，范围是0 - 9，默认是6，但是提升压缩等级会占用较多 CPU 时间和内存，我们使用默认等级压缩之后，配置文件体积减少了75%，看来是配置内相同的部分比较多，所以压缩效果还是比较明显的。&lt;/p&gt;
+&lt;h5 id=&quot;u672C_u5730_u7F13_u5B58&quot;&gt;&lt;a href=&quot;#u672C_u5730_u7F13_u5B58&quot; class=&quot;headerlink&quot; title=&quot;本地缓存&quot;&gt;&lt;/a&gt;本地缓存&lt;/h5&gt;&lt;p&gt;对于相同的配置，我们可以不用频繁地去请求数据库，而将其缓存到本地，这样后续的请求可以直接从缓存中读取配置，当然请记得设置缓存的过期时间。&lt;/p&gt;
+&lt;p&gt;我们目前用的是 &lt;code&gt;Redis&lt;/code&gt; 缓存，它对于复杂的数据结构和操作支持的相当不错，而且操作简单，对于前期只是key-value存储的话，可以考虑使用 &lt;code&gt;Redis&lt;/code&gt; 。&lt;/p&gt;
+&lt;h4 id=&quot;u53EF_u64CD_u4F5C_u754C_u9762&quot;&gt;&lt;a href=&quot;#u53EF_u64CD_u4F5C_u754C_u9762&quot; class=&quot;headerlink&quot; title=&quot;可操作界面&quot;&gt;&lt;/a&gt;可操作界面&lt;/h4&gt;&lt;p&gt;为了方便业务方修改配置，我们在内部平台上提供了一个简单的可操作界面，通过顶部的Tab栏切换查看不同应用下的配置记录。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/cpAppConfigCenter.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;点击 &lt;code&gt;查看详情&lt;/code&gt; 可以看到当前版本的配置内容，目前展示的效果并不友好，后面会进行优化。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/cpAppConfigCenterDetail.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;在需要修改配置的时候，我们可以通过 &lt;code&gt;新增配置&lt;/code&gt; 给指定应用修改配置，新增时会自动在版本上 +1。&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/cpAppConfigCenterAdd.png&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;h2 id=&quot;u540E_u7EED_u4F18_u5316&quot;&gt;&lt;a href=&quot;#u540E_u7EED_u4F18_u5316&quot; class=&quot;headerlink&quot; title=&quot;后续优化&quot;&gt;&lt;/a&gt;后续优化&lt;/h2&gt;&lt;p&gt;目前有赞 App 已经实现了动态化配置中心整一套流程，但是在一些细节方面还需要不断的改进优化，比如：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;更加丰富的配置下发规则&lt;/li&gt;
+&lt;li&gt;可操作界面配置的有效性的校验&lt;/li&gt;
+&lt;li&gt;可操作界面的视觉优化&lt;/li&gt;
+&lt;li&gt;等等&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;也欢迎大家提出自己的意见和建议，我们一起探讨学习！&lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;h2 id=&quot;u80CC_u666F&quot;&gt;&lt;a href=&quot;#u80CC_u666F&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h2&gt;&lt;p&gt;客户端大量的硬编码导致其灵活性大大降低，一些细小的改动只能通过发布版本解决，用户升级更新迭代速度慢，时效性差等原因，催生出了有赞 App 的动态化配置中心，它可以将配置，功能，界面，数据等各种配置数据统一进行管理下发，实时生效，极大地提升了客户端的灵活性。&lt;/p&gt;
+&lt;p&gt;同时配置中心不仅仅是简单的对配置数据进行修改、读取而已，更需要在容错性、流量优化、带宽节省等各方面的优化上下功夫。本文主要提供了有赞 App 的动态化配置中心解决方案，也总结了版本迭代中所做的优化。&lt;/p&gt;
+    
+    </summary>
+    
+    
+      <category term="App 配置中心" scheme="http://yuzeyang.github.io/tags/App-%E9%85%8D%E7%BD%AE%E4%B8%AD%E5%BF%83/"/>
+    
+  </entry>
   
   <entry>
     <title>查看MySQL连接的root密码</title>
@@ -1357,7 +1425,7 @@
     <link href="http://yuzeyang.github.io/2016/02/21/AFNetWorking-one/"/>
     <id>http://yuzeyang.github.io/2016/02/21/AFNetWorking-one/</id>
     <published>2016-02-21T03:47:48.000Z</published>
-    <updated>2016-06-12T15:23:30.000Z</updated>
+    <updated>2017-03-21T14:29:18.000Z</updated>
     
     <content type="html">&lt;p&gt;首先来介绍下AFNetWorking，官方介绍如下：&lt;/p&gt;
 &lt;blockquote&gt;

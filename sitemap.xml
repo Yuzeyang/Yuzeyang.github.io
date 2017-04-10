@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yuzeyang.github.io/2017/04/06/Youzan-App-Config-Center/</loc>
+    
+    <lastmod>2017-04-10T12:01:36.000Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yuzeyang.github.io/2016/02/21/AFNetWorking-one/</loc>
+    
+    <lastmod>2017-03-21T14:29:18.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yuzeyang.github.io/2017/01/04/Check-MySQL-Password/</loc>
     
     <lastmod>2017-01-03T16:26:19.000Z</lastmod>
@@ -117,13 +131,6 @@
     <loc>http://yuzeyang.github.io/2016/05/27/AFNetWorking-six/</loc>
     
     <lastmod>2016-06-12T15:25:24.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yuzeyang.github.io/2016/02/21/AFNetWorking-one/</loc>
-    
-    <lastmod>2016-06-12T15:23:30.000Z</lastmod>
     
   </url>
   
