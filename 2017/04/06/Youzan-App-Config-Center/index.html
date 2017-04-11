@@ -29,6 +29,7 @@
 <p>这里我们通过 <code>gzip</code> 来压缩配置：</p>
 <figure class="highlight php"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">$data[<span class="string">'config'</span>] = base64_encode(gzcompress(json_encode($config)));</div></pre></td></tr></table></figure>
 <p>需要注意的是 <code>gzip</code> 可以设置压缩等级，范围是0 - 9，默认是6，但是提升压缩等级会占用较多 CPU 时间和内存，我们使用默认等级压缩之后，配置文件体积减少了75%，看来是配置内相同的部分比较多，所以压缩效果还是比较明显的。</p>
+<p>这里有人会问，为什么 <code>gzip</code> 之后还要 <code>base64</code> 编码一下，因为二进制数据不能直接写到text字段里面，写进去之后读出来也是解压不了的。进行 <code>base64</code>  编码之后，我们的压缩配置内容会比原来多1/3的长度。</p>
 <h5 id="u672C_u5730_u7F13_u5B58"><a href="#u672C_u5730_u7F13_u5B58" class="headerlink" title="本地缓存"></a>本地缓存</h5><p>对于相同的配置，我们可以不用频繁地去请求数据库，而将其缓存到本地，这样后续的请求可以直接从缓存中读取配置，当然请记得设置缓存的过期时间。</p>
 <p>我们目前用的是 <code>Redis</code> 缓存，它对于复杂的数据结构和操作支持的相当不错，而且操作简单，对于前期只是key-value存储的话，可以考虑使用 <code>Redis</code> 。</p>
 <h4 id="u53EF_u64CD_u4F5C_u754C_u9762"><a href="#u53EF_u64CD_u4F5C_u754C_u9762" class="headerlink" title="可操作界面"></a>可操作界面</h4><p>为了方便业务方修改配置，我们在内部平台上提供了一个简单的可操作界面，通过顶部的Tab栏切换查看不同应用下的配置记录。</p>
@@ -45,7 +46,7 @@
 <li>等等</li>
 </ul>
 <p>也欢迎大家提出自己的意见和建议，我们一起探讨学习！</p>
-</div></article></div></section><footer><div class="paginator"><a href="/2017/01/04/Check-MySQL-Password/" class="prev">上一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+</div></article></div></section><footer><div class="paginator"><a href="/2017/01/04/Check-MySQL-Password/" class="prev">PREV</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2017/04/06/Youzan-App-Config-Center/';
 var disqus_title = '有赞 App 动态化配置中心实践';
 var disqus_url = 'http://yuzeyang.github.io/2017/04/06/Youzan-App-Config-Center/';
