@@ -30,7 +30,7 @@
 <p>当<code>progress</code>达到1之后，就开始旋转动画了，这个我们使用<code>CABasicAnimation</code>即可</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">CABasicAnimation *rotationAnimation = [CABasicAnimation animationWithKeyPath:@&quot;transform.rotation.z&quot;];</div><div class="line">rotationAnimation.toValue = @(M_PI*2);</div><div class="line">rotationAnimation.beginTime = CACurrentMediaTime();</div><div class="line">rotationAnimation.duration = 1.0;</div><div class="line">rotationAnimation.fillMode = kCAFillModeForwards;</div><div class="line">rotationAnimation.repeatCount = HUGE_VALF;</div><div class="line">[self.circleLayer addAnimation:rotationAnimation forKey:nil];</div></pre></td></tr></table></figure>
 <p>ok，大功告成~</p>
-</div></article></div></section><footer><div class="paginator"><a href="/2016/08/07/get-protocol-methods/" class="prev">PREV</a><a href="/2016/09/08/iOS-Drawer-Table-View/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+</div></article></div></section><footer><div class="paginator"><a href="/2016/08/07/get-protocol-methods/" class="prev">上一篇</a><a href="/2016/09/08/iOS-Drawer-Table-View/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2016/09/02/loadingAniamtion-0902/';
 var disqus_title = '果冻效果下拉刷新控件';
 var disqus_url = 'http://yuzeyang.github.io/2016/09/02/loadingAniamtion-0902/';
