@@ -2,7 +2,7 @@
 <p>WebSocket 最新的协议是 <a href="https://tools.ietf.org/html/rfc6455" target="_blank" rel="external">13 RFC 6455</a> ，要理解 WebSocket 的实现，一定要去理解它的协议！~</p>
 <a id="more"></a>
 <h2 id="u524D_u8A00"><a href="#u524D_u8A00" class="headerlink" title="前言"></a>前言</h2><p>WebSocket 的实现分为握手，数据发送/读取，关闭连接。</p>
-<p>这里首先放上一张我们组 <a href="https://geminiwen.com/" target="_blank" rel="external">@省长</a> （推荐大家去读一读省长的博客，干货很多👍）整理出来的流程图，方便大家去理解：</p>
+<p>这里首先放上一张我们组 <a href="https://geminiwen.com/" target="_blank" rel="external">@省长</a> （推荐大家去读一读省长的博客，干货很多👍）整理出来的流程图，方便大家去理解，其中mbedTLS做的是数据的加解密，可以暂时不用关心：</p>
 <p><img src="http://7xtit4.com1.z0.glb.clouddn.com/libchat%E6%B5%81%E7%A8%8B%E5%9B%BE.png" alt=""></p>
 <h2 id="u63E1_u624B"><a href="#u63E1_u624B" class="headerlink" title="握手"></a>握手</h2><p>握手要从请求头去理解。</p>
 <p>WebSocket 首先发起一个 HTTP 请求，在请求头加上  <code>Upgrade</code> 字段，该字段用于改变 HTTP 协议版本或者是换用其他协议，这里我们把 <code>Upgrade</code> 的值设为 <code>websocket</code> ，将它升级为 WebSocket 协议。</p>
