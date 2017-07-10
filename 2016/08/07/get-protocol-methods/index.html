@@ -28,7 +28,7 @@
 <h2 id="u603B_u7ED3"><a href="#u603B_u7ED3" class="headerlink" title="总结"></a>总结</h2><p>我们可以通过<code>protocol_copyMethodDescriptionList</code>方法获取到协议里面所有的代理方法，分为方法名和类型，但是不能获取到<code>- (BOOL)textView:(NSTextView *)textView clickedOnLink:(id)link atIndex:(NSUInteger)charIndex;</code>这样的，如果用a，b，c这样的来填充参数名，这样在使用起来，使用方还要自己再替换参数名，这样会比较麻烦，解决不了我们的需求，gg…..</p>
 <p>2016年8月10日补充：</p>
 <p>后来西兰花提出说根据协议名称去爬开发文档上相关的代理方法或者找本地开发包里面的相关头文件，不考虑是否可行，但是有个共同的问题是只能获取到官方的，自己创建的不行，而且前者没有require标记</p>
-</div></article></div></section><footer><div class="paginator"><a href="/2016/07/27/loadingAnimation-0727/" class="prev">上一篇</a><a href="/2016/09/02/loadingAniamtion-0902/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+</div></article></div></section><footer><div class="paginator"><a href="/2016/07/27/loadingAnimation-0727/" class="prev">PREV</a><a href="/2016/09/02/loadingAniamtion-0902/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2016/08/07/get-protocol-methods/';
 var disqus_title = '根据协议名获取所有代理方法';
 var disqus_url = 'http://yuzeyang.github.io/2016/08/07/get-protocol-methods/';
