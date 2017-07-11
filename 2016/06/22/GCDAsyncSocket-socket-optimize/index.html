@@ -33,7 +33,7 @@
 <p>2、有网但是socket连接不上时，socket会一直重连，重连n次后，休眠几秒后，再重连，如此循环</p>
 <p>所以我们也对socket连接做了调整，用<code>AFNetWorking</code>库里面监测网络状态类<code>AFNetworkReachabilityManager</code>（<a href="http://zeeyang.com/2016/05/23/AFNetWorking-four/" target="_blank" rel="external">AFNetworkReachabilityManager原理</a>），在无网时，判断如果socket正在连接或者已连接时，我们主动调用<code>disconnect</code>断开连接，如果有网，判断如果socket未连接，我们主动建立连接，建立连接不成功的情况时，我们走重连的流程，只是我们依旧保持了重连n次后，n次失败后不再重连了，这个是与微信不同的地方</p>
 <h2 id="0x05__u4F7F_u7528FIMSocketModel"><a href="#0x05__u4F7F_u7528FIMSocketModel" class="headerlink" title="0x05 使用FIMSocketModel"></a>0x05 使用FIMSocketModel</h2><p>因为请求的数据结构基本一样，所以我们定义了FIMSocketModel类来方便对数据的转化，我们定义了几个必传的字段，以及可能请求不同所需的一些非必传字段，由于之前我们body体里面的内容是做了2次JSON转化处理的，所以业务层传入body内容时叫苦连天，FIMSocketModel也增加了<code>- socketModelToJSONString</code>方法，方便Socket内部转化成JSON处理，这样业务层只需要传一个字典进来，Socket内部就会处理好一切，使用起来一下就方便了~</p>
-</div></article></div></main><footer><div class="paginator"><a href="/2016/06/13/Qiniu-token/" class="prev">PREV</a><a href="/2016/07/05/IM-UI-optimize/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+</div></article></div></main><footer><div class="paginator"><a href="/2016/06/13/Qiniu-token/" class="prev">上一篇</a><a href="/2016/07/05/IM-UI-optimize/" class="next">下一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2016/06/22/GCDAsyncSocket-socket-optimize/';
 var disqus_title = 'iOS Socket重构设计';
 var disqus_url = 'http://yuzeyang.github.io/2016/06/22/GCDAsyncSocket-socket-optimize/';
