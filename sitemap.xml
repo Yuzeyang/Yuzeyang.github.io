@@ -2,6 +2,13 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yuzeyang.github.io/2016/10/09/react-native/</loc>
+    
+    <lastmod>2017-07-11T03:07:36.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yuzeyang.github.io/2017/07/02/websocket/</loc>
     
     <lastmod>2017-07-10T13:19:27.000Z</lastmod>
@@ -40,13 +47,6 @@
     <loc>http://yuzeyang.github.io/2017/01/04/Check-MySQL-Password/</loc>
     
     <lastmod>2017-01-03T16:26:19.000Z</lastmod>
-    
-  </url>
-  
-  <url>
-    <loc>http://yuzeyang.github.io/2016/10/09/react-native/</loc>
-    
-    <lastmod>2016-12-02T08:49:11.000Z</lastmod>
     
   </url>
   
