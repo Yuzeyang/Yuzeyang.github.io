@@ -24,9 +24,12 @@
 <p>首先<code>0x81</code>是什么，这个是十六进制数据，转换成二进制就是<code>1000 0001</code>， 是一个字节的长度，也就是这一段里面每一位的值：</p>
  <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">0 1 2 3 4 5 6 7 8 </div><div class="line">+-+-+-+-+-------+</div><div class="line">|F|R|R|R| opcode|</div><div class="line">|I|S|S|S|  (4)  |</div><div class="line">|N|V|V|V|       |</div><div class="line">| |1|2|3|       |</div><div class="line">+-+-+-+-+-------+</div></pre></td></tr></table></figure>
 <ul>
-<li><code>FIN</code> 表示该帧是不是消息的最后一帧，1表示结束，0表示还有下一帧。</li>
-<li><code>RSV1, RSV2, RSV3</code> 必须为0，除非扩展协商定义了一个非0的值，如果没有定义非0值，且收到了非0的  <code>RSV</code> ，那么 WebSocket 的连接会失效。</li>
-<li><code>opcode</code> 用来描述 <code>Payload data</code> 的定义，如果收到了一个未知的 <code>opcode</code> ，同样会使 WebSocket 连接失效，协议定义了以下值：<ul>
+<li><p><code>FIN</code> 表示该帧是不是消息的最后一帧，1表示结束，0表示还有下一帧。</p>
+</li>
+<li><p><code>RSV1, RSV2, RSV3</code> 必须为0，除非扩展协商定义了一个非0的值，如果没有定义非0值，且收到了非0的  <code>RSV</code> ，那么 WebSocket 的连接会失效，建议是断开连接。</p>
+</li>
+<li><p><code>opcode</code> 用来描述 <code>Payload data</code> 的定义，如果收到了一个未知的 <code>opcode</code> ，同样会使 WebSocket 连接失效，协议定义了以下值：</p>
+<ul>
 <li>%x0 表示连续的帧</li>
 <li>%x1 表示 text 帧</li>
 <li>%x2 表示二进制帧</li>
@@ -36,6 +39,10 @@
 <li>%xA 表示 pong</li>
 <li>%xB-F 预留给控制帧</li>
 </ul>
+<p>连续帧是和 FIN 值相关联的，它表明可能由于消息分片的原因，将原本一个帧的数据分为多个帧，这时候前一帧的 opcode 就是0，FIN 也是0，最后一帧的 opcode 就不再是0，FIN 就是1了。</p>
+<p>再可以看到 opcode 预留了非控制帧和控制帧，这两个又是什么？</p>
+<p>控制帧表示 WebSocket 的状态信息，像是定义的分片，关闭连接，ping和pong。</p>
+<p>非控制帧就是数据帧，像是 text 帧，二进制帧。</p>
 </li>
 </ul>
 <p><code>0xff</code> 作用就是取出需要的二进制值。</p>
@@ -50,6 +57,8 @@
 </ul>
 </li>
 <li><code>Playload len</code> 则表示 <code>Extension data</code> 与 <code>Application data</code> 的和</li>
+<li><code>Masking-key</code> 是在 <code>MASK</code> 设置成1之后，随机生成的4字节长度的数据，然后和 <code>Payload Data</code> 做异或运算</li>
+<li><code>Payload Data</code> 就是我们发送的数据</li>
 </ul>
 <p>而数据的发送和读取就是对帧的封装和解析。</p>
 <p>数据发送:</p>
