@@ -13,27 +13,27 @@
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_another_example" alt=""></p>
 <h3 id="Client_Hello"><a href="#Client_Hello" class="headerlink" title="Client Hello"></a>Client Hello</h3><p>首先客户端会发送一个 Hello 消息给服务端：</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_client_hello" alt=""></p>
-<p> <code>Version: TLS 1.2</code> 是其版本信息，<code>Random</code> 是由客户端生成的随机数，长度为28个字节（作用我们后面会讲），<code>Cipher Suites</code> 是客户端支持的加密算法，让服务端从中选择一个，<code>Compression Methods</code> 是压缩方法，以及一些额外的信息。</p>
+<p> <code>Version: TLS 1.2</code> 是其版本信息，<code>Random</code> 是由客户端生成的随机数，长度为28个字节（用于协商密钥），<code>Cipher Suites</code> 是客户端支持的加密算法，让服务端从中选择一个，<code>Compression Methods</code> 是压缩方法，以及一些额外的信息。</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_client_extension" alt=""></p>
 <h3 id="Server_Hello"><a href="#Server_Hello" class="headerlink" title="Server Hello"></a>Server Hello</h3><p>服务端在收到客户端发起的 Hello 之后，同样回给客户端一个 Hello：</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_server_hello" alt=""></p>
-<p>里面包含了协商后的版本信息 TLS 1.2，加密算法 <code>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</code> ，压缩方法以及服务端生成的随机数。</p>
+<p>里面包含了协商后的版本信息 TLS 1.2，使用的加密算法 <code>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</code> 和压缩方法，以及服务端生成的随机数（用于协商密钥）。</p>
 <h3 id="Certificate"><a href="#Certificate" class="headerlink" title="Certificate"></a>Certificate</h3><p>同时服务端也会配置并返回对应的证书，用来身份验证和密钥交换。</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_server_cer" alt=""></p>
 <h4 id="u8BC1_u4E66_u751F_u6210"><a href="#u8BC1_u4E66_u751F_u6210" class="headerlink" title="证书生成"></a>证书生成</h4><p>申请者需要向颁发证书的可信第三方CA机构提交域名、公钥和请求文件(.cer文件)，CA机构验证信息的合法真实性后颁发证书，里面分为明文信息和签名信息，明文信息包括域名，申请者信息和颁发机构，有效期，公钥等信息，签名信息是通过CA私钥对明文信息进行加密后的内容，申请者在安装证书后，可以通过证书公钥来对签名信息和明文信息进行验证。</p>
 <h4 id="u8BC1_u4E66_u9A8C_u8BC1"><a href="#u8BC1_u4E66_u9A8C_u8BC1" class="headerlink" title="证书验证"></a>证书验证</h4><p>验证分为两部分，验证证书本身的合法性和验证颁发者的合法性。</p>
-<p>我们知道证书是分层级的，下一级的证书需要用上一级证书的<code>私钥</code>签名，所以需要通过使用上一级证书的公钥来解密得到下一级的签名摘要，同时客户端也如此操作，最后对比验证。</p>
-<p>颁发者合法性则是检查浏览器和操作系统中的可信证书列表。</p>
+<p>我们知道证书是分层级的，下一级的证书需要用上一级证书的<code>私钥</code>签名，所以需要通过使用上一级证书的公钥来解密得到下一级的签名摘要，同时客户端也如此操作，最后对摘要进行对比验证。</p>
+<p>颁发者合法性则是检查浏览器和操作系统中的可信证书列表。所以有时候不要乱安装一些奇奇怪怪的证书。</p>
 <h3 id="Server_Key_Exchange_2C_Server_Hello_Done"><a href="#Server_Key_Exchange_2C_Server_Hello_Done" class="headerlink" title="Server Key Exchange, Server Hello Done"></a>Server Key Exchange, Server Hello Done</h3><p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_server_exchange_key" alt=""></p>
 <p><code>Server Key Exchange</code> 用来加密下一步中的 Client Key Exchange ，只有当证书中不包含公钥的时候才需要，比如用 <code>Diffie Hellman</code> 密钥交换算法。</p>
 <p><code>Server Hello Done</code> 表示服务端 Hello 的结束。</p>
-<h3 id="Client_Key_Exchange"><a href="#Client_Key_Exchange" class="headerlink" title="Client Key Exchange"></a>Client Key Exchange</h3><p>此时客户端在验证证书通过之后，客户端需要再传递一个随机数给客户端，这里涉及到两种方式，一种是通过 RSA 加密，客户端先生成48字节的随机数，再用证书的公钥加密，然后发给服务端，另一种是这里客户端用的是 Diffie-Hellman 密钥交换算法，所以这条消息会包含客户端的 Diffie-Hellman 公钥。</p>
+<h3 id="Client_Key_Exchange"><a href="#Client_Key_Exchange" class="headerlink" title="Client Key Exchange"></a>Client Key Exchange</h3><p>此时客户端在验证证书通过之后，客户端需要再传递一个随机数给客户端，这里涉及到两种方式，一种是通过 <a href="https://tools.ietf.org/html/rfc5246#section-7.4.7.1" target="_blank" rel="external">RSA 加密</a>，客户端先生成48字节的随机数，再用证书的公钥加密，然后发给服务端，另一种是这里客户端用的是 <a href="https://tools.ietf.org/html/rfc5246#section-7.4.7.2" target="_blank" rel="external">Diffie-Hellman</a> 密钥交换算法，所以这条消息会包含客户端的 Diffie-Hellman 公钥。</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_client_exchange_key" alt=""></p>
-<h3 id="Encrypted_Handshake_Message_2C_Application_Data"><a href="#Encrypted_Handshake_Message_2C_Application_Data" class="headerlink" title="Encrypted Handshake Message, Application Data"></a>Encrypted Handshake Message, Application Data</h3><p>此时双方根据客户端生成d的2个随机数和服务端生成1个随机数，使用相同的算法得到一个协商密钥，对数据进行对称加密得到 <code>Encrypted Application Dta</code>，然后再进行通信，对方再进行解密，从而保证数据传输的安全性。</p>
+<h3 id="Encrypted_Handshake_Message_2C_Application_Data"><a href="#Encrypted_Handshake_Message_2C_Application_Data" class="headerlink" title="Encrypted Handshake Message, Application Data"></a>Encrypted Handshake Message, Application Data</h3><p>此时双方根据客户端生成的2个随机数和服务端生成的1个随机数，使用相同的算法得到一个协商密钥，对数据进行对称加密得到 <code>Encrypted Application Data</code>，然后再进行通信，对方再进行解密，从而保证数据传输的安全性。</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_application_data" alt=""></p>
 <h2 id="u603B_u7ED3"><a href="#u603B_u7ED3" class="headerlink" title="总结"></a>总结</h2><p>HTTPS 请求过程主要分为握手和数据传输两步，握手是在双方验证身份之后，协商出一个密钥，数据传输则是使用之前协商的密钥，对数据进行加密传输。</p>
 <p>本文是对 HTTPS 请求的一个简单的理解笔记，欢迎大家一起学习交流~</p>
-</div></article></div></main><footer><div class="paginator"><a href="/2017/09/09/fastlane-pod-spec-upgrade/" class="prev">上一篇</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+</div></article></div></main><footer><div class="paginator"><a href="/2017/09/09/fastlane-pod-spec-upgrade/" class="prev">PREV</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2017/09/24/https/';
 var disqus_title = 'HTTPS 笔记';
 var disqus_url = 'http://yuzeyang.github.io/2017/09/24/https/';
