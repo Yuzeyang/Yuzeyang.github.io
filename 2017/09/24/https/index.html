@@ -1,39 +1,39 @@
 <!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="X-UA-Compatible" content="IE=edge"><title> HTTPS 笔记 · 宫城</title><meta name="description" content="HTTPS 笔记 - 宫城"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" href="/CaptainAmerica.jpg"><link rel="stylesheet" href="/css/apollo.css"><link rel="search" type="application/opensearchdescription+xml" href="http://yuzeyang.github.io/atom.xml" title="宫城"></head><body><div class="wrap"><header><a href="/" class="logo-link"><img src="/CaptainAmerica.jpg" alt="logo"></a><ul class="nav nav-list"><li class="nav-list-item"><a href="/" target="_self" class="nav-list-link">BLOG</a></li><li class="nav-list-item"><a href="/archives/" target="_self" class="nav-list-link">ARCHIVE</a></li><li class="nav-list-item"><a href="https://github.com/yuzeyang" target="_blank" class="nav-list-link">GITHUB</a></li><li class="nav-list-item"><a href="/atom.xml" target="_self" class="nav-list-link">RSS</a></li></ul></header><main class="container"><div class="post"><article class="post-block"><h1 class="post-title">HTTPS 笔记</h1><div class="post-info">2017年9月24日</div><div class="post-content"><p>HTTPS 是被广泛应用在网络中的一种加密通信协议，也被叫做在 TLS 之上的 HTTP。TLS 以及前身 SSL 是传输层安全协议，给网络通信提供安全和数据完整性的保障，所以它能很好的解决 HTTP 的数据明文和劫持篡改的问题。并且其分为记录层和传输层，记录层用来确定传输层数据的封装格式，传输层则用于数据传输，而在传输之前，通信双方如何彼此信任和建立一个安全通信方式，是需要我们深入了解的。</p>
-<p>目前推荐的 TLS 版本是 1.2，协议具体内容可以在 <a href="https://tools.ietf.org/html/rfc5246#section-7.4.2" target="_blank" rel="external">The Transport Layer Security (TLS) Protocol Version 1.2</a> 中去仔细了解，它是08年8月发表的。 TLS 1.3 到16年1月都还只是草案。</p>
+<p>目前推荐的 TLS 版本是 1.2，协议具体内容可以在 <a href="https://tools.ietf.org/html/rfc5246#section-7.4.2" target="_blank" rel="noopener">The Transport Layer Security (TLS) Protocol Version 1.2</a> 中去仔细了解，它是08年8月发表的。 TLS 1.3 到16年1月都还只是草案。</p>
 <a id="more"></a>
-<h2 id="u51C6_u5907"><a href="#u51C6_u5907" class="headerlink" title="准备"></a>准备</h2><p>这里我使用 <a href="https://www.wireshark.org/download.html" target="_blank" rel="external">Wireshark</a> 来抓包看 HTTPS 的握手过程，首先我们需要开启网卡</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo chmod 777 /dev/bpf*</div></pre></td></tr></table></figure>
+<h2 id="准备"><a href="#准备" class="headerlink" title="准备"></a>准备</h2><p>这里我使用 <a href="https://www.wireshark.org/download.html" target="_blank" rel="noopener">Wireshark</a> 来抓包看 HTTPS 的握手过程，首先我们需要开启网卡</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo chmod 777 /dev/bpf*</span><br></pre></td></tr></table></figure>
 <p>否则会提示：</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">no interface can be used for capturing in this system with the current configuration</div></pre></td></tr></table></figure>
-<p>开启之后，我们在浏览器内访问一个 <a href="https://xxx" target="_blank" rel="external">https://xxx</a> 的网站，再过滤出 ssl，不难找到我们所需要的信息。</p>
-<h2 id="u6B63_u6587"><a href="#u6B63_u6587" class="headerlink" title="正文"></a>正文</h2><p>我截取了其中一段</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">no interface can be used for capturing in this system with the current configuration</span><br></pre></td></tr></table></figure>
+<p>开启之后，我们在浏览器内访问一个 <a href="https://xxx" target="_blank" rel="noopener">https://xxx</a> 的网站，再过滤出 ssl，不难找到我们所需要的信息。</p>
+<h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>我截取了其中一段</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_handshake" alt=""></p>
 <p>握手总结起来就是双方身份验证，协商加密算法，交换加密密钥。</p>
 <p>而这些步骤有些服务器是合并在一起发送，例如：</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_another_example" alt=""></p>
-<h3 id="Client_Hello"><a href="#Client_Hello" class="headerlink" title="Client Hello"></a>Client Hello</h3><p>首先客户端会发送一个 Hello 消息给服务端：</p>
+<h3 id="Client-Hello"><a href="#Client-Hello" class="headerlink" title="Client Hello"></a>Client Hello</h3><p>首先客户端会发送一个 Hello 消息给服务端：</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_client_hello" alt=""></p>
 <p> <code>Version: TLS 1.2</code> 是其版本信息，<code>Random</code> 是由客户端生成的随机数，长度为28个字节（用于协商密钥），<code>Cipher Suites</code> 是客户端支持的加密算法，让服务端从中选择一个，<code>Compression Methods</code> 是压缩方法，以及一些额外的信息。</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_client_extension" alt=""></p>
-<h3 id="Server_Hello"><a href="#Server_Hello" class="headerlink" title="Server Hello"></a>Server Hello</h3><p>服务端在收到客户端发起的 Hello 之后，同样回给客户端一个 Hello：</p>
+<h3 id="Server-Hello"><a href="#Server-Hello" class="headerlink" title="Server Hello"></a>Server Hello</h3><p>服务端在收到客户端发起的 Hello 之后，同样回给客户端一个 Hello：</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_server_hello" alt=""></p>
 <p>里面包含了协商后的版本信息 TLS 1.2，使用的加密算法 <code>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</code> 和压缩方法，以及服务端生成的随机数（用于协商密钥）。</p>
 <h3 id="Certificate"><a href="#Certificate" class="headerlink" title="Certificate"></a>Certificate</h3><p>同时服务端也会配置并返回对应的证书，用来身份验证和密钥交换。</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_server_cer" alt=""></p>
-<h4 id="u8BC1_u4E66_u751F_u6210"><a href="#u8BC1_u4E66_u751F_u6210" class="headerlink" title="证书生成"></a>证书生成</h4><p>申请者需要向颁发证书的可信第三方CA机构提交域名、公钥和请求文件(.cer文件)，CA机构验证信息的合法真实性后颁发证书，里面分为明文信息和签名信息，明文信息包括域名，申请者信息和颁发机构，有效期，公钥等信息，签名信息是通过CA私钥对明文信息进行加密后的内容，申请者在安装证书后，可以通过证书公钥来对签名信息和明文信息进行验证。</p>
-<h4 id="u8BC1_u4E66_u9A8C_u8BC1"><a href="#u8BC1_u4E66_u9A8C_u8BC1" class="headerlink" title="证书验证"></a>证书验证</h4><p>验证分为两部分，验证证书本身的合法性和验证颁发者的合法性。</p>
+<h4 id="证书生成"><a href="#证书生成" class="headerlink" title="证书生成"></a>证书生成</h4><p>申请者需要向颁发证书的可信第三方CA机构提交域名、公钥和请求文件(.cer文件)，CA机构验证信息的合法真实性后颁发证书，里面分为明文信息和签名信息，明文信息包括域名，申请者信息和颁发机构，有效期，公钥等信息，签名信息是通过CA私钥对明文信息进行加密后的内容，申请者在安装证书后，可以通过证书公钥来对签名信息和明文信息进行验证。</p>
+<h4 id="证书验证"><a href="#证书验证" class="headerlink" title="证书验证"></a>证书验证</h4><p>验证分为两部分，验证证书本身的合法性和验证颁发者的合法性。</p>
 <p>我们知道证书是分层级的，下一级的证书需要用上一级证书的<code>私钥</code>签名，所以需要通过使用上一级证书的公钥来解密得到下一级的签名摘要，同时客户端也如此操作，最后对摘要进行对比验证。</p>
 <p>颁发者合法性则是检查浏览器和操作系统中的可信证书列表。所以有时候不要乱安装一些奇奇怪怪的证书。</p>
-<h3 id="Server_Key_Exchange_2C_Server_Hello_Done"><a href="#Server_Key_Exchange_2C_Server_Hello_Done" class="headerlink" title="Server Key Exchange, Server Hello Done"></a>Server Key Exchange, Server Hello Done</h3><p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_server_exchange_key" alt=""></p>
+<h3 id="Server-Key-Exchange-Server-Hello-Done"><a href="#Server-Key-Exchange-Server-Hello-Done" class="headerlink" title="Server Key Exchange, Server Hello Done"></a>Server Key Exchange, Server Hello Done</h3><p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_server_exchange_key" alt=""></p>
 <p><code>Server Key Exchange</code> 用来加密下一步中的 Client Key Exchange ，只有当证书中不包含公钥的时候才需要，比如用 <code>Diffie Hellman</code> 密钥交换算法。</p>
 <p><code>Server Hello Done</code> 表示服务端 Hello 的结束。</p>
-<h3 id="Client_Key_Exchange"><a href="#Client_Key_Exchange" class="headerlink" title="Client Key Exchange"></a>Client Key Exchange</h3><p>此时客户端在验证证书通过之后，客户端需要再传递一个随机数给客户端，这里涉及到两种方式，一种是通过 <a href="https://tools.ietf.org/html/rfc5246#section-7.4.7.1" target="_blank" rel="external">RSA 加密</a>，客户端先生成48字节的随机数，再用证书的公钥加密，然后发给服务端，另一种是这里客户端用的是 <a href="https://tools.ietf.org/html/rfc5246#section-7.4.7.2" target="_blank" rel="external">Diffie-Hellman</a> 密钥交换算法，所以这条消息会包含客户端的 Diffie-Hellman 公钥。</p>
+<h3 id="Client-Key-Exchange"><a href="#Client-Key-Exchange" class="headerlink" title="Client Key Exchange"></a>Client Key Exchange</h3><p>此时客户端在验证证书通过之后，客户端需要再传递一个随机数给客户端，这里涉及到两种方式，一种是通过 <a href="https://tools.ietf.org/html/rfc5246#section-7.4.7.1" target="_blank" rel="noopener">RSA 加密</a>，客户端先生成48字节的随机数，再用证书的公钥加密，然后发给服务端，另一种是这里客户端用的是 <a href="https://tools.ietf.org/html/rfc5246#section-7.4.7.2" target="_blank" rel="noopener">Diffie-Hellman</a> 密钥交换算法，所以这条消息会包含客户端的 Diffie-Hellman 公钥。</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_client_exchange_key" alt=""></p>
-<h3 id="Encrypted_Handshake_Message_2C_Application_Data"><a href="#Encrypted_Handshake_Message_2C_Application_Data" class="headerlink" title="Encrypted Handshake Message, Application Data"></a>Encrypted Handshake Message, Application Data</h3><p>此时双方根据客户端生成的2个随机数和服务端生成的1个随机数，使用相同的算法得到一个协商密钥，对数据进行对称加密得到 <code>Encrypted Application Data</code>，然后再进行通信，对方再进行解密，从而保证数据传输的安全性。</p>
+<h3 id="Encrypted-Handshake-Message-Application-Data"><a href="#Encrypted-Handshake-Message-Application-Data" class="headerlink" title="Encrypted Handshake Message, Application Data"></a>Encrypted Handshake Message, Application Data</h3><p>此时双方根据客户端生成的2个随机数和服务端生成的1个随机数，使用相同的算法得到一个协商密钥，对数据进行对称加密得到 <code>Encrypted Application Data</code>，然后再进行通信，对方再进行解密，从而保证数据传输的安全性。</p>
 <p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_application_data" alt=""></p>
-<h2 id="u603B_u7ED3"><a href="#u603B_u7ED3" class="headerlink" title="总结"></a>总结</h2><p>HTTPS 请求过程主要分为握手和数据传输两步，握手是在双方验证身份之后，协商出一个密钥，数据传输则是使用之前协商的密钥，对数据进行加密传输。</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>HTTPS 请求过程主要分为握手和数据传输两步，握手是在双方验证身份之后，协商出一个密钥，数据传输则是使用之前协商的密钥，对数据进行加密传输。</p>
 <p>本文是对 HTTPS 请求的一个简单的理解笔记，欢迎大家一起学习交流~</p>
-</div></article></div></main><footer><div class="paginator"><a href="/2017/09/09/fastlane-pod-spec-upgrade/" class="prev">PREV</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
+</div></article></div></main><footer><div class="paginator"><a href="/2018/03/04/c-pluggable/" class="prev">PREV</a><a href="/2017/09/09/fastlane-pod-spec-upgrade/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2017/09/24/https/';
 var disqus_title = 'HTTPS 笔记';
 var disqus_url = 'http://yuzeyang.github.io/2017/09/24/https/';
@@ -41,4 +41,4 @@ var disqus_url = 'http://yuzeyang.github.io/2017/09/24/https/';
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2017 <a href="http://yuzeyang.github.io">宫城</a>, Talk is cheap, show me the code. <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>
+})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2018 <a href="http://yuzeyang.github.io">宫城</a>, Talk is cheap, show me the code. <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>
