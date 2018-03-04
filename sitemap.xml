@@ -2,6 +2,20 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
+    <loc>http://yuzeyang.github.io/2018/03/04/c-pluggable/</loc>
+    
+    <lastmod>2018-03-04T04:14:48.169Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>http://yuzeyang.github.io/2017/11/11/rxswift-introduction/</loc>
+    
+    <lastmod>2017-11-11T09:21:29.000Z</lastmod>
+    
+  </url>
+  
+  <url>
     <loc>http://yuzeyang.github.io/2017/09/09/debug-tool-base-on-NSURLProtocol/</loc>
     
     <lastmod>2017-09-24T14:30:58.000Z</lastmod>
