@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2018-03-27T15:07:43.866Z</updated>
+  <updated>2018-03-27T15:12:27.919Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -17,10 +17,10 @@
   
   <entry>
     <title>跨平台 IM 组件的插件化实践</title>
-    <link href="http://yuzeyang.github.io/2018/03/04/c-pluggable/"/>
-    <id>http://yuzeyang.github.io/2018/03/04/c-pluggable/</id>
-    <published>2018-03-04T01:12:20.000Z</published>
-    <updated>2018-03-27T15:07:43.866Z</updated>
+    <link href="http://yuzeyang.github.io/2018/03/27/c-pluggable/"/>
+    <id>http://yuzeyang.github.io/2018/03/27/c-pluggable/</id>
+    <published>2018-03-27T01:12:20.000Z</published>
+    <updated>2018-03-27T15:12:27.919Z</updated>
     
     <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在去年我们按照 WebSocket 协议实现了一套跨平台 IM 组件之后，最近我们又完成了其插件化的改造，为什么要这么做呢？首先我们的结构是 Worker (负责和业务层通信) -&gt; WebSocket -&gt; TLS -&gt; UV ，而在这四层结构里面存在不少耦合与职责不明确的地方，使得这四层紧密结合在一起，比如：</p>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 在 TLS 初始化中调用了 WS 和 UV 的 init 方法 */</span></span><br><span class="line"><span class="function"><span class="keyword">int</span> <span class="title">tls_ws_init</span><span class="params">(<span class="keyword">tls_ws_t</span> *handle,</span></span></span><br><span class="line"><span class="function"><span class="params">            	<span class="keyword">uv_loop_t</span> *loop)</span> </span>&#123;</span><br><span class="line">    ...</span><br><span class="line">    </span><br><span class="line">    ws_init(&amp;handle-&gt;ws, host, path, params);</span><br><span class="line">    uv_tls_init(&amp;handle-&gt;tls, loop);</span><br><span class="line"></span><br><span class="line">    ...</span><br><span class="line">      </span><br><span class="line">    <span class="keyword">return</span> OK;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
