@@ -8,7 +8,7 @@
 <li>TCP：TCP 连接和数据的读写</li>
 </ul>
 <p>以及整理出结构间的执行调用：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/libchat_puggable.png" alt=""></p>
+<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/chat_puggable.png" alt=""></p>
 <p>其中 connect 包含了<code>连接</code>和<code>握手</code>两个过程。在完成链路层连接后，我们认为协议层握手完成，才算是真正的连接成功。</p>
 <p>同样的，数据读写、连接关闭、连接销毁和重置都会严格按照结构的顺序依次调用。</p>
 <h2 id="可插拔改造"><a href="#可插拔改造" class="headerlink" title="可插拔改造"></a>可插拔改造</h2><p>解耦完成之后我们发现对于接口的调用都是显式的，比如 Worker send data 中调用 WebSocket send data ， WebSocket send data 中又调用 TLS send data ，这样的显式调用是因为我们知道这些接口是可用的，但在插件化中某个插件可能没有被使用，这样接口的调用会在某一层中断而导致整个组件的不可用。</p>
