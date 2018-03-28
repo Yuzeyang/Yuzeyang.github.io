@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2018-03-28T02:56:52.826Z</updated>
+  <updated>2018-03-28T03:01:30.566Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -20,9 +20,9 @@
     <link href="http://yuzeyang.github.io/2018/03/27/c-pluggable/"/>
     <id>http://yuzeyang.github.io/2018/03/27/c-pluggable/</id>
     <published>2018-03-27T01:12:20.000Z</published>
-    <updated>2018-03-28T02:56:52.826Z</updated>
+    <updated>2018-03-28T03:01:30.566Z</updated>
     
-    <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在去年我们按照 WebSocket 协议实现了一套跨端长连接组件之后，最近我们又完成了其插件化的改造，为什么要做这样的改造呢？由于当时业务环境复杂和运维的相关限制，有几个业务可以配置 TSL 组成 WSS ，有的业务方不能配置，只能以明文 WebSocket 的方式传输，随着对接的业务方增多，我们没办法进行一一定制，甚至有的业务方连 WebSocket 的承载也不要，转而使用自定义的协议。而当初我们设计的结构是 Worker (负责和业务层通信) -&gt; WebSocket -&gt; TLS -&gt; TCP ，且这四层结构是耦合在一起的，如果需要剔除 TLS 或者扩展一个新的功能，都会改动相当多的代码。基于以上几点，我们发现，原先的定向设计完全不符合要求，为了接下来可能会有新增协议解析的预期，同时又不改变使用 libuv 进行跨平台的初衷，所以我们就实施了插件化的改造，其目的一个是为了<code>解耦</code>，另一个是为了实现组件的<code>可插拔性（冷插拔）</code>。</p>
+    <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在去年我们按照 WebSocket 协议实现了一套跨端长连接组件之后，最近我们又完成了其插件化的改造，为什么要做这样的改造呢？由于当时业务环境复杂和运维的相关限制，有几个业务可以配置 TSL 组成 WSS ，有的业务方不能配置，只能以明文 WebSocket 的方式传输，随着对接的业务方增多，我们没办法进行一一定制，甚至有的业务方连 WebSocket 的承载也不要，转而使用自定义的协议。而当初我们设计的结构是 Worker (负责和业务层通信) -&gt; WebSocket -&gt; TLS -&gt; TCP ，且这四层结构是耦合在一起的，如果需要剔除 TLS 或者扩展一个新的功能，都会改动相当多的代码。基于以上几点，我们发现，原先的定向设计完全不符合要求，为了接下来可能会有新增协议解析的预期，同时又不改变使用 libuv 进行跨平台的初衷，所以我们就实施了插件化的改造，其目的一个是为了<code>解耦</code>，另一个是为了提高组件的灵活性，实现组件的<code>可插拔（冷插拔）</code>。</p>
 <a id="more"></a>
 <h2 id="解耦"><a href="#解耦" class="headerlink" title="解耦"></a>解耦</h2><p>首先我们要对四层结构的职责进行明确</p>
 <ul>
@@ -77,7 +77,7 @@
     
     <summary type="html">
     
-      &lt;h2 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h2&gt;&lt;p&gt;在去年我们按照 WebSocket 协议实现了一套跨端长连接组件之后，最近我们又完成了其插件化的改造，为什么要做这样的改造呢？由于当时业务环境复杂和运维的相关限制，有几个业务可以配置 TSL 组成 WSS ，有的业务方不能配置，只能以明文 WebSocket 的方式传输，随着对接的业务方增多，我们没办法进行一一定制，甚至有的业务方连 WebSocket 的承载也不要，转而使用自定义的协议。而当初我们设计的结构是 Worker (负责和业务层通信) -&amp;gt; WebSocket -&amp;gt; TLS -&amp;gt; TCP ，且这四层结构是耦合在一起的，如果需要剔除 TLS 或者扩展一个新的功能，都会改动相当多的代码。基于以上几点，我们发现，原先的定向设计完全不符合要求，为了接下来可能会有新增协议解析的预期，同时又不改变使用 libuv 进行跨平台的初衷，所以我们就实施了插件化的改造，其目的一个是为了&lt;code&gt;解耦&lt;/code&gt;，另一个是为了实现组件的&lt;code&gt;可插拔性（冷插拔）&lt;/code&gt;。&lt;/p&gt;
+      &lt;h2 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h2&gt;&lt;p&gt;在去年我们按照 WebSocket 协议实现了一套跨端长连接组件之后，最近我们又完成了其插件化的改造，为什么要做这样的改造呢？由于当时业务环境复杂和运维的相关限制，有几个业务可以配置 TSL 组成 WSS ，有的业务方不能配置，只能以明文 WebSocket 的方式传输，随着对接的业务方增多，我们没办法进行一一定制，甚至有的业务方连 WebSocket 的承载也不要，转而使用自定义的协议。而当初我们设计的结构是 Worker (负责和业务层通信) -&amp;gt; WebSocket -&amp;gt; TLS -&amp;gt; TCP ，且这四层结构是耦合在一起的，如果需要剔除 TLS 或者扩展一个新的功能，都会改动相当多的代码。基于以上几点，我们发现，原先的定向设计完全不符合要求，为了接下来可能会有新增协议解析的预期，同时又不改变使用 libuv 进行跨平台的初衷，所以我们就实施了插件化的改造，其目的一个是为了&lt;code&gt;解耦&lt;/code&gt;，另一个是为了提高组件的灵活性，实现组件的&lt;code&gt;可插拔（冷插拔）&lt;/code&gt;。&lt;/p&gt;
     
     </summary>
     
