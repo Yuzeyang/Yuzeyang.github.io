@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2018-04-04T09:32:51.148Z</updated>
+  <updated>2018-04-04T09:35:20.765Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -20,9 +20,10 @@
     <link href="http://yuzeyang.github.io/2018/04/03/cross-platform-architecture%20design-and-pluggable/"/>
     <id>http://yuzeyang.github.io/2018/04/03/cross-platform-architecture design-and-pluggable/</id>
     <published>2018-04-03T12:15:57.000Z</published>
-    <updated>2018-04-04T09:32:51.148Z</updated>
+    <updated>2018-04-04T09:35:20.765Z</updated>
     
     <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>我们在提出开发跨平台组件之前， iOS 和 Android 客户端分别使用一套长连接组件，需要双倍的人力开发和维护；在产品需求调整上，为了在实现细节上保持一致性也具有一定的难度；Web 端与客户端长连接的形式不同，前者使用 WebSocket，后者使用 Socket ，无形中也增加了后端的维护成本。为了解决这些问题，我们基于 WebSocket 协议开发了一套跨平台的长连接组件。</p>
+<a id="more"></a>
 <h2 id="架构介绍"><a href="#架构介绍" class="headerlink" title="架构介绍"></a>架构介绍</h2><p>组件自上而下分为五层：</p>
 <ul>
 <li><strong>Native 层</strong>：负责业务请求封装和数据解析，与原生进行交互</li>
@@ -169,7 +170,7 @@
     
     <summary type="html">
     
-      &lt;h2 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h2&gt;&lt;p&gt;我们在提出开发跨平台组件之前， iOS 和 Android 客户端分别使用一套长连接组件，需要双倍的人力开发和维护；在产品需求调整上，为了在
+      &lt;h2 id=&quot;背景&quot;&gt;&lt;a href=&quot;#背景&quot; class=&quot;headerlink&quot; title=&quot;背景&quot;&gt;&lt;/a&gt;背景&lt;/h2&gt;&lt;p&gt;我们在提出开发跨平台组件之前， iOS 和 Android 客户端分别使用一套长连接组件，需要双倍的人力开发和维护；在产品需求调整上，为了在实现细节上保持一致性也具有一定的难度；Web 端与客户端长连接的形式不同，前者使用 WebSocket，后者使用 Socket ，无形中也增加了后端的维护成本。为了解决这些问题，我们基于 WebSocket 协议开发了一套跨平台的长连接组件。&lt;/p&gt;
     
     </summary>
     
