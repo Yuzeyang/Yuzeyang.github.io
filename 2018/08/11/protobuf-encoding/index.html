@@ -19,7 +19,7 @@
 <figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">Test1</span> </span>&#123;</span><br><span class="line">  <span class="keyword">optional</span> <span class="built_in">int32</span> a = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>一个 protocol buffer message 是由一系列的键值对组成，在转换成二进制的过程中只使用 <code>field number</code> 和 <code>wire type</code> 作为键，name 和定义的 type 需配合 <code>.proto</code> 文件解析得到，这样可以极大的减小传输体积，不过需要留意的是 .proto 文件中字段的定义和顺序，否则会解析出错。</p>
 <p>wire type 这里实在不知道该如何翻译…我将其叫做<code>编码后的类型</code>。下表是定义的 type 和编码后类型的对应关系：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/PB_wire_types" alt=""></p>
+<p><img src="http://media.shengyushan.com/PB_wire_types" alt=""></p>
 <p>上面提到的键则是经过 <code>(field_number &lt;&lt; 3) | wire_type</code> 的计算得出，也就是后三位表示 wire type。</p>
 <p>现在我们来分析一下<code>08 96 01</code> 。它是一个 key/value 对，我们将其拆成两块<code>08</code> 和 <code>96 01</code>。</p>
 <p>08转换为二进制表示<code>0000 1000</code>，首先后三位的值为0，对应上表中 Varint，用于 int32， int64等等，a 定义的类型 int32 属于其中。然后再右移三位得到<code>0000 0001</code> ，值为1，也就是 a 的 field numer 。对照 <code>.proto</code> 文件就解析出 a 字段的位置了。</p>
