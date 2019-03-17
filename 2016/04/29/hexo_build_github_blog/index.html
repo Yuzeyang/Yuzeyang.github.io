@@ -10,7 +10,7 @@
 <h4 id="安装hexo-cli"><a href="#安装hexo-cli" class="headerlink" title="安装hexo-cli"></a>安装hexo-cli</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sudo npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
 <h2 id="3-在blog目录下，初始化hexo"><a href="#3-在blog目录下，初始化hexo" class="headerlink" title="3.在blog目录下，初始化hexo"></a>3.在blog目录下，初始化hexo</h2><p>接下来我们需要新建一个文件夹来存放blog内容，假设我新建了一个blog文件夹，然后我cd到该路径下面，然后我们需要对该目录进行初始化，运行</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo init $&#123;blog路径&#125;</span><br></pre></td></tr></table></figure>
-<p><img src="http://7xtit4.com2.z0.glb.clouddn.com/hexoinit.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/hexoinit.png" alt=""></p>
 <p>（图中中间出现的报错不要在意，因为我使用了插件，提示未找到该插件）</p>
 <h2 id="4-生成静态页面"><a href="#4-生成静态页面" class="headerlink" title="4.生成静态页面"></a>4.生成静态页面</h2><p>初始化好之后，我们先来看看页面是不是能正常显示打开了，运行</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo g</span><br></pre></td></tr></table></figure>
@@ -18,12 +18,12 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo generate</span><br></pre></td></tr></table></figure>
 <h4 id="注意："><a href="#注意：" class="headerlink" title="注意："></a>注意：</h4><p>第一次部署的时候会因为找不到git而报错，需要安装下，再提交一次</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
-<p><img src="http://7xtit4.com2.z0.glb.clouddn.com/hexog.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/hexog.png" alt=""></p>
 <h2 id="5-初始化依赖"><a href="#5-初始化依赖" class="headerlink" title="5.初始化依赖"></a>5.初始化依赖</h2><p>在第一次安装运行时，我们需要初始化依赖，否则后面启动服务或者生成静态界面会出错…</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> npm install</span><br></pre></td></tr></table></figure>
 <h2 id="6-启动服务"><a href="#6-启动服务" class="headerlink" title="6.启动服务"></a>6.启动服务</h2><p>然后我们启动一下服务看看，我们的博客是不是能打开了</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo server</span><br></pre></td></tr></table></figure>
-<p><img src="http://7xtit4.com2.z0.glb.clouddn.com/hexoserver.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/hexoserver.png" alt=""></p>
 <p>我们打开<a href="http://0.0.0.0:4000/" target="_blank" rel="noopener">http://0.0.0.0:4000/</a>看看，如果前面一切顺利的话，你就能看到你搭建成功的博客了~（注意此时打开的还不是自己的github博客地址哦，只是hexo默认配置的地址）</p>
 <h2 id="7-修改blog目录下的-config-yml配置文件"><a href="#7-修改blog目录下的-config-yml配置文件" class="headerlink" title="7.修改blog目录下的_config.yml配置文件"></a>7.修改blog目录下的_config.yml配置文件</h2><p>接下来我们需要将hexo打开的博客地址改成自己的地址，打开blog目录下面的_config.yml文件，找到deploy，将部署类型改成git或者GItHub，仓库改成自己的github blog地址格式，分支改成master，例如：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line"><span class="attr">  type:</span> <span class="string">git</span>    <span class="comment">#部署类型</span></span><br><span class="line"><span class="attr">  repository:</span> <span class="attr">https://github.com/Yuzeyang/yuzeyang.github.io.git</span>   <span class="comment">#部署的仓库的SSH</span></span><br><span class="line"><span class="attr">  branch:</span> <span class="string">master</span>   <span class="comment">#部署分支,一般使用master主分支</span></span><br></pre></td></tr></table></figure>
@@ -34,13 +34,13 @@
 <p>等同于</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo deploy -generate</span><br></pre></td></tr></table></figure>
 <h2 id="10-再刷新一下你的网页，Duang"><a href="#10-再刷新一下你的网页，Duang" class="headerlink" title="10.再刷新一下你的网页，Duang~"></a>10.再刷新一下你的网页，Duang~</h2><p>因为首页图片加载太慢了…我换了个主题…</p>
-<p><img src="http://7xtit4.com2.z0.glb.clouddn.com/blog.jpg" alt=""></p>
+<p><img src="http://media.shengyushan.com/blog.jpg" alt=""></p>
 <h2 id="11-上传文章"><a href="#11-上传文章" class="headerlink" title="11.上传文章"></a>11.上传文章</h2><p>你可以运行</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new &quot;新的文章标题&quot;</span><br></pre></td></tr></table></figure>
 <p>这样会自动生成好</p>
 <figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">title: Hexo搭建GitHub blog</span><br><span class="line">date: 2016-4-29 17:00:00</span><br><span class="line">tags: Hexo</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
 <p>或者， 把文章放到blog/source/._posts目录下面</p>
-<p><img src="http://7xtit4.com2.z0.glb.clouddn.com/upload.jpg" alt=""></p>
+<p><img src="http://media.shengyushan.com/upload.jpg" alt=""></p>
 <p>在文章的内容前面需要加上标题、时间和标签，这样才能在首页显示出你的标题，你也可以添加文章的时间和文章的tag，例如：</p>
 <figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">title: Hexo搭建GitHub blog</span><br><span class="line">date: 2016-4-29</span><br><span class="line">tags: Hexo</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
 <p>再起一下服务，看看有没有修改成功</p>
@@ -48,16 +48,16 @@
 <p>修改成功后，再重新部署一下</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo d -g</span><br></pre></td></tr></table></figure>
 <p>最后再确认一下</p>
-<p><img src="http://7xtit4.com2.z0.glb.clouddn.com/update.jpg" alt=""></p>
+<p><img src="http://media.shengyushan.com/update.jpg" alt=""></p>
 <p>上传成功~！</p>
 <h2 id="12-申请个人域名"><a href="#12-申请个人域名" class="headerlink" title="12.申请个人域名"></a>12.申请个人域名</h2><p>使用xxx.github.io，其实还不是很方便，也没有xxx.com或者xxx.me这样的域名好（zhuang）记（bi），所以一般都会自己去申请一个个人域名</p>
 <p>我们打开google，搜索一下<code>个人域名</code></p>
 <p>恩，跳出<a href="https://wanwang.aliyun.com/?utm_content=se_97054&amp;gclid=CITQ0ce8vs0CFQqkvQodNFUPrA" target="_blank" rel="noopener">万网</a>和<a href="https://sg.godaddy.com/zh/offers/default.aspx?tmskey=1dom_23&amp;isc=gennlcn10&amp;countrview=1&amp;currencytype=CNY&amp;cvosrc=ppc.google.+%C3%A4%C2%B8%C2%AA%C3%A4%C2%BA%C2%BA%C3%A5%C2%9F%C2%9F%C3%A5%C2%90%C2%8D&amp;cvo_crid=103919011486&amp;matchtype=b" target="_blank" rel="noopener">GoDaddy</a>，不过好像GoDaddy续费比较贵，万网好像能查到你的个人信息资料…</p>
 <p>所以我咨询了下同事，他们推荐了我<a href="https://www.namesilo.com/" target="_blank" rel="noopener">namesilo</a>，续费便宜，还能开启隐私保护~</p>
 <p>进到首页之后我们在箭头位置搜索下我们想要的域名</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/namesilo.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/namesilo.png" alt=""></p>
 <p>然后我们就能看到哪些是已经注册，哪些是可以使用的</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/namesiloRes.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/namesiloRes.png" alt=""></p>
 <p>在支付前看下价格，这上面显示的价格只是低价，类似于起拍价，实际价格在支付页可以看到，购买前请仔细看下数字…别付了好几万…（可以支持支付宝哦~）</p>
 <p>然后我们到<a href="https://www.dnspod.cn/" target="_blank" rel="noopener">DNSPOD</a>里，对我们的xxx.github.io进行DNS转移到xxx.com</p>
 <p>登录后，在域名解析里面，添加我们的个人域名，然后将默认的NS类型的记录值拷贝出来，回到我们的namesilo里面，将nameserver修改成NS类型的记录值，保存，然后过一会儿才会生效</p>
@@ -67,15 +67,15 @@
 <p>但是多说和友言界面有点丑…相比之下disqus还是比较符合我的口味的~</p>
 <p>那我就来介绍怎么加disqus</p>
 <p>首先注册登录，然后点击右上角的设置按钮</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/SettingsDisqus.png!400x400" alt=""></p>
+<p><img src="http://media.shengyushan.com/SettingsDisqus.png!400x400" alt=""></p>
 <p>选择左侧的<code>Account</code>，在Username里面填上你的域名名称，例如我的域名是<code>zeeyang.com</code>，那么我就填<code>zeeyang</code></p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/SettingsDisqusUsername.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/SettingsDisqusUsername.png" alt=""></p>
 <p>然后打开你的hexo配置文件，在最后加上</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">disqus_shortname: 域名名称(例如：zeeyang)</span><br></pre></td></tr></table></figure>
 <p>然后打开主题配置文件，也同样加上</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">disqus: 域名名称(例如：zeeyang)</span><br></pre></td></tr></table></figure>
 <p>然后提交修改，再刷新下网页</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/disqusComplete.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/disqusComplete.png" alt=""></p>
 <p>这下子别人可以在你的文章下面留言啦~（我后来更换了apollo主题，比较清爽）</p>
 </div></article></div></main><footer><div class="paginator"><a href="/2016/05/22/AFNetWorking-three/" class="prev">PREV</a><a href="/2016/04/09/button-location-title-bug/" class="next">NEXT</a></div><div id="disqus_thread"></div><script>var disqus_shortname = 'zeeyang';
 var disqus_identifier = '2016/04/29/hexo_build_github_blog/';
@@ -85,4 +85,4 @@ var disqus_url = 'http://yuzeyang.github.io/2016/04/29/hexo_build_github_blog/';
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2018 <a href="http://yuzeyang.github.io">宫城</a>, Talk is cheap, show me the code. <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>
+})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2019 <a href="http://yuzeyang.github.io">宫城</a>, Talk is cheap, show me the code. <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>

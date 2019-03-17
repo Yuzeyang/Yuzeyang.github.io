@@ -4,15 +4,15 @@
 <hr>
 <p>话不多说，先看下我要讲的刷新控件效果：</p>
 <p>1.无导航栏的刷新控件效果图：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/TableRefreshAnimation1.gif" alt=""></p>
+<p><img src="http://media.shengyushan.com/TableRefreshAnimation1.gif" alt=""></p>
 <p>2.有导航栏的刷新控件效果图：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/TableRefreshAnimation2.gif" alt="">            </p>
+<p><img src="http://media.shengyushan.com/TableRefreshAnimation2.gif" alt="">            </p>
 <hr>
 <p>好了，进入正题。</p>
 <p>首先看到这个控件的时候，我们要去分析，这个控件是由哪几部分组成的，可以看到这个控件是只是由一个loading圆圈和label提示文字组成的，而label比较简单，在这里我就不具体说怎么实现了，大家可以直接看源码，这篇文章，我主要讲怎么实现这个loading圆圈的转圈效果。</p>
 <p>首先这个转圈分成两部分，我们将它分成0.0-0.5和0.5-1.0这两个阶段。</p>
 <p>在0.0-0.5这个过程的动画是这样的：</p>
-<p>​    <img src="http://7xtit4.com1.z0.glb.clouddn.com/refresh0-0.5.gif" alt=""></p>
+<p>​    <img src="http://media.shengyushan.com/refresh0-0.5.gif" alt=""></p>
 <p>以左边的线为例，上顶点为B点，下顶点为A点，实际上这个过程只是，A，B两点的y值在随着progress的变化而变化，x是不变的，所以我们可以得到A，B两点的坐标</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CGPoint leftA = CGPointMake(kCenterX - kLineLength, kCenterY + 2*kLineLength - self.progress/0.5*kLineLength);</span><br><span class="line">CGPoint leftB = CGPointMake(leftA.x, leftA.y - kLineLength);</span><br></pre></td></tr></table></figure>
 <p>然后我们用贝塞尔曲线，将两点连起来，从A点到B点</p>
@@ -21,7 +21,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[arrowPath moveToPoint:leftB];</span><br><span class="line">[arrowPath addLineToPoint:CGPointMake(leftB.x - kArrowLength*sin(kArrowAngle), leftB.y + kArrowLength*cos(kArrowAngle))];</span><br><span class="line">[leftPath appendPath:arrowPath];</span><br></pre></td></tr></table></figure>
 <p>这样我们就完成了0.0-0.5的动画，这个一部分还是比较简单的。</p>
 <p>下面是0.5-1.0的动画过程：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/refresh0.5-1.gif" alt=""></p>
+<p><img src="http://media.shengyushan.com/refresh0.5-1.gif" alt=""></p>
 <p>当到达0.5的时候，原先的B点开始保持不动，它的位置始终是CGPointMake(kCenterX-kLineLength,kCenterY)，而A点也渐渐向B点靠近，CGPointMake(kCenterX-kLineLength,kCenterY+kLineLength- (self.progress-0.5)/0.5*kLineLength)，那这个圆弧是怎么出来的？</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)addArcWithCenter:(CGPoint)center radius:(CGFloat)radius startAngle:(CGFloat)startAngle endAngle:(CGFloat)endAngle clockwise:(BOOL)clockwise NS_AVAILABLE_IOS(4_0);</span><br></pre></td></tr></table></figure>
 <p>在绘制贝塞尔曲线里面，有一个绘制圆弧的方法，center是以某一个点为圆心绘制圆弧，</p>
@@ -42,4 +42,4 @@ var disqus_url = 'http://yuzeyang.github.io/2016/01/05/iOS_TableView_refresh_con
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2018 <a href="http://yuzeyang.github.io">宫城</a>, Talk is cheap, show me the code. <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>
+})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2019 <a href="http://yuzeyang.github.io">宫城</a>, Talk is cheap, show me the code. <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>

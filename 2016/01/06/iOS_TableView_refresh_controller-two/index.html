@@ -13,7 +13,7 @@
 <hr>
 <p>在这里插一个小的知识点，因为这个是在写上拉时，所必须知道的一个点，contentOffset是怎么算的？</p>
 <p>contentOffset是scrollview当前显示区域顶点相对于frame顶点的偏移量</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/contentOffset.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/contentOffset.png" alt=""></p>
 <p>但当上拉刷新之后，此时scrollview的contentSize变化了，（contentSize指的是可显示区域），在计算contentOffset时，需要将contentSize减去scrollView的高度，来和contentOffset作比较。</p>
 <p>拿到progress之后，此时我们离完成这个控件的任务就差不多了。</p>
 <p>首先，我们需要将progress赋值给loading圆圈和提示label，</p>
@@ -31,4 +31,4 @@ var disqus_url = 'http://yuzeyang.github.io/2016/01/06/iOS_TableView_refresh_con
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2018 <a href="http://yuzeyang.github.io">宫城</a>, Talk is cheap, show me the code. <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>
+})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2019 <a href="http://yuzeyang.github.io">宫城</a>, Talk is cheap, show me the code. <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>

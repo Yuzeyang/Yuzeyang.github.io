@@ -5,7 +5,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://yuzeyang.github.io/"/>
-  <updated>2018-08-11T12:46:24.826Z</updated>
+  <updated>2019-03-17T01:58:54.780Z</updated>
   <id>http://yuzeyang.github.io/</id>
   
   <author>
@@ -20,7 +20,7 @@
     <link href="http://yuzeyang.github.io/2018/08/11/protobuf-encoding/"/>
     <id>http://yuzeyang.github.io/2018/08/11/protobuf-encoding/</id>
     <published>2018-08-11T01:51:22.000Z</published>
-    <updated>2018-08-11T12:46:24.826Z</updated>
+    <updated>2019-03-17T01:58:54.780Z</updated>
     
     <content type="html"><![CDATA[<p><a href="https://developers.google.com/protocol-buffers/docs/overview" target="_blank" rel="noopener">Protocol Buffers</a> 是 Google 提出的一种序列化数据格式，最早的 public release 是在08年的7月份推出。相比于 XML 和 JSON ，它的传输大小更小，速度更快，结构更简单，在数据传输和存储的场景下更具有优势。同时 Google 非常友好的提供了<a href="https://developers.google.com/protocol-buffers/docs/tutorials" target="_blank" rel="noopener">不同平台的版本</a>供开发者们使用，其对外的简洁性旨在让开发者们更注重业务的细节。不过本文并没有对源码进行剖析，我们重点分析的是 Protocol Buffers 是如何做到减小体积，也就是 Encoding 的过程。</p>
 <a id="more"></a>
@@ -43,7 +43,7 @@
 <figure class="highlight protobuf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">message</span> <span class="title">Test1</span> </span>&#123;</span><br><span class="line">  <span class="keyword">optional</span> <span class="built_in">int32</span> a = <span class="number">1</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>一个 protocol buffer message 是由一系列的键值对组成，在转换成二进制的过程中只使用 <code>field number</code> 和 <code>wire type</code> 作为键，name 和定义的 type 需配合 <code>.proto</code> 文件解析得到，这样可以极大的减小传输体积，不过需要留意的是 .proto 文件中字段的定义和顺序，否则会解析出错。</p>
 <p>wire type 这里实在不知道该如何翻译…我将其叫做<code>编码后的类型</code>。下表是定义的 type 和编码后类型的对应关系：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/PB_wire_types" alt=""></p>
+<p><img src="http://media.shengyushan.com/PB_wire_types" alt=""></p>
 <p>上面提到的键则是经过 <code>(field_number &lt;&lt; 3) | wire_type</code> 的计算得出，也就是后三位表示 wire type。</p>
 <p>现在我们来分析一下<code>08 96 01</code> 。它是一个 key/value 对，我们将其拆成两块<code>08</code> 和 <code>96 01</code>。</p>
 <p>08转换为二进制表示<code>0000 1000</code>，首先后三位的值为0，对应上表中 Varint，用于 int32， int64等等，a 定义的类型 int32 属于其中。然后再右移三位得到<code>0000 0001</code> ，值为1，也就是 a 的 field numer 。对照 <code>.proto</code> 文件就解析出 a 字段的位置了。</p>
@@ -85,7 +85,7 @@
     <link href="http://yuzeyang.github.io/2018/04/03/cross-platform-architecture%20design-and-pluggable/"/>
     <id>http://yuzeyang.github.io/2018/04/03/cross-platform-architecture design-and-pluggable/</id>
     <published>2018-04-03T12:15:57.000Z</published>
-    <updated>2018-04-27T04:27:32.740Z</updated>
+    <updated>2019-03-17T01:58:54.506Z</updated>
     
     <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>我们在提出开发跨平台组件之前， iOS 和 Android 客户端分别使用一套长连接组件，需要双倍的人力开发和维护；在产品需求调整上，为了在实现细节上保持一致性也具有一定的难度；Web 端与客户端长连接的形式不同，前者使用 WebSocket，后者使用 Socket ，无形中也增加了后端的维护成本。为了解决这些问题，我们基于 WebSocket 协议开发了一套跨平台的长连接组件。</p>
 <a id="more"></a>
@@ -98,7 +98,7 @@
 <li><strong>TCP 层</strong>：基于 <code>libuv</code> 实现 TCP 连接和数据的读写</li>
 </ul>
 <p>整体架构如下图所示：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/3681522755222_.pic.jpg!600x600" alt=""></p>
+<p><img src="http://media.shengyushan.com/3681522755222_.pic.jpg!600x600" alt=""></p>
 <h3 id="TCP-层"><a href="#TCP-层" class="headerlink" title="TCP 层"></a>TCP 层</h3><p>TCP 层我们是基于 <a href="https://github.com/libuv/libuv" target="_blank" rel="noopener">libuv</a>  进行开发， libuv 是一个异步 I/O 库，并且支持了多个平台（ Linux ，Windows 和 Darwin ），一开始主要应用于开发 Node.js ，后来逐渐在其他项目也开始使用。文件、 网络和管道 等操作是 I/O 操作 ，libuv 为此抽象出了相关的接口，底层使用各平台上最优的 I/O 模型实现。</p>
 <p>它的核心是提供了一个 <code>event loop</code> ，每个 event loop 包含了六个阶段：</p>
 <ul>
@@ -109,9 +109,9 @@
 <li><strong>check 阶段</strong>：执行 <code>setImmediate()</code> 的回调</li>
 <li><strong>close callbacks 阶段</strong>：执行 <code>socket</code> 的 <code>close</code> 事件回调</li>
 </ul>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/libuv-event-loop.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/libuv-event-loop.png" alt=""></p>
 <h3 id="TLS-层"><a href="#TLS-层" class="headerlink" title="TLS 层"></a>TLS 层</h3><p>mbedTLS（前身PolarSSL）是实现了一套易用的加解密算法和 SSL / TLS 库。TLS 以及前身 SSL 是传输层安全协议，给网络通信提供安全和数据完整性的保障，所以它能很好的解决数据明文和劫持篡改的问题。并且其分为记录层和传输层，记录层用来确定传输层数据的封装格式，传输层则用于数据传输，而在传输之前，通信双方需要经过握手，其包含了<code>双方身份验证</code>，<code>协商加密算法</code>，<code>交换加密密钥</code>。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/ssl_handshake.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/ssl_handshake.png" alt=""></p>
 <h3 id="WebSocket-层"><a href="#WebSocket-层" class="headerlink" title="WebSocket 层"></a>WebSocket 层</h3><p>WebSocket 层包含了对协议的实现和心跳的维护。</p>
 <p>其最新的协议是 <a href="https://tools.ietf.org/html/rfc6455" target="_blank" rel="noopener">13 RFC 6455</a>。协议的实现分为握手，数据发送/读取，关闭连接。</p>
 <h4 id="握手"><a href="#握手" class="headerlink" title="握手"></a>握手</h4><p>握手要从请求头去理解。</p>
@@ -188,7 +188,7 @@
 <li><strong>TCP</strong>：TCP 连接和数据的读写</li>
 </ul>
 <p>以及整理出结构间的执行调用：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/chat_puggable.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/chat_puggable.png" alt=""></p>
 <p>其中 connect 包含了<code>连接</code>和<code>握手</code>两个过程。在完成链路层连接后，我们认为协议层握手完成，才算是真正的连接成功。</p>
 <p>同样的，数据读写、连接关闭、连接销毁和重置都会严格按照结构的顺序依次调用。</p>
 <h2 id="可插拔改造"><a href="#可插拔改造" class="headerlink" title="可插拔改造"></a>可插拔改造</h2><p>解耦完成之后我们发现对于接口的调用都是显式的，比如 Worker send data 中调用 WebSocket send data ， WebSocket send data 中又调用 TLS send data ，这样的显式调用是因为我们知道这些接口是可用的，但在插件化中某个插件可能没有被使用，这样接口的调用会在某一层中断而导致整个组件的不可用。</p>
@@ -224,7 +224,7 @@
 </ul>
 <figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/* 增加日志前 */</span></span><br><span class="line"><span class="keyword">char</span> loaders[] = <span class="string">"ws?path=/!tls!uv"</span>;</span><br><span class="line">context_init(c, <span class="string">"127.0.0.1"</span>, <span class="number">443</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="literal">NULL</span>, loaders);</span><br><span class="line"></span><br><span class="line"><span class="comment">/* 增加日志后 */</span></span><br><span class="line"><span class="keyword">char</span> loaders[] = <span class="string">"log!ws?path=/!log!tls!uv"</span>;</span><br><span class="line">context_init(c, <span class="string">"127.0.0.1"</span>, <span class="number">443</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="string">""</span>, <span class="literal">NULL</span>, loaders);</span><br></pre></td></tr></table></figure>
 <p>我们重新运行程序，就能发现日志功能已经成功的配置上去，能够将接受和发送的数据上报：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/zim_log.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/zim_log.png" alt=""></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>回顾一下跨平台长连接组件的设计，我们使用 libuv 和 mbedtls 分别实现 TCP 和 TLS ，参照 WebSocket 协议实现了其握手及数据读写，同时抽象出通信接口及回调，为了和原生层交互，iOS 和 Android 分别采用 runtime 消息发送和 JNI 进行原生方法调用。</p>
 <p>但这样的定向设计完全不符合后期可能会有新增协议解析的预期，所以我们进行了插件化改造，其三个核心点是<code>结构体改造</code>、<code>双向链表</code>和<code>函数指针</code>。</p>
 <p>我们通过将插件行为抽象出一个结构体，利用双向链表将前后插件绑定在一起，使用函数指针调用具体插件的函数或回调。</p>
@@ -248,7 +248,7 @@
     <link href="http://yuzeyang.github.io/2017/09/24/https/"/>
     <id>http://yuzeyang.github.io/2017/09/24/https/</id>
     <published>2017-09-24T06:51:26.000Z</published>
-    <updated>2017-09-24T10:21:37.000Z</updated>
+    <updated>2019-03-17T01:56:59.510Z</updated>
     
     <content type="html"><![CDATA[<p>HTTPS 是被广泛应用在网络中的一种加密通信协议，也被叫做在 TLS 之上的 HTTP。TLS 以及前身 SSL 是传输层安全协议，给网络通信提供安全和数据完整性的保障，所以它能很好的解决 HTTP 的数据明文和劫持篡改的问题。并且其分为记录层和传输层，记录层用来确定传输层数据的封装格式，传输层则用于数据传输，而在传输之前，通信双方如何彼此信任和建立一个安全通信方式，是需要我们深入了解的。</p>
 <p>目前推荐的 TLS 版本是 1.2，协议具体内容可以在 <a href="https://tools.ietf.org/html/rfc5246#section-7.4.2" target="_blank" rel="noopener">The Transport Layer Security (TLS) Protocol Version 1.2</a> 中去仔细了解，它是08年8月发表的。 TLS 1.3 到16年1月都还只是草案。</p>
@@ -259,30 +259,30 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">no interface can be used for capturing in this system with the current configuration</span><br></pre></td></tr></table></figure>
 <p>开启之后，我们在浏览器内访问一个 <a href="https://xxx" target="_blank" rel="noopener">https://xxx</a> 的网站，再过滤出 ssl，不难找到我们所需要的信息。</p>
 <h2 id="正文"><a href="#正文" class="headerlink" title="正文"></a>正文</h2><p>我截取了其中一段</p>
-<p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_handshake" alt=""></p>
+<p><img src="http://shengyushan.com/https_handshake" alt=""></p>
 <p>握手总结起来就是双方身份验证，协商加密算法，交换加密密钥。</p>
 <p>而这些步骤有些服务器是合并在一起发送，例如：</p>
-<p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_another_example" alt=""></p>
+<p><img src="http://shengyushan.com/https_another_example" alt=""></p>
 <h3 id="Client-Hello"><a href="#Client-Hello" class="headerlink" title="Client Hello"></a>Client Hello</h3><p>首先客户端会发送一个 Hello 消息给服务端：</p>
-<p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_client_hello" alt=""></p>
+<p><img src="http://shengyushan.com/https_client_hello" alt=""></p>
 <p> <code>Version: TLS 1.2</code> 是其版本信息，<code>Random</code> 是由客户端生成的随机数，长度为28个字节（用于协商密钥），<code>Cipher Suites</code> 是客户端支持的加密算法，让服务端从中选择一个，<code>Compression Methods</code> 是压缩方法，以及一些额外的信息。</p>
-<p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_client_extension" alt=""></p>
+<p><img src="http://shengyushan.com/https_client_extension" alt=""></p>
 <h3 id="Server-Hello"><a href="#Server-Hello" class="headerlink" title="Server Hello"></a>Server Hello</h3><p>服务端在收到客户端发起的 Hello 之后，同样回给客户端一个 Hello：</p>
-<p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_server_hello" alt=""></p>
+<p><img src="http://shengyushan.com/https_server_hello" alt=""></p>
 <p>里面包含了协商后的版本信息 TLS 1.2，使用的加密算法 <code>TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256</code> 和压缩方法，以及服务端生成的随机数（用于协商密钥）。</p>
 <h3 id="Certificate"><a href="#Certificate" class="headerlink" title="Certificate"></a>Certificate</h3><p>同时服务端也会配置并返回对应的证书，用来身份验证和密钥交换。</p>
-<p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_server_cer" alt=""></p>
+<p><img src="http://shengyushan.com/https_server_cer" alt=""></p>
 <h4 id="证书生成"><a href="#证书生成" class="headerlink" title="证书生成"></a>证书生成</h4><p>申请者需要向颁发证书的可信第三方CA机构提交域名、公钥和请求文件(.cer文件)，CA机构验证信息的合法真实性后颁发证书，里面分为明文信息和签名信息，明文信息包括域名，申请者信息和颁发机构，有效期，公钥等信息，签名信息是通过CA私钥对明文信息进行加密后的内容，申请者在安装证书后，可以通过证书公钥来对签名信息和明文信息进行验证。</p>
 <h4 id="证书验证"><a href="#证书验证" class="headerlink" title="证书验证"></a>证书验证</h4><p>验证分为两部分，验证证书本身的合法性和验证颁发者的合法性。</p>
 <p>我们知道证书是分层级的，下一级的证书需要用上一级证书的<code>私钥</code>签名，所以需要通过使用上一级证书的公钥来解密得到下一级的签名摘要，同时客户端也如此操作，最后对摘要进行对比验证。</p>
 <p>颁发者合法性则是检查浏览器和操作系统中的可信证书列表。所以有时候不要乱安装一些奇奇怪怪的证书。</p>
-<h3 id="Server-Key-Exchange-Server-Hello-Done"><a href="#Server-Key-Exchange-Server-Hello-Done" class="headerlink" title="Server Key Exchange, Server Hello Done"></a>Server Key Exchange, Server Hello Done</h3><p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_server_exchange_key" alt=""></p>
+<h3 id="Server-Key-Exchange-Server-Hello-Done"><a href="#Server-Key-Exchange-Server-Hello-Done" class="headerlink" title="Server Key Exchange, Server Hello Done"></a>Server Key Exchange, Server Hello Done</h3><p><img src="http://shengyushan.com/https_server_exchange_key" alt=""></p>
 <p><code>Server Key Exchange</code> 用来加密下一步中的 Client Key Exchange ，只有当证书中不包含公钥的时候才需要，比如用 <code>Diffie Hellman</code> 密钥交换算法。</p>
 <p><code>Server Hello Done</code> 表示服务端 Hello 的结束。</p>
 <h3 id="Client-Key-Exchange"><a href="#Client-Key-Exchange" class="headerlink" title="Client Key Exchange"></a>Client Key Exchange</h3><p>此时客户端在验证证书通过之后，客户端需要再传递一个随机数给客户端，这里涉及到两种方式，一种是通过 <a href="https://tools.ietf.org/html/rfc5246#section-7.4.7.1" target="_blank" rel="noopener">RSA 加密</a>，客户端先生成48字节的随机数，再用证书的公钥加密，然后发给服务端，另一种是这里客户端用的是 <a href="https://tools.ietf.org/html/rfc5246#section-7.4.7.2" target="_blank" rel="noopener">Diffie-Hellman</a> 密钥交换算法，所以这条消息会包含客户端的 Diffie-Hellman 公钥。</p>
-<p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_client_exchange_key" alt=""></p>
+<p><img src="http://shengyushan.com/https_client_exchange_key" alt=""></p>
 <h3 id="Encrypted-Handshake-Message-Application-Data"><a href="#Encrypted-Handshake-Message-Application-Data" class="headerlink" title="Encrypted Handshake Message, Application Data"></a>Encrypted Handshake Message, Application Data</h3><p>此时双方根据客户端生成的2个随机数和服务端生成的1个随机数，使用相同的算法得到一个协商密钥，对数据进行对称加密得到 <code>Encrypted Application Data</code>，然后再进行通信，对方再进行解密，从而保证数据传输的安全性。</p>
-<p><img src="http://7xt7s8.com2.z0.glb.clouddn.com/https_application_data" alt=""></p>
+<p><img src="http://shengyushan.com/https_application_data" alt=""></p>
 <h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>HTTPS 请求过程主要分为握手和数据传输两步，握手是在双方验证身份之后，协商出一个密钥，数据传输则是使用之前协商的密钥，对数据进行加密传输。</p>
 <p>本文是对 HTTPS 请求的一个简单的理解笔记，欢迎大家一起学习交流~</p>
 ]]></content>
@@ -348,13 +348,13 @@
     <link href="http://yuzeyang.github.io/2017/09/09/debug-tool-base-on-NSURLProtocol/"/>
     <id>http://yuzeyang.github.io/2017/09/09/debug-tool-base-on-NSURLProtocol/</id>
     <published>2017-09-09T03:21:28.000Z</published>
-    <updated>2017-09-24T14:30:58.000Z</updated>
+    <updated>2019-03-17T01:58:54.507Z</updated>
     
     <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>公司内一般对调试环境会分为<code>线上</code>、<code>预发布</code>和<code>QA测试</code>三种，而在切换环境的时候大多还是通过网页或桌面应用，当在调试客户端应用时这样的方式就比较麻烦了，所以我们组<code>社会光哥</code>将整套环境切换和请求转发的原理理清晰之后实现了 Android 版的 Debug 环境切换工具，而我则根据其原理实现了 iOS 版。客户端接入该工具之后，只需在应用内即可切换环境和指定调试目录（每个目录独立部署代码）。</p>
 <a id="more"></a>
 <h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="环境切换"><a href="#环境切换" class="headerlink" title="环境切换"></a>环境切换</h3><p>先简单介绍下环境切换原理（From 光哥）</p>
 <p>不同环境对应不同的内网 IP 机器，它是一台反向代理服务器，将网络请求代理到对应环境的云端机器上处理，处理完成之后通过反向代理服务器再返回给请求方。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/proxy.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/proxy.png" alt=""></p>
 <p>环境设置实际是向对应的地址发送一个网络请求，携带上自己的 WiFi IP（如果开启 Charles 等代理工具后，则是电脑的 WiFi IP），以及云端机器的 IP 和 Port进行绑定，例如：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">NSString *URLString = [@&quot;http://&quot; stringByAppendingFormat:@&quot;%@:12345/index&quot;, [self IPByEnv:self.env]];</span><br><span class="line">NSURL *URL = [NSURL URLWithString:URLString];</span><br><span class="line">NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];</span><br><span class="line">request.HTTPMethod = @&quot;POST&quot;;</span><br><span class="line">[request setValue:self.proxyIP forHTTPHeaderField:@&quot;X-Forward-For&quot;];</span><br><span class="line"></span><br><span class="line">GCCarmenModel *carmenModel = [self carmenConfig];</span><br><span class="line">[request setHTTPBody:[[carmenModel toPostBodyString] dataUsingEncoding:NSUTF8StringEncoding]];</span><br></pre></td></tr></table></figure>
 <h3 id="请求转发"><a href="#请求转发" class="headerlink" title="请求转发"></a>请求转发</h3><p>我们需要使用 <code>NSURLProtocol</code> 拦截客户端发出的所有请求，我们继承 <code>NSURLProtocol</code> 后需要在 AppDelegate 中注册其子类，而  <code>NSURLProtocol</code>  的执行顺序和注册顺序是相反的，所以一般情况我们把它放在最后注册。</p>
@@ -390,14 +390,14 @@
     <link href="http://yuzeyang.github.io/2017/07/02/websocket/"/>
     <id>http://yuzeyang.github.io/2017/07/02/websocket/</id>
     <published>2017-07-02T02:28:06.000Z</published>
-    <updated>2017-07-20T14:26:41.000Z</updated>
+    <updated>2019-03-17T01:58:54.492Z</updated>
     
     <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>之前我们将 <a href="https://github.com/robbiehanson/CocoaAsyncSocket" target="_blank" rel="noopener">CocoaAsyncSocket</a> 作为底层实现，在其上面封装了一套 Socket 通信机制以及业务接口，最近我们开始研究 WebSocket ，并用来替换掉原先的 CocoaAsyncSocket ，简单来说一下两者的关系，WebSocket 和 Socket 虽然名称上很像，但两者是完全不同的东西， WebSocket 是建立在 TCP/IP 协议之上，属于应用层的协议，而 Socket 是在应用层和传输层中的一个抽象层，它是将 TCP/IP 层的复杂操作抽象成几个简单的接口来提供给应用层调用。为什么要做这次替换呢？原因是我们服务端在做改造，同时网页版 IM 已经使用了 WebSocket ，客户端也采用的话对于服务端来说维护一套代码会更好更方便，而且 WebSocket 在体积、实时性和扩展上都具有一定的优势。</p>
 <p>WebSocket 最新的协议是 <a href="https://tools.ietf.org/html/rfc6455" target="_blank" rel="noopener">13 RFC 6455</a> ，要理解 WebSocket 的实现，一定要去理解它的协议！~</p>
 <a id="more"></a>
 <h2 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h2><p>WebSocket 的实现分为握手，数据发送/读取，关闭连接。</p>
 <p>这里首先放上一张我们组 <a href="https://geminiwen.com/" target="_blank" rel="noopener">@省长</a> （推荐大家去读一读省长的博客，干货很多👍）整理出来的流程图，方便大家去理解，其中mbedTLS做的是数据的加解密，可以暂时不用关心：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/libchat%E6%B5%81%E7%A8%8B%E5%9B%BE.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/libchat%E6%B5%81%E7%A8%8B%E5%9B%BE.png" alt=""></p>
 <h2 id="握手"><a href="#握手" class="headerlink" title="握手"></a>握手</h2><p>握手要从请求头去理解。</p>
 <p>WebSocket 首先发起一个 HTTP 请求，在请求头加上  <code>Upgrade</code> 字段，该字段用于改变 HTTP 协议版本或者是换用其他协议，这里我们把 <code>Upgrade</code> 的值设为 <code>websocket</code> ，将它升级为 WebSocket 协议。</p>
 <p>同时要注意 <code>Sec-WebSocket-Key</code> 字段，它由客户端生成并发给服务端，用于证明服务端接收到的是一个可受信的连接握手，可以帮助服务端排除自身接收到的由非 WebSocket 客户端发起的连接，该值是一串随机经过 <code>base64</code> 编码的字符串。</p>
@@ -543,7 +543,7 @@
     <link href="http://yuzeyang.github.io/2017/04/06/Youzan-App-Config-Center/"/>
     <id>http://yuzeyang.github.io/2017/04/06/Youzan-App-Config-Center/</id>
     <published>2017-04-06T12:16:19.000Z</published>
-    <updated>2017-04-11T12:06:55.000Z</updated>
+    <updated>2019-03-17T01:58:54.503Z</updated>
     
     <content type="html"><![CDATA[<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>客户端大量的硬编码导致其灵活性大大降低，一些细小的改动只能通过发布版本解决，用户升级更新迭代速度慢，时效性差等原因，催生出了有赞 App 的动态化配置中心，它可以将配置，功能，界面，数据等各种配置数据统一进行管理下发，实时生效，极大地提升了客户端的灵活性。</p>
 <p>同时配置中心不仅仅是简单的对配置数据进行修改、读取而已，更需要在容错性、流量优化、带宽节省等各方面的优化上下功夫。本文主要提供了有赞 App 的动态化配置中心解决方案，也总结了版本迭代中所做的优化。</p>
@@ -551,12 +551,12 @@
 <h2 id="配置中心设计"><a href="#配置中心设计" class="headerlink" title="配置中心设计"></a>配置中心设计</h2><p>起初有赞各 App 内都散落着一些写死的链接，但随着 WWDC 16 中，Apple 表示将继续在 iOS 10 和 macOS 10.12 里收紧对普通 HTTP 的访问限制，并且无法使用 <code>NSAllowsArbitraryLoads</code> 来绕过 ATS 限制。我们只能很费时费力的把各 App 内所有访问 HTTP 的链接都修改成 HTTPS，这一个小小的改动就如此麻烦，那后续大的改动更难以想象，所以我们开始思考能否将这些重复且动态的工作抽象成一个配置中心，用它来支撑各个业务。</p>
 <h4 id="第一版"><a href="#第一版" class="headerlink" title="第一版"></a>第一版</h4><p>第一版设计的相对简单，我们只是专门设计了一个 API，通过 API 请求配置数据，并且每个业务单独维护一份配置文件。</p>
 <p>具体流程：客户端进入到前台，也就是应用程序被激活的时候，通过配置中心的接口向服务端请求最新的配置数据，如果配置文件有更新，则下发最新的配置给客户端，并且客户端本地存储这份最新的配置，用于应用运行时使用。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/AppConfigCenter1.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/AppConfigCenter1.png" alt=""></p>
 <p>但随着模块化的推进和应用数量的增加，配置文件的体积和数量会逐渐增大，每一次修改都会全量下发到客户端，这部分的流量累积起来是一个非常庞大的数字。并且使用配置文件去管理配置，只能维护到最新的配置，无法做到下发指定版本的配置。</p>
 <p>所以针对这些弊端问题，我们衍生出了第二版配置中心。</p>
 <h4 id="第二版"><a href="#第二版" class="headerlink" title="第二版"></a>第二版</h4><p>为了解决第一版产生的流量浪费和配置管理弱的问题，我们优化了配置下发和管理流程，我们采取的策略是 <code>增量更新</code> 和 <code>数据库存储配置</code> 。</p>
 <p>具体流程改动：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/AppConfigCenter2.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/AppConfigCenter2.png" alt=""></p>
 <h4 id="增量更新"><a href="#增量更新" class="headerlink" title="增量更新"></a>增量更新</h4><p>增量更新的优势主要体现在业务增长的过程中。我们的配置文件可能会从几十 KB 增长到几百 KB 甚至更大，如果还继续使用全量更新，这部分流量对用户来说是非常浪费的。而使用增量更新之后，服务端只需要下发不同配置之间的差异补丁包，补丁包的大小相比于原始配置的大小是非常小的，可以节省下90%左右的流量，这是非常可观的。</p>
 <p>增量更新我们目前使用的是 Google 出的 <a href="https://code.google.com/p/google-diff-match-patch/" target="_blank" rel="noopener">google-diff-match-patch</a> ，支持 Java,  JavaScript, Dart, C++, C#,  Objective-C, Lua 和 Python，但是官网已经下掉了该 SDK（不明白为什么），需要到 GitHub 上搜索类似于 <code>diff patch language:java</code> 这样的关键词，就能找到对应平台下的 SDK 了，有人已经 fork 出来了，因为只是字符串的比较处理，所以可以放心使用。</p>
 <p>该增量更新的原理是先通过比较首部和尾部的相同部分，目的是提升一定的效率，再比较中间差异的部分，差异的部分通过一些字符去表示该改动是  <code>DEL</code>  还是  <code>ADD</code>  还是  <code>EQUAL</code>  ，这样最终形成的补丁包比改动部分要大一点，但是相比于全量更新已经减少很多了。</p>
@@ -569,7 +569,7 @@
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">DiffMatchPatch *dmp = [[DiffMatchPatch alloc] init];</span><br><span class="line"><span class="built_in">NSError</span> *error = <span class="literal">nil</span>;</span><br><span class="line"><span class="built_in">NSArray</span>&lt;<span class="built_in">NSString</span> *&gt; *patchStrings = configDic[<span class="string">@"patches"</span>];</span><br><span class="line"><span class="built_in">NSMutableArray</span>&lt;Patch *&gt; *patches = [<span class="built_in">NSMutableArray</span> array];</span><br><span class="line"><span class="keyword">for</span> (<span class="built_in">NSString</span> *patchString <span class="keyword">in</span> patchStrings) &#123;</span><br><span class="line">    <span class="built_in">NSArray</span>&lt;Patch *&gt; *patch = [dmp patch_fromText:patchString error:&amp;error];</span><br><span class="line">    <span class="keyword">if</span> (!error) &#123;</span><br><span class="line">        [patches addObjectsFromArray:patch];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">NSString</span> *newCacheConfig = [[dmp patch_apply:patches toString:cacheConfig] objectAtIndex:<span class="number">0</span>];</span><br></pre></td></tr></table></figure>
 <p>为了确保客户端最终生成的配置与服务端保持一致，客户端在打好补丁之后，用该配置生成 MD5 值，与我们在服务端下发补丁包时携带的最新配置的 MD5 值进行比较，在一致的情况下才去缓存配置，避免因为补丁造成 App 无法使用的问题。</p>
 <h4 id="数据库管理配置"><a href="#数据库管理配置" class="headerlink" title="数据库管理配置"></a>数据库管理配置</h4><p>实现增量更新的前提是我们需要有不同版本的配置记录，而用文件去管理是非常不可控的，取而代之的是我们可以通过数据库来管理，同时利于后期的横向扩展，可以针对不同平台，不同渠道，不同版本等规则下发。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/dbConfig.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/dbConfig.png" alt=""></p>
 <p>目前我们是根据版本和应用来关联到配置，所以表结构设计的很简单，把应用、版本和配置放在一张表里面，后面针对多渠道和多平台等规则之后，表结构上会做一定调整。</p>
 <p>由于需要 App 能及时获取到最新配置，我们选择在 App 激活的时机去获取配置，通过数据统计中心我们可以看到 App 当日启动次数的时段分析，再结合配置文件大小，我们可以预估所占带宽的大小，运维是非常担心你把他的带宽跑满，影响到其他业务，所以我们需要做两个优化，一个是压缩配置，一个是本地缓存。</p>
 <h5 id="压缩配置"><a href="#压缩配置" class="headerlink" title="压缩配置"></a>压缩配置</h5><p>为了不占用过多的带宽，我们需要在写入之前把配置压缩，读取之后解压配置。</p>
@@ -580,11 +580,11 @@
 <h5 id="本地缓存"><a href="#本地缓存" class="headerlink" title="本地缓存"></a>本地缓存</h5><p>对于相同的配置，我们可以不用频繁地去请求数据库，而将其缓存到本地，这样后续的请求可以直接从缓存中读取配置，当然请记得设置缓存的过期时间。</p>
 <p>我们目前用的是 <code>Redis</code> 缓存，它对于复杂的数据结构和操作支持的相当不错，而且操作简单，对于前期只是key-value存储的话，可以考虑使用 <code>Redis</code> 。</p>
 <h4 id="可操作界面"><a href="#可操作界面" class="headerlink" title="可操作界面"></a>可操作界面</h4><p>为了方便业务方修改配置，我们在内部平台上提供了一个简单的可操作界面，通过顶部的Tab栏切换查看不同应用下的配置记录。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/cpAppConfigCenter.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/cpAppConfigCenter.png" alt=""></p>
 <p>点击 <code>查看详情</code> 可以看到当前版本的配置内容，目前展示的效果并不友好，后面会进行优化。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/cpAppConfigCenterDetail.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/cpAppConfigCenterDetail.png" alt=""></p>
 <p>在需要修改配置的时候，我们可以通过 <code>新增配置</code> 给指定应用修改配置，新增时会自动在版本上 +1。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/cpAppConfigCenterAdd.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/cpAppConfigCenterAdd.png" alt=""></p>
 <h2 id="后续优化"><a href="#后续优化" class="headerlink" title="后续优化"></a>后续优化</h2><p>目前有赞 App 已经实现了动态化配置中心整一套流程，但是在一些细节方面还需要不断的改进优化，比如：</p>
 <ul>
 <li>更加丰富的配置下发规则</li>
@@ -612,7 +612,7 @@
     <link href="http://yuzeyang.github.io/2017/01/04/Check-MySQL-Password/"/>
     <id>http://yuzeyang.github.io/2017/01/04/Check-MySQL-Password/</id>
     <published>2017-01-03T16:03:02.000Z</published>
-    <updated>2018-06-08T08:20:44.181Z</updated>
+    <updated>2019-03-17T01:58:54.503Z</updated>
     
     <content type="html"><![CDATA[<p>晚上在用<code>Navicat</code>去连本地的MySQL的时候发现我已经忘了密码了，试了网上很多方式都不行…后来发现其实可以自己直接去看当初设置的密码..</p>
 <p>来看正文：</p>
@@ -626,8 +626,8 @@
 <h5 id="7-很明显我们需要的密码是存在user这个表下的，所以我们直接看user的表结构是怎么样的"><a href="#7-很明显我们需要的密码是存在user这个表下的，所以我们直接看user的表结构是怎么样的" class="headerlink" title="7.很明显我们需要的密码是存在user这个表下的，所以我们直接看user的表结构是怎么样的"></a>7.很明显我们需要的密码是存在user这个表下的，所以我们直接看user的表结构是怎么样的</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">mysql&gt;</span> show columns from user;</span><br><span class="line">+------------------------+-----------------------------------+------+-----+-----------------------+-------+</span><br><span class="line">| Field                  | Type                              | Null | Key | Default               | Extra |</span><br><span class="line">+------------------------+-----------------------------------+------+-----+-----------------------+-------+</span><br><span class="line">| Host                   | char(60)                          | NO   | PRI |                       |       |</span><br><span class="line">| User                   | char(32)                          | NO   | PRI |                       |       |</span><br><span class="line">| Select_priv            | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Insert_priv            | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Update_priv            | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Delete_priv            | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Create_priv            | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Drop_priv              | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Reload_priv            | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Shutdown_priv          | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Process_priv           | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| File_priv              | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Grant_priv             | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| References_priv        | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Index_priv             | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Alter_priv             | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Show_db_priv           | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Super_priv             | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Create_tmp_table_priv  | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Lock_tables_priv       | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Execute_priv           | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Repl_slave_priv        | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Repl_client_priv       | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Create_view_priv       | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Show_view_priv         | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Create_routine_priv    | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Alter_routine_priv     | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Create_user_priv       | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Event_priv             | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Trigger_priv           | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| Create_tablespace_priv | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| ssl_type               | enum('','ANY','X509','SPECIFIED') | NO   |     |                       |       |</span><br><span class="line">| ssl_cipher             | blob                              | NO   |     | NULL                  |       |</span><br><span class="line">| x509_issuer            | blob                              | NO   |     | NULL                  |       |</span><br><span class="line">| x509_subject           | blob                              | NO   |     | NULL                  |       |</span><br><span class="line">| max_questions          | int(11) unsigned                  | NO   |     | 0                     |       |</span><br><span class="line">| max_updates            | int(11) unsigned                  | NO   |     | 0                     |       |</span><br><span class="line">| max_connections        | int(11) unsigned                  | NO   |     | 0                     |       |</span><br><span class="line">| max_user_connections   | int(11) unsigned                  | NO   |     | 0                     |       |</span><br><span class="line">| plugin                 | char(64)                          | NO   |     | mysql_native_password |       |</span><br><span class="line">| authentication_string  | text                              | YES  |     | NULL                  |       |</span><br><span class="line">| password_expired       | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">| password_last_changed  | timestamp                         | YES  |     | NULL                  |       |</span><br><span class="line">| password_lifetime      | smallint(5) unsigned              | YES  |     | NULL                  |       |</span><br><span class="line">| account_locked         | enum('N','Y')                     | NO   |     | N                     |       |</span><br><span class="line">+------------------------+-----------------------------------+------+-----+-----------------------+-------+</span><br><span class="line">45 rows in set (0.02 sec)</span><br></pre></td></tr></table></figure>
 <h5 id="8-表的内容比较多，但是我们很容易就发现，密码其实是存在authentication-string字段下的，那我们就可以直接读User内容为root的密码了"><a href="#8-表的内容比较多，但是我们很容易就发现，密码其实是存在authentication-string字段下的，那我们就可以直接读User内容为root的密码了" class="headerlink" title="8.表的内容比较多，但是我们很容易就发现，密码其实是存在authentication_string字段下的，那我们就可以直接读User内容为root的密码了"></a>8.表的内容比较多，但是我们很容易就发现，密码其实是存在authentication_string字段下的，那我们就可以直接读User内容为root的密码了</h5><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">mysql&gt;</span> select authentication_string from user where User='root';</span><br><span class="line">+-------------------------------------------+</span><br><span class="line">| authentication_string                     |</span><br><span class="line">+-------------------------------------------+</span><br><span class="line">| *781D25322166DB7FF99BA4A1FA5ED30439A60DDE |</span><br><span class="line">+-------------------------------------------+</span><br><span class="line">1 row in set (0.01 sec)</span><br></pre></td></tr></table></figure>
 <p>OK，那我们拿着这个密码到<code>Navicat</code>试试看</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/EditConnection.png!400x400" alt=""></p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/connectionSuccessful.png!400x400" alt=""></p>
+<p><img src="http://media.shengyushan.com/EditConnection.png!400x400" alt=""></p>
+<p><img src="http://media.shengyushan.com/connectionSuccessful.png!400x400" alt=""></p>
 <p>Wonderful~</p>
 ]]></content>
     
@@ -648,7 +648,7 @@
     <link href="http://yuzeyang.github.io/2016/10/09/react-native/"/>
     <id>http://yuzeyang.github.io/2016/10/09/react-native/</id>
     <published>2016-10-09T13:53:32.000Z</published>
-    <updated>2017-07-11T03:07:36.000Z</updated>
+    <updated>2019-03-17T01:58:54.489Z</updated>
     
     <content type="html"><![CDATA[<p>有一段时间没有写东西了，因为最近项目开始尝试使用React Native（以下简称RN）来开发，所以这段时间一直在研究，目前为止开发的内容不多，所以使用过的东西也不算多，这里也只是做个简单的记录</p>
 <p>这里我打算从以下几个方面来讲：</p>
@@ -690,7 +690,7 @@
 <p><code>moduleName</code>是对应于RN的入口名字，且这个是唯一的，那我们如果原生有多个入口需要初始化不同的RN界面，那该怎么办呢？这就用到了<code>initialProperties</code>，它是字典类型，我们可以将入口作为路由，在<code>initialProperties</code>里传入我们需要初始化的界面名称，入口获取到名称之后，渲染对应的界面即可</p>
 <h3 id="RN组件的生命周期"><a href="#RN组件的生命周期" class="headerlink" title="RN组件的生命周期"></a>RN组件的生命周期</h3><p>在RN里面，所谓的界面应该称作类或者组件更为合适</p>
 <p>并且组件也有它的生命周期，和iOS里的<code>viewWillAppear</code>、<code>viewDidDisappear</code>等等很像，下面生命周期内容取自于<a href="http://www.race604.com/react-native-component-lifecycle/" target="_blank" rel="noopener">http://www.race604.com/react-native-component-lifecycle/</a></p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/RNCycleLife.jpg!700x700" alt=""></p>
+<p><img src="http://media.shengyushan.com/RNCycleLife.jpg!700x700" alt=""></p>
 <p>我们可以把组件生命周期大致分为三个阶段：</p>
 <ul>
 <li>第一阶段：是组件第一次绘制阶段，如图中的上面虚线框内，在这里完成了组件的加载和初始化；</li>
@@ -816,11 +816,11 @@
 <p>在终端上，先进入到你的项目目录（与node_modules目录同级），然后开启服务</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yzydeMacBook-Pro:shangjiaban-ios yzy$ npm start</span><br></pre></td></tr></table></figure>
 <p>你修改了某处之后，在模拟器上点击<code>Shake Gesture</code>或者快捷键，在真机上只要摇一摇就可以</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/Shake.png!400x400" alt=""></p>
+<p><img src="http://media.shengyushan.com/Shake.png!400x400" alt=""></p>
 <p>在模拟器弹出框里选择<code>Roload</code>，这样就会重新加载你本地的JS文件</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/simulation.png!400x400" alt=""></p>
+<p><img src="http://media.shengyushan.com/simulation.png!400x400" alt=""></p>
 <p>如果你想查看JS里面的log日志，你可以选择<code>Start Remote JS Debugging</code>，在chrome浏览器里就能看到输出的日志了</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/chromeDebug.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/chromeDebug.png" alt=""></p>
 <h3 id="打包调试"><a href="#打包调试" class="headerlink" title="打包调试"></a>打包调试</h3><p>另外一种就是打包调试，但是比较麻烦，首先我们要讲bundle加载方式改为</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[NSBundle mainBundle] URLForResource:@&quot;bundle/index.ios&quot; withExtension:@&quot;jsbundle&quot;];</span><br></pre></td></tr></table></figure>
 <p>然后在终端里面，输入</p>
@@ -848,7 +848,7 @@
 <p>(1) 安装 <code>CodePush CLI</code></p>
 <p>管理 <code>CodePush</code> 账号需要通过 <code>NodeJS-based CLI</code>。 只需要在终端输入 <code>npm install -g code-push-cli</code> ，就可以安装了。 安装完毕后，输入 <code>code-push -v</code> 查看版本，如看到版本代表成功。</p>
 <p>(2) 创建一个 <code>CodePush</code> 账号 在终端输入 <code>code-push register</code> ，会打开如下注册页面让你选择授权账号。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/codepush.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/codepush.png" alt=""></p>
 <p>授权通过之后，<code>CodePush</code> 会告诉你“access key”，复制此key到终端即可完成注册。</p>
 <p>然后终端输入 <code>code-push login</code> 进行登陆，登陆成功后，你的session文件将会写在 /Users/你的用户名 <code>/.code-push.config</code>。</p>
 <p>(3) 在CodePush服务器注册app 为了让 <code>CodePush</code> 服务器知道你的app，我们需要向它注册app： 在终端输入 <code>code-push app add</code> 即可完成注册。</p>
@@ -870,7 +870,7 @@
 <p>最后还需要在 <code>Info.plist</code> 中添加一个 <code>key</code> 为 <code>CodePushDeploymentKey</code> ,其<code>value</code> 就是 <code>CodePush</code> 提供的唯一 <code>token</code> 值。具体获取方法，可以通过如下命令获得</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">code-push deployment ls &lt;appName&gt; -k</span><br></pre></td></tr></table></figure>
 <h3 id="RN配置"><a href="#RN配置" class="headerlink" title="RN配置"></a>RN配置</h3><p>为了达到更好的体验效果，我们决定采用静默升级的策略，让用户无感知地体验热更新，也可以是具体的升级流程图如下：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/updateStrategy.png!500x500" alt=""></p>
+<p><img src="http://media.shengyushan.com/updateStrategy.png!500x500" alt=""></p>
 <p>如果要达成上述热部署效果，那么还需要在 <code>JavaScript</code> 文件中完成更新时机和更新策略的设置。</p>
 <p>(1)在js中导入 <code>CodePush</code> 模块：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import codePush from &apos;react-native-code-push&apos;</span><br></pre></td></tr></table></figure>
@@ -958,11 +958,11 @@
     <link href="http://yuzeyang.github.io/2016/09/08/iOS-Drawer-Table-View/"/>
     <id>http://yuzeyang.github.io/2016/09/08/iOS-Drawer-Table-View/</id>
     <published>2016-09-08T14:16:43.000Z</published>
-    <updated>2016-09-12T11:40:32.000Z</updated>
+    <updated>2019-03-17T01:58:54.500Z</updated>
     
     <content type="html"><![CDATA[<p>之前很喜欢收藏<a href="https://dribbble.com/shots" target="_blank" rel="noopener">dribbble</a>里面的一些动效gif，里面不仅是动效还是配色等等都非常的美，作为一个视觉动物，真的想把他们一个一个都实现出来，作为自己的一个作品，那真的是一件赏心悦目的事情，看着G20也快结束了，赶紧趁还闲着，先实现一个，我先挑选了一个比较简单的动效—–<strong>抽屉式效果列表</strong></p>
 <p>我们先来看下效果:</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/GCDrawerTableView.gif!500x500" alt=""></p>
+<p><img src="http://media.shengyushan.com/GCDrawerTableView.gif!500x500" alt=""></p>
 <a id="more"></a>
 <p>原来的动效地址找不到了…有知道的请留言给我…</p>
 <p>代码地址：<a href="https://github.com/Yuzeyang/GCDrawerTableView" target="_blank" rel="noopener">https://github.com/Yuzeyang/GCDrawerTableView</a></p>
@@ -991,7 +991,7 @@
     
       &lt;p&gt;之前很喜欢收藏&lt;a href=&quot;https://dribbble.com/shots&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;dribbble&lt;/a&gt;里面的一些动效gif，里面不仅是动效还是配色等等都非常的美，作为一个视觉动物，真的想把他们一个一个都实现出来，作为自己的一个作品，那真的是一件赏心悦目的事情，看着G20也快结束了，赶紧趁还闲着，先实现一个，我先挑选了一个比较简单的动效—–&lt;strong&gt;抽屉式效果列表&lt;/strong&gt;&lt;/p&gt;
 &lt;p&gt;我们先来看下效果:&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/GCDrawerTableView.gif!500x500&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://media.shengyushan.com/GCDrawerTableView.gif!500x500&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
     
     </summary>
     
@@ -1005,10 +1005,10 @@
     <link href="http://yuzeyang.github.io/2016/09/02/loadingAniamtion-0902/"/>
     <id>http://yuzeyang.github.io/2016/09/02/loadingAniamtion-0902/</id>
     <published>2016-09-02T05:23:04.000Z</published>
-    <updated>2016-09-02T09:48:25.000Z</updated>
+    <updated>2019-03-17T01:58:54.505Z</updated>
     
     <content type="html"><![CDATA[<p>这个下拉控件是在<a href="http://iostuts.io/2015/10/17/elastic-bounce-using-uibezierpath-and-pan-gesture/?sukey=3997c0719f151520e178bb5175f11bfb983f5560c51261103fafb276bac79e1371d16e07ede0cca9f23d826405507a3c" target="_blank" rel="noopener">Elastic view animation using UIBezierPath</a>这篇博客上看到的，觉得效果还不错，自己也就OC简单实现了一下（原作者是用Swift写的），控件效果如下：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/GCLoadingAnimationTwo.gif!700x700" alt=""></p>
+<p><img src="http://media.shengyushan.com/GCLoadingAnimationTwo.gif!700x700" alt=""></p>
 <p>这是代码地址：<a href="https://github.com/Yuzeyang/GCLoadingAnimation/tree/master/GCLoadingAnimationTwo" target="_blank" rel="noopener">https://github.com/Yuzeyang/GCLoadingAnimation/tree/master/GCLoadingAnimationTwo</a></p>
 <p>这个控件的动画效果分为两个部分：</p>
 <p>1.下拉的果冻效果</p>
@@ -1020,13 +1020,13 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">- (void)drawOriginPath &#123;</span><br><span class="line">    UIBezierPath *path = [UIBezierPath bezierPath];</span><br><span class="line">    [path moveToPoint:CGPointMake(0, 0)];</span><br><span class="line">    [path addLineToPoint:CGPointMake(0, kGCLoadingViewMinHeight)];</span><br><span class="line">    [path addLineToPoint:CGPointMake(CGRectGetWidth(self.associatedScrollView.frame), kGCLoadingViewMinHeight)];</span><br><span class="line">    [path addLineToPoint:CGPointMake(CGRectGetWidth(self.associatedScrollView.frame), 0)];</span><br><span class="line">    </span><br><span class="line">    self.loadLayer.path = path.CGPath;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>那在手指拖动的过程中，我们该如果实现果冻拉伸的效果呢？</p>
 <p>我们需要一个辅助视图<code>centerHelperView</code>，这个辅助视图是加在下面这条线的中间的，如图的小黑点：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/centerHelperView.png!500x500" alt=""></p>
+<p><img src="http://media.shengyushan.com/centerHelperView.png!500x500" alt=""></p>
 <p>在下拉时我们就根据这个<code>centerHelperView</code>的变化来不断的绘制我们的曲线，所以我们用到了<code>CADisplayLink</code>，这个应该在写动画的时候用的也是比较多了，是根据屏幕的刷新频率将内容绘制到屏幕的定时器，当我们将定时器加到<code>runLoop</code>里时，我们需要注意在设置<code>mode</code>时，如果将<code>mode</code>设置为<code>NSDefaultRunLoopMode</code>，那么在滑动的时候，定时器会暂停，直到停止滑动才会继续工作，所以我们需要将<code>mode</code>设置为<code>NSRunLoopCommonModes</code>，这样能保证定时器在滑动的过程中也能正常工作</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">- (CADisplayLink *)displayLink &#123;</span><br><span class="line">    if (!_displayLink) &#123;</span><br><span class="line">        _displayLink = [CADisplayLink displayLinkWithTarget:self selector:@selector(displayLinkAction:)];</span><br><span class="line">        [_displayLink addToRunLoop:[NSRunLoop currentRunLoop] forMode:NSRunLoopCommonModes];</span><br><span class="line">        _displayLink.paused = YES;</span><br><span class="line">    &#125;</span><br><span class="line">    return _displayLink;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>然后在取出<code>centerHelperView</code>的原点，来不断绘制果冻的曲线</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">- (void)displayLinkAction:(CADisplayLink *)displayLink &#123;</span><br><span class="line">    CALayer *centerHelperViewLayer = (CALayer *)[self.centerHelperView.layer presentationLayer];</span><br><span class="line">    CGRect centerHelperViewRect = [[centerHelperViewLayer valueForKey:@&quot;frame&quot;] CGRectValue];</span><br><span class="line">    [self drawLoadLayerWithCenter:centerHelperViewRect.origin];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>既然我们能够获取到<code>centerHelperView</code>在不同时间里的位置，那么我们就可以根据它来绘制我们的曲线</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/loadingPoint.png!300x300" alt=""></p>
+<p><img src="http://media.shengyushan.com/loadingPoint.png!300x300" alt=""></p>
 <p>我们可以看到左右两边都是直线，调用<code>- addLineToPoint</code>方法即可，重要的是底下这条线，我们获取到<code>centerHelperView</code>的位置后，暂且用<code>c</code>来表示，我们在绘制曲线时，需要用到<code>controlPoint1</code>和<code>controlPoint2</code>，那我们就把底下的线分为三段，并且以<code>c</code>为中心店，左边取出<code>l3</code>、<code>l2</code>、<code>l1</code>，右边取出<code>r3</code>、<code>r2</code>、<code>r1</code>，曲线分为三条：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">UIBezierPath *path = [UIBezierPath bezierPath];</span><br><span class="line">[path moveToPoint:CGPointMake(0, 0)];</span><br><span class="line">[path addLineToPoint:l3];</span><br><span class="line">[path addCurveToPoint:l1 controlPoint1:l3 controlPoint2:l2];</span><br><span class="line">[path addCurveToPoint:r1 controlPoint1:l1 controlPoint2:c];</span><br><span class="line">[path addCurveToPoint:r3 controlPoint1:r1 controlPoint2:r2];</span><br><span class="line">[path addLineToPoint:CGPointMake(CGRectGetWidth(self.associatedScrollView.frame), 0)];</span><br></pre></td></tr></table></figure>
 <p>果冻的曲线我们就完成了，然后我们就要开始对手势的状态来进行处理</p>
@@ -1044,7 +1044,7 @@
     <summary type="html">
     
       &lt;p&gt;这个下拉控件是在&lt;a href=&quot;http://iostuts.io/2015/10/17/elastic-bounce-using-uibezierpath-and-pan-gesture/?sukey=3997c0719f151520e178bb5175f11bfb983f5560c51261103fafb276bac79e1371d16e07ede0cca9f23d826405507a3c&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;Elastic view animation using UIBezierPath&lt;/a&gt;这篇博客上看到的，觉得效果还不错，自己也就OC简单实现了一下（原作者是用Swift写的），控件效果如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/GCLoadingAnimationTwo.gif!700x700&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://media.shengyushan.com/GCLoadingAnimationTwo.gif!700x700&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;这是代码地址：&lt;a href=&quot;https://github.com/Yuzeyang/GCLoadingAnimation/tree/master/GCLoadingAnimationTwo&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://github.com/Yuzeyang/GCLoadingAnimation/tree/master/GCLoadingAnimationTwo&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;这个控件的动画效果分为两个部分：&lt;/p&gt;
 &lt;p&gt;1.下拉的果冻效果&lt;/p&gt;
@@ -1112,11 +1112,11 @@
     <link href="http://yuzeyang.github.io/2016/07/27/loadingAnimation-0727/"/>
     <id>http://yuzeyang.github.io/2016/07/27/loadingAnimation-0727/</id>
     <published>2016-07-27T14:49:19.000Z</published>
-    <updated>2016-08-15T15:03:40.000Z</updated>
+    <updated>2019-03-17T01:58:54.500Z</updated>
     
     <content type="html"><![CDATA[<p>好久没写动画了…最近扒了下以前没有写的动画效果，想想从最老的开始写吧，之前看到的版本是用Swift写的，没仔细找有没有OC版的，所以干脆自己练习一下吧，我们先来看看效果：</p>
 <p>(这里三角形是旋转动画，但是Gif录出来看上去是抖了两下…)</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/GCLoadingAnimationOne.gif!500x500" alt=""></p>
+<p><img src="http://media.shengyushan.com/GCLoadingAnimationOne.gif!500x500" alt=""></p>
 <p>可以直接run下代码，看下效果：<a href="https://github.com/Yuzeyang/GCLoadingAnimation/tree/master/GCLoadingAnimationOne" target="_blank" rel="noopener">https://github.com/Yuzeyang/GCLoadingAnimation/tree/master/GCLoadingAnimationOne</a></p>
 <p>下面我来分析下过程</p>
 <a id="more"></a>
@@ -1154,7 +1154,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">- (CABasicAnimation *)drawRectWithLineColor:(CGColorRef)color animationValue:(NSString *)animationValue &#123;</span><br><span class="line">    CGPoint startPoint = [self triangleLeftPointWithScale:1.2];</span><br><span class="line">    UIBezierPath *rectPath = [UIBezierPath bezierPath];</span><br><span class="line">    [rectPath moveToPoint:startPoint];</span><br><span class="line">    [rectPath addLineToPoint:CGPointMake(startPoint.x, startPoint.y - GCCircleRadius*2.4)];</span><br><span class="line">    [rectPath addLineToPoint:CGPointMake(startPoint.x + powf(3, 0.5)*GCCircleRadius*1.2, startPoint.y - GCCircleRadius*2.4)];</span><br><span class="line">    [rectPath addLineToPoint:CGPointMake(startPoint.x + powf(3, 0.5)*GCCircleRadius*1.2, startPoint.y - 2)];</span><br><span class="line">    [rectPath addLineToPoint:CGPointMake(startPoint.x - 2.5, startPoint.y - 2)];</span><br><span class="line">    </span><br><span class="line">    CAShapeLayer *layer = [CAShapeLayer layer];</span><br><span class="line">    layer.path = rectPath.CGPath;</span><br><span class="line">    layer.lineWidth = 5;</span><br><span class="line">    layer.strokeColor = color;</span><br><span class="line">    layer.fillColor = [UIColor clearColor].CGColor;</span><br><span class="line">    [self addSublayer:layer];</span><br><span class="line">    </span><br><span class="line">    CABasicAnimation *rectAniamtion = [CABasicAnimation animationWithKeyPath:@&quot;strokeEnd&quot;];</span><br><span class="line">    rectAniamtion.fromValue = @(0.0);</span><br><span class="line">    rectAniamtion.toValue = @(1.0);</span><br><span class="line">    rectAniamtion.duration = 0.8;</span><br><span class="line">    rectAniamtion.delegate = self;</span><br><span class="line">    if (animationValue.length) &#123;</span><br><span class="line">        [rectAniamtion setValue:@&quot;rectAniamtion&quot; forKey:@&quot;animationName&quot;];</span><br><span class="line">    &#125;</span><br><span class="line">    [layer addAnimation:rectAniamtion forKey:nil];</span><br><span class="line">    </span><br><span class="line">    return rectAniamtion;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>间隔的话，我们直接调用<code>- performSelector: withObject: afterDelay:</code>来延迟执行第二条边框的绘制就好</p>
 <h2 id="0x05-水面上涨动画"><a href="#0x05-水面上涨动画" class="headerlink" title="0x05 水面上涨动画"></a>0x05 水面上涨动画</h2><p>这个动画的关键就是用<code>- addCurveToPoint: controlPoint1: controlPoint2:</code>方法来画出水波的线，这个方法主要是利用<code>controlPoint1</code>和<code>controlPoint2</code>这两个点来控制弧度方向，如图：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/addCurveToPoint.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/addCurveToPoint.png" alt=""></p>
 <p>然后我们只需要交叉改变<code>controlPoint1</code>和<code>controlPoint2</code>这两个点在上下的位置和<code>startPoint</code>和<code>endPoint</code>的位置，就能感觉水面上涨的感觉</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">NSMutableArray &lt;UIBezierPath *&gt; *waterPathArray = [NSMutableArray array];</span><br><span class="line">for (NSInteger i = 0; i &lt; 11; i++) &#123;</span><br><span class="line">    UIBezierPath *water = [self water:i % 2 == 0 ? YES : NO withProgress:0.1*i];</span><br><span class="line">    [waterPathArray addObject:water];</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <p>创建完毕<code>path</code>之后，将<code>anmations</code>放到<code>CAAnimationGroup</code>里面</p>
@@ -1169,7 +1169,7 @@
     
       &lt;p&gt;好久没写动画了…最近扒了下以前没有写的动画效果，想想从最老的开始写吧，之前看到的版本是用Swift写的，没仔细找有没有OC版的，所以干脆自己练习一下吧，我们先来看看效果：&lt;/p&gt;
 &lt;p&gt;(这里三角形是旋转动画，但是Gif录出来看上去是抖了两下…)&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/GCLoadingAnimationOne.gif!500x500&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://media.shengyushan.com/GCLoadingAnimationOne.gif!500x500&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;可以直接run下代码，看下效果：&lt;a href=&quot;https://github.com/Yuzeyang/GCLoadingAnimation/tree/master/GCLoadingAnimationOne&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://github.com/Yuzeyang/GCLoadingAnimation/tree/master/GCLoadingAnimationOne&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;下面我来分析下过程&lt;/p&gt;
     
@@ -1304,15 +1304,15 @@
     <link href="http://yuzeyang.github.io/2016/07/05/IM-UI-optimize/"/>
     <id>http://yuzeyang.github.io/2016/07/05/IM-UI-optimize/</id>
     <published>2016-07-05T14:35:44.000Z</published>
-    <updated>2017-04-10T13:19:12.000Z</updated>
+    <updated>2019-03-17T01:58:54.502Z</updated>
     
     <content type="html"><![CDATA[<p>重构完Socket之后，最近我们也开始针对IM的UI做了优化，这次的优化我们主要是参考了<a href="https://github.com/ibireme/YYKit" target="_blank" rel="noopener">YYKit</a>对于性能方面的优化，前期我的另一个小伙伴<a href="http://broccoliii.me/" target="_blank" rel="noopener">西兰花</a>也对<a href="https://github.com/facebook/AsyncDisplayKit" target="_blank" rel="noopener">AsyncDisplayKit</a>做了调研，不过这个库理解起来确实要费一番功夫，由于YYkit的核心思路基本上都是学习AsyncDisplayKit的，相信YYkit这个库大家都已经很熟悉了，不过可能还没有看过这个库，那下面我做一个简单的介绍</p>
 <a id="more"></a>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/yykit.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/yykit.png" alt=""></p>
 <p>YYKit的作者是<a href="http://blog.ibireme.com/" target="_blank" rel="noopener">郭曜源</a>，YYKit实际上是将它那些单独的iOS组件整合在了一起，类似于集合一样组成功能比较全面的组件，你也可以根据自己业务的需要单独使用其中的某些部分</p>
 <h2 id="0x00-前期准备"><a href="#0x00-前期准备" class="headerlink" title="0x00 前期准备"></a>0x00 前期准备</h2><p>我们首先阅读了郭曜源在<a href="http://blog.ibireme.com/2015/11/12/smooth_user_interfaces_for_ios/" target="_blank" rel="noopener">对界面流畅性方面的见解</a>，里面提到了<code>异步绘制</code>，但是文字表述毕竟是抽象的，然后我们简单看了下他的YYText和YYAsyncLayer组件，看完之后实际上对如何使用他的YYAsyncLayer这个组件来实现异步绘制还是有点模糊的，后来我们直接看他的微博demo，我们逐渐理清了他是如何实现异步绘制以及几个性能优化方面的点</p>
 <p>因为YYLabel Async Display里面加了是否异步绘制开关，所以我们直接用这个例子作为对比，首先我们来看下异步绘制的效果，开始的时候我们关闭异步绘制的开关，你会发现FPS瞬间掉到6了，屏幕滚动开始非常卡，但是打开开关之后，滚动时虽然FPS还是会掉到30-40，但是滑动的流畅度比之前要好很多，感觉这异步绘制的效果杠杠的好啊，那我们一定要看看他是怎么做的了</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/YYAsyncLayer.gif!500x500" alt=""></p>
+<p><img src="http://media.shengyushan.com/YYAsyncLayer.gif!500x500" alt=""></p>
 <h2 id="0x01-分析"><a href="#0x01-分析" class="headerlink" title="0x01 分析"></a>0x01 分析</h2><p>其实整一个性能优化关键的点及流程有三个：</p>
 <h5 id="1-数据源的异步处理"><a href="#1-数据源的异步处理" class="headerlink" title="1.数据源的异步处理"></a>1.数据源的异步处理</h5><p>当我们获取到数据源的时候，我们需要对数据源进行计算处理，计算出UI绘制所需要的属性比如宽高、颜色等等，而且这些计算要异步去做，否则会卡住主线程，等这些数据源计算完成之后，再去处理绘制，但是如果数据源过大，计算的耗时还是在的，所以会有较长时间的等待时间，此时我们需要考虑加上等待的友好处理</p>
 <h5 id="2-采用更轻量级的绘制"><a href="#2-采用更轻量级的绘制" class="headerlink" title="2.采用更轻量级的绘制"></a>2.采用更轻量级的绘制</h5><p>在绘制时，对于不需要响应触摸事件的控件，我们应该尽量避免创建UIView对象，取而代之的是使用更为轻量的CALayer，并且对于一个layer包含多个subLayer的情况时，我们可以通过图层预合成的方法，将多个subLayer合成渲染成一张图片，通过上述的处理，不仅能减少CPU在创建UIKit对象的消耗，还能减少GPU在合成和渲染上的消耗，内存的占用也会少很多</p>
@@ -1343,7 +1343,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line">static dispatch_queue_t FIMAsyncLayerGetDisplayQueue() &#123;</span><br><span class="line">#define MAX_QUEUE_COUNT 16</span><br><span class="line">    static int queueCount;</span><br><span class="line">    static dispatch_queue_t queues[MAX_QUEUE_COUNT];</span><br><span class="line">    static dispatch_once_t onceToken;</span><br><span class="line">    static int32_t counter = 0;</span><br><span class="line">    dispatch_once(&amp;onceToken, ^&#123;</span><br><span class="line">        queueCount = (int)[NSProcessInfo processInfo].activeProcessorCount;</span><br><span class="line">        queueCount = queueCount &lt; 1 ? 1 : queueCount &gt; MAX_QUEUE_COUNT ? MAX_QUEUE_COUNT : queueCount;</span><br><span class="line">        if ([UIDevice currentDevice].systemVersion.floatValue &gt;= 8.0) &#123;</span><br><span class="line">            for (NSUInteger i = 0; i &lt; queueCount; i++) &#123;</span><br><span class="line">                dispatch_queue_attr_t attr = dispatch_queue_attr_make_with_qos_class(DISPATCH_QUEUE_SERIAL, QOS_CLASS_USER_INITIATED, 0);</span><br><span class="line">                queues[i] = dispatch_queue_create(&quot;com.ibireme.FIMkit.render&quot;, attr);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; else &#123;</span><br><span class="line">            for (NSUInteger i = 0; i &lt; queueCount; i++) &#123;</span><br><span class="line">                queues[i] = dispatch_queue_create(&quot;com.ibireme.FIMkit.render&quot;, DISPATCH_QUEUE_SERIAL);</span><br><span class="line">                dispatch_set_target_queue(queues[i], dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0));</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">    int32_t cur = OSAtomicIncrement32(&amp;counter);</span><br><span class="line">    if (cur &lt; 0) cur = -cur;</span><br><span class="line">    return queues[(cur) % queueCount];</span><br><span class="line">#undef MAX_QUEUE_COUNT</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="0x03-补充"><a href="#0x03-补充" class="headerlink" title="0x03 补充"></a>0x03 补充</h2><p>在<code>文本</code>的实现上，我们更加推荐使用CoreText，CoreText对象占用的内存少，而且适用于文本排版复杂的情况，虽然在实现上较为复杂，但是所带来的好处远远要多</p>
 <p>在渲染<code>图片</code>时，我们应该在后台把图片绘制到<code>CGBitmapContext</code>中，然后从<code>Bitmap</code>直接创建图片，因为如果使用原来ImageView读取Image的方式是，在创建Image或者CGImageSource对象时，图片数据并不会立即解码，而是等到设置到ImageView或者layer.contents，layer被提交到GPU之前，才解码，并且这些操作都是在主线程进行，是相当耗性能的，所以我们应该用推荐的方式去绘制，而且AFNetworking在对图片处理的时候也是这么做的</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/AFURLResponseSerializationImage.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/AFURLResponseSerializationImage.png" alt=""></p>
 <h2 id="0x04-简单实现demo"><a href="#0x04-简单实现demo" class="headerlink" title="0x04 简单实现demo"></a>0x04 简单实现demo</h2><p>对于上述优化点，我实现了一个简单的<a href="https://github.com/Yuzeyang/GCAsyncDisplayDemo" target="_blank" rel="noopener">CoreText demo</a>，可以看一下这个demo做进一步了解~</p>
 <h2 id="0x05-相关推荐阅读"><a href="#0x05-相关推荐阅读" class="headerlink" title="0x05 相关推荐阅读"></a>0x05 相关推荐阅读</h2><p><a href="http://blog.ibireme.com/2015/11/12/smooth_user_interfaces_for_ios/" target="_blank" rel="noopener">iOS 保持界面流畅的技巧</a></p>
 <p><a href="https://mp.weixin.qq.com/s?__biz=MzAwNDY1ODY2OQ==&amp;mid=400417748&amp;idx=1&amp;sn=0c5f6747dd192c5a0eea32bb4650c160&amp;scene=27&amp;uin=MjI5NjY4NTU%3D&amp;key=7b81aac53bd2393d5c4f70d3d589ce1750179035ed3e4fc89454779d85881a9acd97a28bef1484ddbcfcd3250861abc7&amp;devicetype=iMac+MacBookPro11%2C1+OSX+OSX+10.11.6+build(15G31" target="_blank" rel="noopener">iOS 事件处理机制与图像渲染过程</a>&amp;version=12000110&amp;lang=zh_CN&amp;nettype=WIFI&amp;fontScale=100&amp;pass_ticket=JE1V0DIEopWtscTKwaYEiHN6qmvNRu9O60t4vUkn3Ek%3D)</p>
@@ -1365,7 +1365,7 @@
     <link href="http://yuzeyang.github.io/2016/06/22/GCDAsyncSocket-socket-optimize/"/>
     <id>http://yuzeyang.github.io/2016/06/22/GCDAsyncSocket-socket-optimize/</id>
     <published>2016-06-22T15:02:22.000Z</published>
-    <updated>2016-06-23T08:48:55.000Z</updated>
+    <updated>2019-03-17T01:58:54.492Z</updated>
     
     <content type="html"><![CDATA[<p>之前基于GCDAsyncSocket封装了一个Socket Manager类，但是由于业务复杂度的上升，之前设计的业务接口的数量逐渐增加，代理回调也随之增加，代理的使用也越来越麻烦，所以我们针对socket通信这块，进行了一次重构</p>
 <p>这里有我们的新童鞋<a href="http://broccoliii.me/" target="_blank" rel="noopener">西兰花</a>很大的功劳哈~</p>
@@ -1385,7 +1385,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">NSDictionary *requestBody = @&#123; @&quot;limit&quot;: @(10), @&quot;offset&quot;: @(0) &#125;;</span><br><span class="line">[[FIMCommunicationManager sharedInstance]</span><br><span class="line">socketWriteDataWithRequestType:FIMRequestType_GetConversationsList</span><br><span class="line">                   requestBody:requestBody</span><br><span class="line">                    completion:^(NSError *error, id data) &#123;</span><br><span class="line">                        // do something</span><br><span class="line">                    &#125;];</span><br></pre></td></tr></table></figure>
 <h2 id="0x02-告别Delegate，使用Blcok"><a href="#0x02-告别Delegate，使用Blcok" class="headerlink" title="0x02 告别Delegate，使用Blcok"></a>0x02 告别Delegate，使用Blcok</h2><p>前面也提到，之前会对不同的业务请求，设定相应的delegate回调，但是数量一多，使用起来那真的是槽糕，所以我们参考<code>AFNetworking</code>的做法，发起请求时将block与一个唯一标识进行绑定，同时将这个唯一标识放到请求里面发给服务器（服务器对该标识不做任何处理），在等到GCDAsyncSocket回调回来的时候，我们通过服务器返回的这个标识，找到对应的block回调出去，这样对业务方来说，这个socket接口用起来其实和HTTP请求接口是一模一样的，将请求的上下文也关联起来了</p>
 <p>如图：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/replaceDelegate.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/replaceDelegate.png" alt=""></p>
 <p>具体实现：</p>
 <p>发起请求时</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">- (void)socketWriteDataWithRequestType:(FIMRequestType)type</span><br><span class="line">                           requestBody:(nonnull NSDictionary *)body</span><br><span class="line">                            completion:(nullable SocketDidReadBlock)callback &#123;</span><br><span class="line">  // ...                            </span><br><span class="line">   </span><br><span class="line">  // 生成唯一标识</span><br><span class="line">  NSString *blockRequestID = [self createRequestID];</span><br><span class="line">  if (callback) &#123;</span><br><span class="line">      // 将block和标识进行绑定，存到一个全局变量里面</span><br><span class="line">      [self.requestsMap setObject:callback forKey:blockRequestID];</span><br><span class="line">  &#125;</span><br><span class="line">                              </span><br><span class="line">  // ...</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -1396,7 +1396,7 @@
 <p>那这个创建时间是由服务器生成的，而且消息发送成功之后，服务器也不会返回给我们这条消息的创建时间，而且失败的消息服务器那边是不会存的，所以就需要我们本地模拟服务器来生成这个时间</p>
 <p>因为考虑到本地时间和服务器时间存在偏差，所以我们在socket建立连接成功之后，返回给我们服务器时间，我们拿到服务器时间之后和手机的本地时间做个比较，记录下这个偏差值，然后业务层在调用发送消息的接口时，socket内部模拟出服务器创建时间赋值给该消息，然后存到数据库里面，这样就可以基本保证数据库存储消息的顺序和服务器的顺序是一致的</p>
 <p>如图：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/serverCreateTime.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/serverCreateTime.png" alt=""></p>
 <h2 id="0x04-监听网络状态来改变socket连接状态"><a href="#0x04-监听网络状态来改变socket连接状态" class="headerlink" title="0x04 监听网络状态来改变socket连接状态"></a>0x04 监听网络状态来改变socket连接状态</h2><p>我们对socket连接状态也做了微调，我们通过测试微信的连接，发现以下两点：</p>
 <p>1、网络断开后，socket直接断开，显示“未连接”</p>
 <p>2、有网但是socket连接不上时，socket会一直重连，重连n次后，休眠几秒后，再重连，如此循环</p>
@@ -1422,16 +1422,16 @@
     <link href="http://yuzeyang.github.io/2016/06/13/Qiniu-token/"/>
     <id>http://yuzeyang.github.io/2016/06/13/Qiniu-token/</id>
     <published>2016-06-13T15:07:54.000Z</published>
-    <updated>2016-06-13T16:24:10.000Z</updated>
+    <updated>2019-03-17T01:58:54.508Z</updated>
     
     <content type="html"><![CDATA[<p>在使用七牛iOS SDK上传图片时需要用到上传的token，虽然七牛建议token不要在客户端生成，这样做是不安全的，但是我们还是需要了解下客户端是如何生成token的</p>
 <a id="more"></a>
 <p>我简单地对生成token和上传数据做了封装，这是代码地址：<a href="https://github.com/Yuzeyang/GCQiniuUploadManager" target="_blank" rel="noopener">provide simple interface to create token,upload file and upload files</a></p>
 <p>首先我们需要用到三个参数<code>scope</code>、<code>AccessKey</code>和<code>SecretKey</code></p>
 <p><code>scope</code>其实就是资源存放的文件夹名字，例如下图的<code>cmxj</code></p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/Qiniu_scope.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/Qiniu_scope.png" alt=""></p>
 <p><code>AccessKey</code>和<code>SecretKey</code>在个人面板 -&gt; 个人中心 -&gt; 密钥管理里面就能看到</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/Qiniu_AK_SK.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/Qiniu_AK_SK.png" alt=""></p>
 <p>接下来就可以创建token了，首先我们将上传策略中的<code>scope</code>和<code>deadline</code>序列化成json格式，里面的<code>liveTime</code>则是token的有效时间，可以以天为单位</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">NSMutableDictionary *authInfo = [NSMutableDictionary dictionary];</span><br><span class="line">[authInfo setObject:self.scope forKey:@&quot;scope&quot;];</span><br><span class="line">[authInfo</span><br><span class="line">setObject:[NSNumber numberWithLong:[[NSDate date] timeIntervalSince1970] + self.liveTime * 24 * 3600]</span><br><span class="line">   forKey:@&quot;deadline&quot;];</span><br><span class="line"></span><br><span class="line">NSData *jsonData =</span><br><span class="line">[NSJSONSerialization dataWithJSONObject:authInfo options:NSJSONWritingPrettyPrinted error:nil];</span><br></pre></td></tr></table></figure>
 <p>再对json序列化后的上传策略进行URL安全的base64编码</p>
@@ -1461,10 +1461,10 @@
     <link href="http://yuzeyang.github.io/2016/06/11/iOS-card-animation/"/>
     <id>http://yuzeyang.github.io/2016/06/11/iOS-card-animation/</id>
     <published>2016-06-11T02:20:29.000Z</published>
-    <updated>2016-06-11T09:25:23.000Z</updated>
+    <updated>2019-03-17T01:58:54.499Z</updated>
     
     <content type="html"><![CDATA[<p>最近看到一个iOS9的task switcher开源实现，但是没有删除功能，就想着干脆做一个模仿iOS7系统的效果，加上删除和重用卡片功能，效果图如下：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/GCCardViewController.gif!500x500" alt=""></p>
+<p><img src="http://media.shengyushan.com/GCCardViewController.gif!500x500" alt=""></p>
 <p>这是代码地址：<a href="https://github.com/Yuzeyang/GCCardViewController" target="_blank" rel="noopener">https://github.com/Yuzeyang/GCCardViewController</a></p>
 <a id="more"></a>
 <p>实现上可以使用scrollView或者collectionView去做，这个我是用scrollView去做</p>
@@ -1513,7 +1513,7 @@
     <summary type="html">
     
       &lt;p&gt;最近看到一个iOS9的task switcher开源实现，但是没有删除功能，就想着干脆做一个模仿iOS7系统的效果，加上删除和重用卡片功能，效果图如下：&lt;/p&gt;
-&lt;p&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/GCCardViewController.gif!500x500&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
+&lt;p&gt;&lt;img src=&quot;http://media.shengyushan.com/GCCardViewController.gif!500x500&quot; alt=&quot;&quot;&gt;&lt;/p&gt;
 &lt;p&gt;这是代码地址：&lt;a href=&quot;https://github.com/Yuzeyang/GCCardViewController&quot; target=&quot;_blank&quot; rel=&quot;noopener&quot;&gt;https://github.com/Yuzeyang/GCCardViewController&lt;/a&gt;&lt;/p&gt;
     
     </summary>
@@ -1724,7 +1724,7 @@
     <link href="http://yuzeyang.github.io/2016/04/29/hexo_build_github_blog/"/>
     <id>http://yuzeyang.github.io/2016/04/29/hexo_build_github_blog/</id>
     <published>2016-04-28T16:00:00.000Z</published>
-    <updated>2016-07-06T08:05:28.000Z</updated>
+    <updated>2019-03-17T01:59:58.334Z</updated>
     
     <content type="html"><![CDATA[<p>如果你厌倦了使用了第三方的博客平台，你可以考虑一下用hexo和github来搭建自己的博客</p>
 <hr>
@@ -1738,7 +1738,7 @@
 <h4 id="安装hexo-cli"><a href="#安装hexo-cli" class="headerlink" title="安装hexo-cli"></a>安装hexo-cli</h4><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> sudo npm install -g hexo-cli</span><br></pre></td></tr></table></figure>
 <h2 id="3-在blog目录下，初始化hexo"><a href="#3-在blog目录下，初始化hexo" class="headerlink" title="3.在blog目录下，初始化hexo"></a>3.在blog目录下，初始化hexo</h2><p>接下来我们需要新建一个文件夹来存放blog内容，假设我新建了一个blog文件夹，然后我cd到该路径下面，然后我们需要对该目录进行初始化，运行</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo init $&#123;blog路径&#125;</span><br></pre></td></tr></table></figure>
-<p><img src="http://7xtit4.com2.z0.glb.clouddn.com/hexoinit.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/hexoinit.png" alt=""></p>
 <p>（图中中间出现的报错不要在意，因为我使用了插件，提示未找到该插件）</p>
 <h2 id="4-生成静态页面"><a href="#4-生成静态页面" class="headerlink" title="4.生成静态页面"></a>4.生成静态页面</h2><p>初始化好之后，我们先来看看页面是不是能正常显示打开了，运行</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo g</span><br></pre></td></tr></table></figure>
@@ -1746,12 +1746,12 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo generate</span><br></pre></td></tr></table></figure>
 <h4 id="注意："><a href="#注意：" class="headerlink" title="注意："></a>注意：</h4><p>第一次部署的时候会因为找不到git而报错，需要安装下，再提交一次</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
-<p><img src="http://7xtit4.com2.z0.glb.clouddn.com/hexog.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/hexog.png" alt=""></p>
 <h2 id="5-初始化依赖"><a href="#5-初始化依赖" class="headerlink" title="5.初始化依赖"></a>5.初始化依赖</h2><p>在第一次安装运行时，我们需要初始化依赖，否则后面启动服务或者生成静态界面会出错…</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> npm install</span><br></pre></td></tr></table></figure>
 <h2 id="6-启动服务"><a href="#6-启动服务" class="headerlink" title="6.启动服务"></a>6.启动服务</h2><p>然后我们启动一下服务看看，我们的博客是不是能打开了</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo server</span><br></pre></td></tr></table></figure>
-<p><img src="http://7xtit4.com2.z0.glb.clouddn.com/hexoserver.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/hexoserver.png" alt=""></p>
 <p>我们打开<a href="http://0.0.0.0:4000/" target="_blank" rel="noopener">http://0.0.0.0:4000/</a>看看，如果前面一切顺利的话，你就能看到你搭建成功的博客了~（注意此时打开的还不是自己的github博客地址哦，只是hexo默认配置的地址）</p>
 <h2 id="7-修改blog目录下的-config-yml配置文件"><a href="#7-修改blog目录下的-config-yml配置文件" class="headerlink" title="7.修改blog目录下的_config.yml配置文件"></a>7.修改blog目录下的_config.yml配置文件</h2><p>接下来我们需要将hexo打开的博客地址改成自己的地址，打开blog目录下面的_config.yml文件，找到deploy，将部署类型改成git或者GItHub，仓库改成自己的github blog地址格式，分支改成master，例如：</p>
 <figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line"><span class="attr">  type:</span> <span class="string">git</span>    <span class="comment">#部署类型</span></span><br><span class="line"><span class="attr">  repository:</span> <span class="attr">https://github.com/Yuzeyang/yuzeyang.github.io.git</span>   <span class="comment">#部署的仓库的SSH</span></span><br><span class="line"><span class="attr">  branch:</span> <span class="string">master</span>   <span class="comment">#部署分支,一般使用master主分支</span></span><br></pre></td></tr></table></figure>
@@ -1762,13 +1762,13 @@
 <p>等同于</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo deploy -generate</span><br></pre></td></tr></table></figure>
 <h2 id="10-再刷新一下你的网页，Duang"><a href="#10-再刷新一下你的网页，Duang" class="headerlink" title="10.再刷新一下你的网页，Duang~"></a>10.再刷新一下你的网页，Duang~</h2><p>因为首页图片加载太慢了…我换了个主题…</p>
-<p><img src="http://7xtit4.com2.z0.glb.clouddn.com/blog.jpg" alt=""></p>
+<p><img src="http://media.shengyushan.com/blog.jpg" alt=""></p>
 <h2 id="11-上传文章"><a href="#11-上传文章" class="headerlink" title="11.上传文章"></a>11.上传文章</h2><p>你可以运行</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new &quot;新的文章标题&quot;</span><br></pre></td></tr></table></figure>
 <p>这样会自动生成好</p>
 <figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">title: Hexo搭建GitHub blog</span><br><span class="line">date: 2016-4-29 17:00:00</span><br><span class="line">tags: Hexo</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
 <p>或者， 把文章放到blog/source/._posts目录下面</p>
-<p><img src="http://7xtit4.com2.z0.glb.clouddn.com/upload.jpg" alt=""></p>
+<p><img src="http://media.shengyushan.com/upload.jpg" alt=""></p>
 <p>在文章的内容前面需要加上标题、时间和标签，这样才能在首页显示出你的标题，你也可以添加文章的时间和文章的tag，例如：</p>
 <figure class="highlight tex"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">title: Hexo搭建GitHub blog</span><br><span class="line">date: 2016-4-29</span><br><span class="line">tags: Hexo</span><br><span class="line">---</span><br></pre></td></tr></table></figure>
 <p>再起一下服务，看看有没有修改成功</p>
@@ -1776,16 +1776,16 @@
 <p>修改成功后，再重新部署一下</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">$</span> hexo d -g</span><br></pre></td></tr></table></figure>
 <p>最后再确认一下</p>
-<p><img src="http://7xtit4.com2.z0.glb.clouddn.com/update.jpg" alt=""></p>
+<p><img src="http://media.shengyushan.com/update.jpg" alt=""></p>
 <p>上传成功~！</p>
 <h2 id="12-申请个人域名"><a href="#12-申请个人域名" class="headerlink" title="12.申请个人域名"></a>12.申请个人域名</h2><p>使用xxx.github.io，其实还不是很方便，也没有xxx.com或者xxx.me这样的域名好（zhuang）记（bi），所以一般都会自己去申请一个个人域名</p>
 <p>我们打开google，搜索一下<code>个人域名</code></p>
 <p>恩，跳出<a href="https://wanwang.aliyun.com/?utm_content=se_97054&amp;gclid=CITQ0ce8vs0CFQqkvQodNFUPrA" target="_blank" rel="noopener">万网</a>和<a href="https://sg.godaddy.com/zh/offers/default.aspx?tmskey=1dom_23&amp;isc=gennlcn10&amp;countrview=1&amp;currencytype=CNY&amp;cvosrc=ppc.google.+%C3%A4%C2%B8%C2%AA%C3%A4%C2%BA%C2%BA%C3%A5%C2%9F%C2%9F%C3%A5%C2%90%C2%8D&amp;cvo_crid=103919011486&amp;matchtype=b" target="_blank" rel="noopener">GoDaddy</a>，不过好像GoDaddy续费比较贵，万网好像能查到你的个人信息资料…</p>
 <p>所以我咨询了下同事，他们推荐了我<a href="https://www.namesilo.com/" target="_blank" rel="noopener">namesilo</a>，续费便宜，还能开启隐私保护~</p>
 <p>进到首页之后我们在箭头位置搜索下我们想要的域名</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/namesilo.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/namesilo.png" alt=""></p>
 <p>然后我们就能看到哪些是已经注册，哪些是可以使用的</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/namesiloRes.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/namesiloRes.png" alt=""></p>
 <p>在支付前看下价格，这上面显示的价格只是低价，类似于起拍价，实际价格在支付页可以看到，购买前请仔细看下数字…别付了好几万…（可以支持支付宝哦~）</p>
 <p>然后我们到<a href="https://www.dnspod.cn/" target="_blank" rel="noopener">DNSPOD</a>里，对我们的xxx.github.io进行DNS转移到xxx.com</p>
 <p>登录后，在域名解析里面，添加我们的个人域名，然后将默认的NS类型的记录值拷贝出来，回到我们的namesilo里面，将nameserver修改成NS类型的记录值，保存，然后过一会儿才会生效</p>
@@ -1795,15 +1795,15 @@
 <p>但是多说和友言界面有点丑…相比之下disqus还是比较符合我的口味的~</p>
 <p>那我就来介绍怎么加disqus</p>
 <p>首先注册登录，然后点击右上角的设置按钮</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/SettingsDisqus.png!400x400" alt=""></p>
+<p><img src="http://media.shengyushan.com/SettingsDisqus.png!400x400" alt=""></p>
 <p>选择左侧的<code>Account</code>，在Username里面填上你的域名名称，例如我的域名是<code>zeeyang.com</code>，那么我就填<code>zeeyang</code></p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/SettingsDisqusUsername.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/SettingsDisqusUsername.png" alt=""></p>
 <p>然后打开你的hexo配置文件，在最后加上</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">disqus_shortname: 域名名称(例如：zeeyang)</span><br></pre></td></tr></table></figure>
 <p>然后打开主题配置文件，也同样加上</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">disqus: 域名名称(例如：zeeyang)</span><br></pre></td></tr></table></figure>
 <p>然后提交修改，再刷新下网页</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/disqusComplete.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/disqusComplete.png" alt=""></p>
 <p>这下子别人可以在你的文章下面留言啦~（我后来更换了apollo主题，比较清爽）</p>
 ]]></content>
     
@@ -1826,12 +1826,12 @@
     <link href="http://yuzeyang.github.io/2016/04/09/button-location-title-bug/"/>
     <id>http://yuzeyang.github.io/2016/04/09/button-location-title-bug/</id>
     <published>2016-04-09T03:27:16.000Z</published>
-    <updated>2016-05-21T03:39:19.000Z</updated>
+    <updated>2019-03-17T01:58:54.505Z</updated>
     
-    <content type="html"><![CDATA[<p>今天在写App的登录注册界面，其中登录和注册之间的切换和印象笔记一样<br><img src="http://7xtit4.com1.z0.glb.clouddn.com/Evernote.gif!500x500" alt="印象笔记登录界面"></p>
+    <content type="html"><![CDATA[<p>今天在写App的登录注册界面，其中登录和注册之间的切换和印象笔记一样<br><img src="http://media.shengyushan.com/Evernote.gif!500x500" alt="印象笔记登录界面"></p>
 <hr>
 <p>中间的登录按钮会有一个下移以及更改文字的操作，但是我在加了下移动画之后，再修改按钮的文字，就出现了很奇怪的现象，按钮会先下移然后修改文字之后，又跳回到最初的位置</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/Evernote%20bug.gif!500x500" alt="问题操作"><br>这就奇怪了，看逻辑上一点错误也没有，那怎么会这样呢？</p>
+<p><img src="http://media.shengyushan.com/Evernote%20bug.gif!500x500" alt="问题操作"><br>这就奇怪了，看逻辑上一点错误也没有，那怎么会这样呢？</p>
 <p>检查了下按钮的类型也是自定义的，那会不会是动画影响的呢？<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">+ (void)animateWithDuration:(NSTimeInterval)duration animations:(void (^)(void))animations completion:(void (^ __nullable)(BOOL finished))completion NS_AVAILABLE_IOS(4_0);</span><br></pre></td></tr></table></figure></p>
 <p>在block里面，我在setTitle:forState的方法外面，去掉动画的影响<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[UIView setAnimationsEnabled:NO];</span><br><span class="line">[self.loginButton setTitle:@&quot;注   册&quot; forState:UIControlStateNormal];</span><br><span class="line">[self.loginButton layoutIfNeeded];</span><br><span class="line">[UIView setAnimationsEnabled:YES];</span><br></pre></td></tr></table></figure></p>
 <p>或者<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">[UIView performWithoutAnimation:^&#123;</span><br><span class="line">        [self.loginButton setTitle:@&quot;注   册&quot; forState:UIControlStateNormal];</span><br><span class="line">        [self.loginButton layoutIfNeeded];</span><br><span class="line">&#125;];</span><br></pre></td></tr></table></figure></p>
@@ -1846,9 +1846,9 @@
     
     <summary type="html">
     
-      &lt;p&gt;今天在写App的登录注册界面，其中登录和注册之间的切换和印象笔记一样&lt;br&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/Evernote.gif!500x500&quot; alt=&quot;印象笔记登录界面&quot;&gt;&lt;/p&gt;
+      &lt;p&gt;今天在写App的登录注册界面，其中登录和注册之间的切换和印象笔记一样&lt;br&gt;&lt;img src=&quot;http://media.shengyushan.com/Evernote.gif!500x500&quot; alt=&quot;印象笔记登录界面&quot;&gt;&lt;/p&gt;
 &lt;hr&gt;
-&lt;p&gt;中
+&lt;p&gt;中间的登录按钮会有一
     
     </summary>
     
@@ -1862,9 +1862,9 @@
     <link href="http://yuzeyang.github.io/2016/03/27/simple-download-animation/"/>
     <id>http://yuzeyang.github.io/2016/03/27/simple-download-animation/</id>
     <published>2016-03-27T03:22:17.000Z</published>
-    <updated>2016-05-21T03:40:35.000Z</updated>
+    <updated>2019-03-17T01:58:54.500Z</updated>
     
-    <content type="html"><![CDATA[<p>这个动画比较简单基础，首先我们来看一下这个动画模拟的动图<br><img src="http://7xtit4.com1.z0.glb.clouddn.com/downloadAnimation.gif!500x500" alt="下载动画"></p>
+    <content type="html"><![CDATA[<p>这个动画比较简单基础，首先我们来看一下这个动画模拟的动图<br><img src="http://media.shengyushan.com/downloadAnimation.gif!500x500" alt="下载动画"></p>
 <hr>
 <p>动画一共有四个状态，<strong>开始下载</strong>、<strong>下载结束</strong>、<strong>下载成功</strong>和<strong>下载失败</strong></p>
 <p>为什么会分有<strong>下载结束</strong>这样的状态呢？因为考虑到实际场景，可能会有在加载过程中，用户返回上级界面，我们需要结束下载动画</p>
@@ -1883,9 +1883,9 @@
     
     <summary type="html">
     
-      &lt;p&gt;这个动画比较简单基础，首先我们来看一下这个动画模拟的动图&lt;br&gt;&lt;img src=&quot;http://7xtit4.com1.z0.glb.clouddn.com/downloadAnimation.gif!500x500&quot; alt=&quot;下载动画&quot;&gt;&lt;/p&gt;
+      &lt;p&gt;这个动画比较简单基础，首先我们来看一下这个动画模拟的动图&lt;br&gt;&lt;img src=&quot;http://media.shengyushan.com/downloadAnimation.gif!500x500&quot; alt=&quot;下载动画&quot;&gt;&lt;/p&gt;
 &lt;hr&gt;
-&lt;p&gt;动画
+&lt;p&gt;动画一共有四个状态，&lt;
     
     </summary>
     
@@ -1949,7 +1949,7 @@
     <link href="http://yuzeyang.github.io/2016/02/21/AFNetWorking-one/"/>
     <id>http://yuzeyang.github.io/2016/02/21/AFNetWorking-one/</id>
     <published>2016-02-21T03:47:48.000Z</published>
-    <updated>2017-03-21T14:29:18.000Z</updated>
+    <updated>2019-03-17T01:58:54.500Z</updated>
     
     <content type="html"><![CDATA[<p>首先来介绍下AFNetWorking，官方介绍如下：</p>
 <blockquote>
@@ -1960,13 +1960,13 @@
 <p>翻译过来简单来说就是</p>
 <p>AFNetworking是一个适用于iOS和Mac OS X两个平台的网络库，它是基于<a href="http://developer.apple.com/library/mac/#documentation/Cocoa/Conceptual/URLLoadingSystem/URLLoadingSystem.html" target="_blank" rel="noopener">Foundation URL Loading System</a>上进行了一套封装，并且提供了丰富且优美的API接口给使用者使用</p>
 <a id="more"></a>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/AFNetWorking.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/AFNetWorking.png" alt=""></p>
 <p>相信从star数和fork数来看，大家都能明白这个库是多么的受欢迎了，所以了解这个库对于一个iOS开发来说是极为重要的！</p>
 <p>这个是AFNetworking的github地址：<a href="https://github.com/AFNetworking/AFNetworking" target="_blank" rel="noopener">GitHub - AFNetworking/AFNetworking: A delightful networking framework for iOS</a></p>
 <p>在使用前阅读README是非常重要的，里面往往包括了这个库的介绍、安装和使用等等，对于快速了解一个库来说，这是非常有帮助的</p>
 <hr>
 <p>首先我们在<a href="https://github.com/AFNetworking/AFNetworking" target="_blank" rel="noopener">AFNetWorking源码地址</a>里download下来，打开工程文件，可以看到里面内容分为两个部分，一个是AFNetworking，另一个是UIKit+AFNetworking</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/AFNetWorking_file.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/AFNetWorking_file.png" alt=""></p>
 <p>很明显，第一个是用来做网络请求相关的，第二个则是和UI使用相关的，我们先看第一个</p>
 <p>在看完头文件和README之后，你会发现<code>AFURLSessionManager</code>和<code>AFHTTPSessionManager</code>是里面比较重要的两个类</p>
 <p>这里我先讲<code>AFURLSessionManager</code>这个类</p>
@@ -2039,31 +2039,31 @@
     <link href="http://yuzeyang.github.io/2016/01/26/red-packet/"/>
     <id>http://yuzeyang.github.io/2016/01/26/red-packet/</id>
     <published>2016-01-26T15:11:50.000Z</published>
-    <updated>2016-05-18T15:26:36.000Z</updated>
+    <updated>2019-03-17T01:58:54.489Z</updated>
     
     <content type="html"><![CDATA[<p>相信今天微信红包照片已经席卷了朋友圈，微信这次创意是非常好的，对发布的照片进行了模糊处理，打开一看，是要发红包才能看到照片的，那怎么办呢？</p>
 <p>这怎么能难倒我们这些技术男，一招破解！</p>
 <a id="more"></a>
 <p>第一种方法Charles</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/hongbaozhaopian.png!600x600" alt=""></p>
+<p><img src="http://media.shengyushan.com/hongbaozhaopian.png!600x600" alt=""></p>
 <p>来我们一起来抓包看看~</p>
 <p>首先设置好自己的WiFi的http代理，绑定好自己的Mac ip地址，打开Charles，选择allow</p>
 <p>然后打开你的微信朋友圈，你在Charles里面可以看到</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/zhuabaojieguo.jpg!500x500" alt=""></p>
+<p><img src="http://media.shengyushan.com/zhuabaojieguo.jpg!500x500" alt=""></p>
 <p>然后在overview的URL里面，你就可以看到图片的URL地址了，将其拷贝出来，放到浏览器里面打开</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/yuanshitu.png!600x600" alt=""></p>
+<p><img src="http://media.shengyushan.com/yuanshitu.png!600x600" alt=""></p>
 <p>ok~就这么简单~</p>
 <hr>
 <p><strong>下面讲下第二种方法</strong></p>
 <p>用另一个iOS工具，叫做Replica</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/replica.png!600x600" alt=""></p>
+<p><img src="http://media.shengyushan.com/replica.png!600x600" alt=""></p>
 <p>打开Replica之后，启动Start，然后会打开VPN，按操作一步一步即可</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/replica_start.png!600x600" alt=""></p>
+<p><img src="http://media.shengyushan.com/replica_start.png!600x600" alt=""></p>
 <p>然后打开微信朋友圈，再返回到Replica，进到Analytics，点击最新的session，里面会有最新的POST/GET的数据</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/post_get_data.png!600x600" alt=""></p>
+<p><img src="http://media.shengyushan.com/post_get_data.png!600x600" alt=""></p>
 <p>然后找到180.163开头的GET请求，点进去，切到Response，可以看到这个GET请求到的数据类型是image，然后打开Image Viewer</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/180.163.png!600x600" alt=""></p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/yuanshitu2.png!600x600" alt=""></p>
+<p><img src="http://media.shengyushan.com/180.163.png!600x600" alt=""></p>
+<p><img src="http://media.shengyushan.com/yuanshitu2.png!600x600" alt=""></p>
 <p>也是可以将图片显示出来的</p>
 <p>我们可以发现照片的模糊处理是在本地做的</p>
 <p>当然这个我们只是娱乐为主，这次的产品设计还是非常不错的，点个赞喔~</p>
@@ -2086,7 +2086,7 @@
     <link href="http://yuzeyang.github.io/2016/01/19/TouchID/"/>
     <id>http://yuzeyang.github.io/2016/01/19/TouchID/</id>
     <published>2016-01-19T14:47:27.000Z</published>
-    <updated>2016-05-18T15:04:09.000Z</updated>
+    <updated>2019-03-17T01:58:54.492Z</updated>
     
     <content type="html"><![CDATA[<p>TouchID验证这个在iOS8中已经对开发者开放使用了，而且需在5s以上真机才能使用，这个出来已经比较早了，相信很多人都应该已经知道怎么使用TouchID了，但是就目前我使用的App来说，看到使用TouchID验证的占得数量并不多，对于一些涉及到安全性的App来说，很有可能你的解锁验证、App登录以及支付验证都是用的TouchID使用TouchID验证还是有风险的，但是有些App增加使用TouchID作为一种验证还是不错的选择，既快捷又方便，对于开发者来说增加的成本也很低</p>
 <a id="more"></a>
@@ -2103,7 +2103,7 @@
 <p>这里返回的是一个布尔值，错误处理我等下一起说明，当返回可以使用当前指定的验证法方法时，我们调用</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)evaluatePolicy:(LAPolicy)policy localizedReason:(NSString*)localizedReason reply:(void(^)(BOOLsuccess,NSError*__nullableerror))reply;</span><br></pre></td></tr></table></figure>
 <p>方法开始使用TouchID验证，localizedReason指的是在弹出TouchID验证框时提示的文字，reply指的是在做指纹验证或者密码验证后的结果返回，我将localizedReason用@”通过Home键验证已有手机指纹”作为提示，下图比较直观</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/TouchID1.png!600x600" alt=""></p>
+<p><img src="http://media.shengyushan.com/TouchID1.png!600x600" alt=""></p>
 <p>刚才布尔值的错误对应的是哪些呢？</p>
 <p>这就用到了LAError.h这个类，这个类定义了目前所有的验证失败的错误code，我直接将它copy过来了</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line">typedefNS_ENUM(NSInteger, LAError)</span><br><span class="line">&#123;</span><br><span class="line">	/// 校验失败</span><br><span class="line">	LAErrorAuthenticationFailed =kLAErrorAuthenticationFailed,</span><br><span class="line"></span><br><span class="line">    /// 用户取消验证</span><br><span class="line">	LAErrorUserCancel=kLAErrorUserCancel,</span><br><span class="line"></span><br><span class="line">	/// 用户回退（返回密码校验）</span><br><span class="line">	LAErrorUserFallback=kLAErrorUserFallback,</span><br><span class="line"></span><br><span class="line">	/// 系统取消校验</span><br><span class="line">	LAErrorSystemCancel=kLAErrorSystemCancel,</span><br><span class="line"></span><br><span class="line">	/// 密码未设置</span><br><span class="line">	LAErrorPasscodeNotSet=kLAErrorPasscodeNotSet,</span><br><span class="line"></span><br><span class="line">	/// 指纹不正确</span><br><span class="line">	LAErrorTouchIDNotAvailable=kLAErrorTouchIDNotAvailable,</span><br><span class="line"></span><br><span class="line">	/// 没有录入指纹</span><br><span class="line">	LAErrorTouchIDNotEnrolled=kLAErrorTouchIDNotEnrolled,</span><br><span class="line"></span><br><span class="line">	/// TouchID被锁定</span><br><span class="line">	LAErrorTouchIDLockoutNS_ENUM_AVAILABLE(10_11,9_0) =kLAErrorTouchIDLockout,</span><br><span class="line"></span><br><span class="line">	/// App取消验证</span><br><span class="line">	LAErrorAppCancelNS_ENUM_AVAILABLE(10_11,9_0) =kLAErrorAppCancel,</span><br><span class="line"></span><br><span class="line">	/// 无效的上下文环境</span><br><span class="line">	LAErrorInvalidContextNS_ENUM_AVAILABLE(10_11,9_0) =kLAErrorInvalidContext</span><br><span class="line">&#125;NS_ENUM_AVAILABLE(10_10,8_0);</span><br></pre></td></tr></table></figure>
@@ -2128,7 +2128,7 @@
     <link href="http://yuzeyang.github.io/2016/01/17/GCDAsyncSocket-socket/"/>
     <id>http://yuzeyang.github.io/2016/01/17/GCDAsyncSocket-socket/</id>
     <published>2016-01-17T14:10:53.000Z</published>
-    <updated>2016-08-05T03:31:14.000Z</updated>
+    <updated>2019-03-17T01:58:54.499Z</updated>
     
     <content type="html"><![CDATA[<p>GCDAsyncSocket是CocoaAsyncSocket第三方库中的其中一个类，本文介绍的就是基于这一个类来做快速的socket通信开发，而且该库已经支持IPv4和IPv6</p>
 <p>我们对GCDAsyncSocket做了一层封装调用，它包含了建连、断开、重连、心跳、自定义请求</p>
@@ -2199,7 +2199,7 @@
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo tcpdump -i any -n -X port 7070</span><br></pre></td></tr></table></figure>
 <p>Tip：7070端口号请根据实际的调试端口号修改</p>
 <p>效果如下：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/socketPacket.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/socketPacket.png" alt=""></p>
 <p>红色部分就是socket包的内容了</p>
 ]]></content>
     
@@ -2220,11 +2220,11 @@
     <link href="http://yuzeyang.github.io/2016/01/12/Harbin-travel/"/>
     <id>http://yuzeyang.github.io/2016/01/12/Harbin-travel/</id>
     <published>2016-01-12T11:37:10.000Z</published>
-    <updated>2016-05-18T15:01:53.000Z</updated>
+    <updated>2019-03-17T01:58:54.781Z</updated>
     
     <content type="html"><![CDATA[<p>在年假过期之前，我和同事们想着用这个年假去哪儿浪，后来商量之后，决定去一趟哈尔滨看看，当然对于一直从未感受过零下十度以下的南方汉子们，特别是IT宅男们来说，那里的冷是根本想象不到的。（多图预警！！！）</p>
 <a id="more"></a>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/afraid.jpg" alt=""></p>
+<p><img src="http://media.shengyushan.com/afraid.jpg" alt=""></p>
 <p>我们定在1月7日出发，刚好和元旦错开了，但是没办法，冰雪节在元旦之后才开始..哎，不然玩的时间就更长了。</p>
 <p>前期的准备还是很重要的！</p>
 <p><strong>1.帽子-防风防寒</strong></p>
@@ -2240,43 +2240,43 @@
 <p><strong>11.保温杯</strong></p>
 <p><strong>12、暖宝宝（这个用到的时间不是很多，不过站在雪地的时候，可以贴一个在脚底抵挡一些寒冷）</strong></p>
 <p>千等万等，终于等到出发的日子了，我们一行人也是高高兴兴的粗发啦，坐的是四川航空，空姐和空少都有点胖胖的…好桑心…</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/INeedAV.jpg" alt=""></p>
+<p><img src="http://media.shengyushan.com/INeedAV.jpg" alt=""></p>
 <p>从杭州到哈尔滨的飞机需要三个小时左右的行程，快到哈尔滨的时候，从飞机上往下看，地都是雪白雪白的，这叫尔等南方来的汉子们很是激动啊，白茫茫的一片~</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/snow.jpeg!600x600" alt="飞机上俯瞰的雪景"></p>
+<p><img src="http://media.shengyushan.com/snow.jpeg!600x600" alt="飞机上俯瞰的雪景"></p>
 <p>飞机降落之后，我们打车到中央大街，在打车的时候要注意一点，有些司机会向你收取<strong>高速路的过路费</strong>，并且让你取消订单，用现金支付。现金支付是可以的，因为听说最近某滴已经开始向司机收取好像20%的服务费了，但<strong>你千万不要给司机高速路的过路费</strong>，因为高速路的过路费，在从哈尔滨到机场的路上，有其他乘客已经帮你付了，这个是没有办法的，但是返程从机场到哈尔滨是不用付的，这个是司机想多赚你的钱！</p>
 <p>在进过的路上，我也不知道什么路…有用冰砖搭的一座城，很是漂亮，从没有近距离的看过…</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/snow2.jpeg!600x600" alt="冰城"></p>
+<p><img src="http://media.shengyushan.com/snow2.jpeg!600x600" alt="冰城"></p>
 <p>经过快一个小时的车程（还是有点堵的），到了中央大街，据说这个一条非常热闹而且有名的街（因为之前吃住全是另外一个同事订好的..所以我都没有提前去了解..），下了飞机之后感觉瞬间变冷，得赶紧去旅馆加上衣服，基本按照上面必备的那么穿就不冷了，哈尔滨的天气衣服穿够了，身上不冷，但是风打在脸上还是很冷的，时间一长，鼻子就受不了了。</p>
 <p>逛中央大街的时候，门口就有个烤肠，非常好吃！但是不要买多…吃了一两根之后我感觉就有点吃不下了…</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/xiangchang.jpeg!600x600" alt="烤肠"></p>
+<p><img src="http://media.shengyushan.com/xiangchang.jpeg!600x600" alt="烤肠"></p>
 <p>在旅馆门口还有一个用冰砖搭起来的滑梯，要收费，10元滑一次，因为想到晚上要去冰雪大世界了，也就没上去玩了</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/binghuati.jpeg!600x600" alt="冰滑梯"></p>
+<p><img src="http://media.shengyushan.com/binghuati.jpeg!600x600" alt="冰滑梯"></p>
 <p>中央大街上面有很多非常有特色店：马迭尔冰棍（这个冰棍买的人特别多），华梅西餐厅（据说连哈尔滨人也都排队还吃不上，最后一天我们想去吃，但是排队的人实在太多了，就没吃了，好可惜），老厨家（这个很有历史也很好吃）等等，那里的店大多都很有特色</p>
 <p>沿着中央大街走就可以走到防洪纪念塔，在纪念塔后面就是松花江，江面全部都结冰了，看得我都傻了..上面都是游人在滑冰，玩耍，冰面还是比较滑的，要小心，里面的娱乐项目看情况选择玩吧，出来玩，开心还是最重要的（我一般都是这么想的，飞机票、吃住都花了这么多了，不差这点娱乐的钱了…）</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/songhuajiang.jpeg!600x600" alt="松花江"></p>
+<p><img src="http://media.shengyushan.com/songhuajiang.jpeg!600x600" alt="松花江"></p>
 <p>晚上就出发去了冰雪大世界玩，在那里鞋一定要穿暖，因为有些项目是需要排队的，站那脚特别冷..而且可以考虑先去排队玩大滑梯，据说很刺激，但是因为排队的人太多了，我们就很遗憾的没有去玩了，里面玩的都是滑梯，看冰雕，感受下冰的魅力，对于南方来的我们玩的还是非常开心的~但是很遗憾我没有找到冰雪大世界的照片，不过同事那里有，之后我会更新上来</p>
 <p>在冰雪大世界这么疯狂的消耗体力之后，肯定会饿了，我们用美团搜到了一家非常好吃的烧烤店叫1981烧烤（好像是这个名字），价格也不贵，烤的非常好吃，以致于有个同事一连三天拉着我吃烧烤，别说，北方的烧烤还真的比南方要好吃一点，哈哈</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/1981shaokao.jpeg!600x600" alt="1981烧烤"></p>
+<p><img src="http://media.shengyushan.com/1981shaokao.jpeg!600x600" alt="1981烧烤"></p>
 <p>第二天，我们选择去了雪乡，听说那里是因为拍了爸爸去哪了之后，才火起来的，但是因为客服的原因，把我们的名单弄错了，导致没坐上大巴车，结果搞了辆小面包，后面的事情就更凄惨了…雪乡的路上有个坡，路面滑，怎么都上不去，装防滑条，断了，装防滑链，装不上…啊…真的是日了够了，搞了一两个小时，本来出发时间就耽搁了，这么一搞就更晚了，结果一辆路过的大巴车救了我们，达到雪乡花了我们12个小时…醉了</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/zhuangfanghualian.jpeg!600x600" alt="装防滑链"></p>
+<p><img src="http://media.shengyushan.com/zhuangfanghualian.jpeg!600x600" alt="装防滑链"></p>
 <p>但是雪乡沿途的风景还是很漂亮的，厚厚的雪，还有雾凇</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/xuejing.jpeg!600x600" alt="雪景"></p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/wusong.jpeg!600x600" alt="雾凇"></p>
+<p><img src="http://media.shengyushan.com/xuejing.jpeg!600x600" alt="雪景"></p>
+<p><img src="http://media.shengyushan.com/wusong.jpeg!600x600" alt="雾凇"></p>
 <p>到雪乡之后，就是夜晚了，虽然还是5点多钟，但天黑的特别早，雪乡一进来就给人的感觉是商业化比较严重，已经很难看出原来的风土人情了。雪乡里面能看到雪橇犬，还是马拉车，车还是有牌照的…</p>
 <p>我们因为路途的劳累也没出去逛，雪乡之行还是意外的可惜，草草的就结束了</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/xuexiangyejing.jpeg!600x600" alt="雪乡夜景"></p>
+<p><img src="http://media.shengyushan.com/xuexiangyejing.jpeg!600x600" alt="雪乡夜景"></p>
 <p>我们一行人睡的是五人炕，但是后来听北方的同事说，那个好像是电子炕，不是火烧那种了</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/wurenkang.jpeg!600x600" alt="五人炕"></p>
+<p><img src="http://media.shengyushan.com/wurenkang.jpeg!600x600" alt="五人炕"></p>
 <p>在那里我们买了冰柿子，冰草莓，冰梨，发现太硬了太冷了…后来放那软了就扔了…后来听说那个是要放冷水里化开了再吃的…吃的..的，我们就忧伤了…</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/bingcaomei.jpeg!600x600" alt="冰草莓"></p>
+<p><img src="http://media.shengyushan.com/bingcaomei.jpeg!600x600" alt="冰草莓"></p>
 <p>第三天我们就从雪乡出发，去往亚布力滑雪，第一次滑雪的我来说可兴奋了ヾ(o◕∀◕)ﾉヾ，同事说去30°坡的滑雪场，我说太平了是不是不好玩，我说要45°的，后来少数服从多数，我们还是去了30°的滑雪场，到那里存好东西之后，有条件的可以请个教练带一带你，没有的，可以让会的同事带你，不然就像我一样，从坡上面一直摔到了坡下面….因为不懂怎么刹车…就一直摔…好疼…而且穿着滑雪鞋，容易崴脚，最后我去了儿童区，还是摔/(ㄒoㄒ)/~~</p>
 <p>回来的晚上我们好好的逛了下中央大街，在老厨家吃了顿放，和北方的同事聚了一下，总结了一下北方的菜有点咸，但是量特足，5个人基本点3个菜就差不多了</p>
 <p>中央大街的夜景也非常漂亮，街道两旁都有大型的冰雕，品牌赞助…</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/shengdanshu.jpeg!600x600" alt="圣诞树"></p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/beijixiong.jpeg!600x600" alt="北极熊小屋"></p>
+<p><img src="http://media.shengyushan.com/shengdanshu.jpeg!600x600" alt="圣诞树"></p>
+<p><img src="http://media.shengyushan.com/beijixiong.jpeg!600x600" alt="北极熊小屋"></p>
 <p>最后一天我们就去了圣索菲亚大教堂，据说教堂里面是没有什么好看的，都是买纪念品，只要外面参观下就可以了，而且有鸽子的区域没有我想象中的那么大，就那一小块地方…</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/jiaotang.jpeg!600x600" alt="教堂正面"></p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/gezi.jpeg!600x600" alt="教堂旁的鸽子"></p>
+<p><img src="http://media.shengyushan.com/jiaotang.jpeg!600x600" alt="教堂正面"></p>
+<p><img src="http://media.shengyushan.com/gezi.jpeg!600x600" alt="教堂旁的鸽子"></p>
 <p>匆匆的哈尔滨之行就愉快的结束了，好期待下一次的旅行~</p>
 ]]></content>
     
@@ -2296,7 +2296,7 @@
     <link href="http://yuzeyang.github.io/2016/01/06/iOS_TableView_refresh_controller-two/"/>
     <id>http://yuzeyang.github.io/2016/01/06/iOS_TableView_refresh_controller-two/</id>
     <published>2016-01-06T14:59:44.000Z</published>
-    <updated>2016-05-17T15:22:07.000Z</updated>
+    <updated>2019-03-17T01:58:54.498Z</updated>
     
     <content type="html"><![CDATA[<p>这篇我们来讲如何将loading圆圈动画和TableView结合起来一起使用。</p>
 <a id="more"></a>
@@ -2313,7 +2313,7 @@
 <hr>
 <p>在这里插一个小的知识点，因为这个是在写上拉时，所必须知道的一个点，contentOffset是怎么算的？</p>
 <p>contentOffset是scrollview当前显示区域顶点相对于frame顶点的偏移量</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/contentOffset.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/contentOffset.png" alt=""></p>
 <p>但当上拉刷新之后，此时scrollview的contentSize变化了，（contentSize指的是可显示区域），在计算contentOffset时，需要将contentSize减去scrollView的高度，来和contentOffset作比较。</p>
 <p>拿到progress之后，此时我们离完成这个控件的任务就差不多了。</p>
 <p>首先，我们需要将progress赋值给loading圆圈和提示label，</p>
@@ -2341,7 +2341,7 @@
     <link href="http://yuzeyang.github.io/2016/01/05/iOS_TableView_refresh_controller_one/"/>
     <id>http://yuzeyang.github.io/2016/01/05/iOS_TableView_refresh_controller_one/</id>
     <published>2016-01-05T14:29:07.000Z</published>
-    <updated>2016-05-17T15:21:52.000Z</updated>
+    <updated>2019-03-17T01:58:54.502Z</updated>
     
     <content type="html"><![CDATA[<p>注：此刷新控件的效果是来自KittenYang的一个GIF图，他有很多动画分析和写得都不错，大家可以关注一下~</p>
 <p>推荐一个非常好的动画效果网站：<a href="http://uimovement.com/" target="_blank" rel="noopener">UI Movement</a>，里面很多设计出的动画效果都非常好，都可以一一实现看看哦</p>
@@ -2349,15 +2349,15 @@
 <hr>
 <p>话不多说，先看下我要讲的刷新控件效果：</p>
 <p>1.无导航栏的刷新控件效果图：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/TableRefreshAnimation1.gif" alt=""></p>
+<p><img src="http://media.shengyushan.com/TableRefreshAnimation1.gif" alt=""></p>
 <p>2.有导航栏的刷新控件效果图：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/TableRefreshAnimation2.gif" alt="">            </p>
+<p><img src="http://media.shengyushan.com/TableRefreshAnimation2.gif" alt="">            </p>
 <hr>
 <p>好了，进入正题。</p>
 <p>首先看到这个控件的时候，我们要去分析，这个控件是由哪几部分组成的，可以看到这个控件是只是由一个loading圆圈和label提示文字组成的，而label比较简单，在这里我就不具体说怎么实现了，大家可以直接看源码，这篇文章，我主要讲怎么实现这个loading圆圈的转圈效果。</p>
 <p>首先这个转圈分成两部分，我们将它分成0.0-0.5和0.5-1.0这两个阶段。</p>
 <p>在0.0-0.5这个过程的动画是这样的：</p>
-<p>​    <img src="http://7xtit4.com1.z0.glb.clouddn.com/refresh0-0.5.gif" alt=""></p>
+<p>​    <img src="http://media.shengyushan.com/refresh0-0.5.gif" alt=""></p>
 <p>以左边的线为例，上顶点为B点，下顶点为A点，实际上这个过程只是，A，B两点的y值在随着progress的变化而变化，x是不变的，所以我们可以得到A，B两点的坐标</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CGPoint leftA = CGPointMake(kCenterX - kLineLength, kCenterY + 2*kLineLength - self.progress/0.5*kLineLength);</span><br><span class="line">CGPoint leftB = CGPointMake(leftA.x, leftA.y - kLineLength);</span><br></pre></td></tr></table></figure>
 <p>然后我们用贝塞尔曲线，将两点连起来，从A点到B点</p>
@@ -2366,7 +2366,7 @@
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[arrowPath moveToPoint:leftB];</span><br><span class="line">[arrowPath addLineToPoint:CGPointMake(leftB.x - kArrowLength*sin(kArrowAngle), leftB.y + kArrowLength*cos(kArrowAngle))];</span><br><span class="line">[leftPath appendPath:arrowPath];</span><br></pre></td></tr></table></figure>
 <p>这样我们就完成了0.0-0.5的动画，这个一部分还是比较简单的。</p>
 <p>下面是0.5-1.0的动画过程：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/refresh0.5-1.gif" alt=""></p>
+<p><img src="http://media.shengyushan.com/refresh0.5-1.gif" alt=""></p>
 <p>当到达0.5的时候，原先的B点开始保持不动，它的位置始终是CGPointMake(kCenterX-kLineLength,kCenterY)，而A点也渐渐向B点靠近，CGPointMake(kCenterX-kLineLength,kCenterY+kLineLength- (self.progress-0.5)/0.5*kLineLength)，那这个圆弧是怎么出来的？</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">- (void)addArcWithCenter:(CGPoint)center radius:(CGFloat)radius startAngle:(CGFloat)startAngle endAngle:(CGFloat)endAngle clockwise:(BOOL)clockwise NS_AVAILABLE_IOS(4_0);</span><br></pre></td></tr></table></figure>
 <p>在绘制贝塞尔曲线里面，有一个绘制圆弧的方法，center是以某一个点为圆心绘制圆弧，</p>

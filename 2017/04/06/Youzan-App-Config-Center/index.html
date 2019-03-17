@@ -4,12 +4,12 @@
 <h2 id="配置中心设计"><a href="#配置中心设计" class="headerlink" title="配置中心设计"></a>配置中心设计</h2><p>起初有赞各 App 内都散落着一些写死的链接，但随着 WWDC 16 中，Apple 表示将继续在 iOS 10 和 macOS 10.12 里收紧对普通 HTTP 的访问限制，并且无法使用 <code>NSAllowsArbitraryLoads</code> 来绕过 ATS 限制。我们只能很费时费力的把各 App 内所有访问 HTTP 的链接都修改成 HTTPS，这一个小小的改动就如此麻烦，那后续大的改动更难以想象，所以我们开始思考能否将这些重复且动态的工作抽象成一个配置中心，用它来支撑各个业务。</p>
 <h4 id="第一版"><a href="#第一版" class="headerlink" title="第一版"></a>第一版</h4><p>第一版设计的相对简单，我们只是专门设计了一个 API，通过 API 请求配置数据，并且每个业务单独维护一份配置文件。</p>
 <p>具体流程：客户端进入到前台，也就是应用程序被激活的时候，通过配置中心的接口向服务端请求最新的配置数据，如果配置文件有更新，则下发最新的配置给客户端，并且客户端本地存储这份最新的配置，用于应用运行时使用。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/AppConfigCenter1.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/AppConfigCenter1.png" alt=""></p>
 <p>但随着模块化的推进和应用数量的增加，配置文件的体积和数量会逐渐增大，每一次修改都会全量下发到客户端，这部分的流量累积起来是一个非常庞大的数字。并且使用配置文件去管理配置，只能维护到最新的配置，无法做到下发指定版本的配置。</p>
 <p>所以针对这些弊端问题，我们衍生出了第二版配置中心。</p>
 <h4 id="第二版"><a href="#第二版" class="headerlink" title="第二版"></a>第二版</h4><p>为了解决第一版产生的流量浪费和配置管理弱的问题，我们优化了配置下发和管理流程，我们采取的策略是 <code>增量更新</code> 和 <code>数据库存储配置</code> 。</p>
 <p>具体流程改动：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/AppConfigCenter2.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/AppConfigCenter2.png" alt=""></p>
 <h4 id="增量更新"><a href="#增量更新" class="headerlink" title="增量更新"></a>增量更新</h4><p>增量更新的优势主要体现在业务增长的过程中。我们的配置文件可能会从几十 KB 增长到几百 KB 甚至更大，如果还继续使用全量更新，这部分流量对用户来说是非常浪费的。而使用增量更新之后，服务端只需要下发不同配置之间的差异补丁包，补丁包的大小相比于原始配置的大小是非常小的，可以节省下90%左右的流量，这是非常可观的。</p>
 <p>增量更新我们目前使用的是 Google 出的 <a href="https://code.google.com/p/google-diff-match-patch/" target="_blank" rel="noopener">google-diff-match-patch</a> ，支持 Java,  JavaScript, Dart, C++, C#,  Objective-C, Lua 和 Python，但是官网已经下掉了该 SDK（不明白为什么），需要到 GitHub 上搜索类似于 <code>diff patch language:java</code> 这样的关键词，就能找到对应平台下的 SDK 了，有人已经 fork 出来了，因为只是字符串的比较处理，所以可以放心使用。</p>
 <p>该增量更新的原理是先通过比较首部和尾部的相同部分，目的是提升一定的效率，再比较中间差异的部分，差异的部分通过一些字符去表示该改动是  <code>DEL</code>  还是  <code>ADD</code>  还是  <code>EQUAL</code>  ，这样最终形成的补丁包比改动部分要大一点，但是相比于全量更新已经减少很多了。</p>
@@ -22,7 +22,7 @@
 <figure class="highlight objc"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">DiffMatchPatch *dmp = [[DiffMatchPatch alloc] init];</span><br><span class="line"><span class="built_in">NSError</span> *error = <span class="literal">nil</span>;</span><br><span class="line"><span class="built_in">NSArray</span>&lt;<span class="built_in">NSString</span> *&gt; *patchStrings = configDic[<span class="string">@"patches"</span>];</span><br><span class="line"><span class="built_in">NSMutableArray</span>&lt;Patch *&gt; *patches = [<span class="built_in">NSMutableArray</span> array];</span><br><span class="line"><span class="keyword">for</span> (<span class="built_in">NSString</span> *patchString <span class="keyword">in</span> patchStrings) &#123;</span><br><span class="line">    <span class="built_in">NSArray</span>&lt;Patch *&gt; *patch = [dmp patch_fromText:patchString error:&amp;error];</span><br><span class="line">    <span class="keyword">if</span> (!error) &#123;</span><br><span class="line">        [patches addObjectsFromArray:patch];</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="built_in">NSString</span> *newCacheConfig = [[dmp patch_apply:patches toString:cacheConfig] objectAtIndex:<span class="number">0</span>];</span><br></pre></td></tr></table></figure>
 <p>为了确保客户端最终生成的配置与服务端保持一致，客户端在打好补丁之后，用该配置生成 MD5 值，与我们在服务端下发补丁包时携带的最新配置的 MD5 值进行比较，在一致的情况下才去缓存配置，避免因为补丁造成 App 无法使用的问题。</p>
 <h4 id="数据库管理配置"><a href="#数据库管理配置" class="headerlink" title="数据库管理配置"></a>数据库管理配置</h4><p>实现增量更新的前提是我们需要有不同版本的配置记录，而用文件去管理是非常不可控的，取而代之的是我们可以通过数据库来管理，同时利于后期的横向扩展，可以针对不同平台，不同渠道，不同版本等规则下发。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/dbConfig.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/dbConfig.png" alt=""></p>
 <p>目前我们是根据版本和应用来关联到配置，所以表结构设计的很简单，把应用、版本和配置放在一张表里面，后面针对多渠道和多平台等规则之后，表结构上会做一定调整。</p>
 <p>由于需要 App 能及时获取到最新配置，我们选择在 App 激活的时机去获取配置，通过数据统计中心我们可以看到 App 当日启动次数的时段分析，再结合配置文件大小，我们可以预估所占带宽的大小，运维是非常担心你把他的带宽跑满，影响到其他业务，所以我们需要做两个优化，一个是压缩配置，一个是本地缓存。</p>
 <h5 id="压缩配置"><a href="#压缩配置" class="headerlink" title="压缩配置"></a>压缩配置</h5><p>为了不占用过多的带宽，我们需要在写入之前把配置压缩，读取之后解压配置。</p>
@@ -33,11 +33,11 @@
 <h5 id="本地缓存"><a href="#本地缓存" class="headerlink" title="本地缓存"></a>本地缓存</h5><p>对于相同的配置，我们可以不用频繁地去请求数据库，而将其缓存到本地，这样后续的请求可以直接从缓存中读取配置，当然请记得设置缓存的过期时间。</p>
 <p>我们目前用的是 <code>Redis</code> 缓存，它对于复杂的数据结构和操作支持的相当不错，而且操作简单，对于前期只是key-value存储的话，可以考虑使用 <code>Redis</code> 。</p>
 <h4 id="可操作界面"><a href="#可操作界面" class="headerlink" title="可操作界面"></a>可操作界面</h4><p>为了方便业务方修改配置，我们在内部平台上提供了一个简单的可操作界面，通过顶部的Tab栏切换查看不同应用下的配置记录。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/cpAppConfigCenter.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/cpAppConfigCenter.png" alt=""></p>
 <p>点击 <code>查看详情</code> 可以看到当前版本的配置内容，目前展示的效果并不友好，后面会进行优化。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/cpAppConfigCenterDetail.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/cpAppConfigCenterDetail.png" alt=""></p>
 <p>在需要修改配置的时候，我们可以通过 <code>新增配置</code> 给指定应用修改配置，新增时会自动在版本上 +1。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/cpAppConfigCenterAdd.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/cpAppConfigCenterAdd.png" alt=""></p>
 <h2 id="后续优化"><a href="#后续优化" class="headerlink" title="后续优化"></a>后续优化</h2><p>目前有赞 App 已经实现了动态化配置中心整一套流程，但是在一些细节方面还需要不断的改进优化，比如：</p>
 <ul>
 <li>更加丰富的配置下发规则</li>
@@ -54,4 +54,4 @@ var disqus_url = 'http://yuzeyang.github.io/2017/04/06/Youzan-App-Config-Center/
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2018 <a href="http://yuzeyang.github.io">宫城</a>, Talk is cheap, show me the code. <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>
+})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2019 <a href="http://yuzeyang.github.io">宫城</a>, Talk is cheap, show me the code. <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>

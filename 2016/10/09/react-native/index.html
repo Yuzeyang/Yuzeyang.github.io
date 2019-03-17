@@ -38,7 +38,7 @@
 <p><code>moduleName</code>是对应于RN的入口名字，且这个是唯一的，那我们如果原生有多个入口需要初始化不同的RN界面，那该怎么办呢？这就用到了<code>initialProperties</code>，它是字典类型，我们可以将入口作为路由，在<code>initialProperties</code>里传入我们需要初始化的界面名称，入口获取到名称之后，渲染对应的界面即可</p>
 <h3 id="RN组件的生命周期"><a href="#RN组件的生命周期" class="headerlink" title="RN组件的生命周期"></a>RN组件的生命周期</h3><p>在RN里面，所谓的界面应该称作类或者组件更为合适</p>
 <p>并且组件也有它的生命周期，和iOS里的<code>viewWillAppear</code>、<code>viewDidDisappear</code>等等很像，下面生命周期内容取自于<a href="http://www.race604.com/react-native-component-lifecycle/" target="_blank" rel="noopener">http://www.race604.com/react-native-component-lifecycle/</a></p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/RNCycleLife.jpg!700x700" alt=""></p>
+<p><img src="http://media.shengyushan.com/RNCycleLife.jpg!700x700" alt=""></p>
 <p>我们可以把组件生命周期大致分为三个阶段：</p>
 <ul>
 <li>第一阶段：是组件第一次绘制阶段，如图中的上面虚线框内，在这里完成了组件的加载和初始化；</li>
@@ -164,11 +164,11 @@
 <p>在终端上，先进入到你的项目目录（与node_modules目录同级），然后开启服务</p>
 <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">yzydeMacBook-Pro:shangjiaban-ios yzy$ npm start</span><br></pre></td></tr></table></figure>
 <p>你修改了某处之后，在模拟器上点击<code>Shake Gesture</code>或者快捷键，在真机上只要摇一摇就可以</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/Shake.png!400x400" alt=""></p>
+<p><img src="http://media.shengyushan.com/Shake.png!400x400" alt=""></p>
 <p>在模拟器弹出框里选择<code>Roload</code>，这样就会重新加载你本地的JS文件</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/simulation.png!400x400" alt=""></p>
+<p><img src="http://media.shengyushan.com/simulation.png!400x400" alt=""></p>
 <p>如果你想查看JS里面的log日志，你可以选择<code>Start Remote JS Debugging</code>，在chrome浏览器里就能看到输出的日志了</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/chromeDebug.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/chromeDebug.png" alt=""></p>
 <h3 id="打包调试"><a href="#打包调试" class="headerlink" title="打包调试"></a>打包调试</h3><p>另外一种就是打包调试，但是比较麻烦，首先我们要讲bundle加载方式改为</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">[[NSBundle mainBundle] URLForResource:@&quot;bundle/index.ios&quot; withExtension:@&quot;jsbundle&quot;];</span><br></pre></td></tr></table></figure>
 <p>然后在终端里面，输入</p>
@@ -196,7 +196,7 @@
 <p>(1) 安装 <code>CodePush CLI</code></p>
 <p>管理 <code>CodePush</code> 账号需要通过 <code>NodeJS-based CLI</code>。 只需要在终端输入 <code>npm install -g code-push-cli</code> ，就可以安装了。 安装完毕后，输入 <code>code-push -v</code> 查看版本，如看到版本代表成功。</p>
 <p>(2) 创建一个 <code>CodePush</code> 账号 在终端输入 <code>code-push register</code> ，会打开如下注册页面让你选择授权账号。</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/codepush.png" alt=""></p>
+<p><img src="http://media.shengyushan.com/codepush.png" alt=""></p>
 <p>授权通过之后，<code>CodePush</code> 会告诉你“access key”，复制此key到终端即可完成注册。</p>
 <p>然后终端输入 <code>code-push login</code> 进行登陆，登陆成功后，你的session文件将会写在 /Users/你的用户名 <code>/.code-push.config</code>。</p>
 <p>(3) 在CodePush服务器注册app 为了让 <code>CodePush</code> 服务器知道你的app，我们需要向它注册app： 在终端输入 <code>code-push app add</code> 即可完成注册。</p>
@@ -218,7 +218,7 @@
 <p>最后还需要在 <code>Info.plist</code> 中添加一个 <code>key</code> 为 <code>CodePushDeploymentKey</code> ,其<code>value</code> 就是 <code>CodePush</code> 提供的唯一 <code>token</code> 值。具体获取方法，可以通过如下命令获得</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">code-push deployment ls &lt;appName&gt; -k</span><br></pre></td></tr></table></figure>
 <h3 id="RN配置"><a href="#RN配置" class="headerlink" title="RN配置"></a>RN配置</h3><p>为了达到更好的体验效果，我们决定采用静默升级的策略，让用户无感知地体验热更新，也可以是具体的升级流程图如下：</p>
-<p><img src="http://7xtit4.com1.z0.glb.clouddn.com/updateStrategy.png!500x500" alt=""></p>
+<p><img src="http://media.shengyushan.com/updateStrategy.png!500x500" alt=""></p>
 <p>如果要达成上述热部署效果，那么还需要在 <code>JavaScript</code> 文件中完成更新时机和更新策略的设置。</p>
 <p>(1)在js中导入 <code>CodePush</code> 模块：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">import codePush from &apos;react-native-code-push&apos;</span><br></pre></td></tr></table></figure>
@@ -286,4 +286,4 @@ var disqus_url = 'http://yuzeyang.github.io/2016/10/09/react-native/';
     var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
     dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
     (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2018 <a href="http://yuzeyang.github.io">宫城</a>, Talk is cheap, show me the code. <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>
+})();</script><script id="dsq-count-scr" src="//zeeyang.disqus.com/count.js" async></script><div class="copyright"><p>© 2015 - 2019 <a href="http://yuzeyang.github.io">宫城</a>, Talk is cheap, show me the code. <p>Hosted by <a href="https://pages.coding.me" style="font-weight: bold">Coding Pages</a></p></p></div></footer></div><script async src="//cdn.bootcss.com/mathjax/2.7.0/MathJax.js?config=TeX-MML-AM_CHTML" integrity="sha384-crwIf/BuaWM9rM65iM+dWFldgQ1Un8jWZMuh3puxb8TOY9+linwLoI7ZHZT+aekW" crossorigin="anonymous"></script><script>(function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;e=o.createElement(i);r=o.getElementsByTagName(i)[0];e.src='//www.google-analytics.com/analytics.js';r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));ga('create',"UA-65933410-1",'auto');ga('send','pageview');</script></body></html>
